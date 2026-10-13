@@ -1,7 +1,14 @@
+import os
 from fastapi import FastAPI, Query, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 from data_service import (
     load_data, get_dashboard_summary, get_subject_analytics,
@@ -13,12 +20,24 @@ from model_service import (
     verify_model_loaded, predict_single, parse_and_predict_excel
 )
 
-app = FastAPI(title="Academic Intelligence Platform API")
+from ai_service import (
+    process_ai_query, execute_query_plan, get_schema_summary,
+    AIQueryRequest, AIQueryResponse, QueryPlan
+)
+
+app = FastAPI(title="Academic Intelligence Platform API", version="1.0.0")
+
+# Configure CORS cleanly from environment
+cors_origins_raw = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173")
+allowed_origins = [o.strip() for o in cors_origins_raw.split(",") if o.strip()]
+
+# If wildcard is requested, credentials must be False per CORS specification
+allow_creds = "*" not in allowed_origins
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=allowed_origins if allowed_origins else ["*"],
+    allow_credentials=allow_creds,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -37,7 +56,8 @@ class SubjectMark(BaseModel):
 class SinglePredictionRequest(BaseModel):
     student_id: str = Field(..., example="7376221CS101")
     student_name: str = Field(..., example="John Doe")
-    subjects: List[SubjectMark] = Field(..., example=[{"name": "Data Structures", "mark": 35.0, "max_score": 50.0}])
+    subjects: Optional[List[SubjectMark]] = Field(None, example=[{"name": "Data Structures", "mark": 35.0, "max_score": 50.0}])
+    internal_marks: Optional[List[float]] = Field(None, example=[35.0, 42.0, 18.0, 30.0, 22.0])
 
 # ==========================================
 # Prediction Engine Endpoints
@@ -45,10 +65,11 @@ class SinglePredictionRequest(BaseModel):
 
 @app.get("/api/health")
 def health_check():
-    """Verifies API health and model file availability."""
+    """Verifies API health, loaded student count, and model file availability."""
     model_status = verify_model_loaded()
     return {
         "status": "ok",
+        "loaded_students_count": len(STUDENT_DATA),
         "model_status": model_status
     }
 
@@ -57,13 +78,15 @@ def health_check():
 def predict_single_student(payload: SinglePredictionRequest):
     """Predicts pass/fail probabilities and risk status for a single student."""
     try:
-        subjects_list = []
+        subjects_list = None
         if payload.subjects:
-            subjects_list = [s.dict() for s in payload.subjects] if hasattr(payload.subjects[0], 'dict') else [dict(s) for s in payload.subjects]
+            subjects_list = [s.model_dump() if hasattr(s, 'model_dump') else dict(s) for s in payload.subjects]
+            
         res = predict_single(
             student_id=payload.student_id,
             student_name=payload.student_name,
-            subjects=subjects_list
+            subjects=subjects_list,
+            internal_marks=payload.internal_marks
         )
         return res
     except Exception as e:
@@ -76,22 +99,30 @@ async def predict_bulk_excel(file: UploadFile = File(...)):
     if not (file.filename.endswith(".xlsx") or file.filename.endswith(".xls")):
         raise HTTPException(status_code=400, detail="Invalid file format. Please upload an Excel file (.xlsx or .xls).")
     
+    # 20MB file size ceiling to prevent memory exhaustion DoS
+    MAX_FILE_SIZE = 20 * 1024 * 1024
     try:
         content = await file.read()
+        if len(content) > MAX_FILE_SIZE:
+            raise HTTPException(status_code=413, detail="File too large. Maximum supported size is 20MB.")
+        
         res = parse_and_predict_excel(content)
         return res
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process Excel file: {str(e)}")
 
 
 # ==========================================
-# Existing Dashboard Endpoints
+# Dashboard Analytics Endpoints
 # ==========================================
 
 @app.get("/api/departments")
 def get_departments():
     departments = sorted(list(set([s.get("department") for s in STUDENT_DATA if s.get("department")])))
     return {"departments": departments}
+
 
 @app.get("/api/dashboard/summary")
 def dashboard_summary(department: str = Query("All"), semester: str = Query("All")):
@@ -124,7 +155,7 @@ def list_students(department: str = Query("All"), semester: str = Query("All"), 
 def student_details(register_number: str):
     records = [s for s in STUDENT_DATA if s["registerNumber"] == register_number]
     if not records:
-        return {"error": "Student not found"}
+        raise HTTPException(status_code=404, detail="Student not found")
     return {
         "registerNumber": records[0]["registerNumber"],
         "name": records[0]["name"],
@@ -166,3 +197,58 @@ def batch_comparison(department: str = Query("All")):
 @app.get("/api/dashboard/at-risk")
 def at_risk_students(department: str = Query("All"), semester: str = Query("All")):
     return get_at_risk_students(STUDENT_DATA, department, semester)
+
+
+@app.post("/api/dashboard/reload")
+def reload_dashboard_data():
+    """Hot-reloads data from the dataset folder without restarting the server."""
+    global STUDENT_DATA
+    STUDENT_DATA = load_data()
+    return {
+        "status": "success",
+        "message": f"Successfully reloaded {len(STUDENT_DATA)} student records.",
+        "count": len(STUDENT_DATA)
+    }
+
+
+# ==========================================
+# AI Analytics & Dynamic Visualization Endpoints
+# ==========================================
+
+@app.post("/api/ai/query", response_model=AIQueryResponse)
+def handle_ai_query(payload: AIQueryRequest):
+    """
+    Translates a natural language question into a validated query plan,
+    executes read-only aggregation over the student database,
+    and returns real results bound to a structured chart configuration.
+    """
+    try:
+        return process_ai_query(
+            question=payload.question,
+            student_data=STUDENT_DATA,
+            mode=payload.mode,
+            history=payload.history
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to process AI query: {str(e)}")
+
+
+@app.get("/api/ai/schema")
+def handle_ai_schema():
+    """Returns the database catalog and field definitions for schema discovery."""
+    return get_schema_summary()
+
+
+@app.post("/api/ai/execute-plan")
+def handle_execute_plan(plan: QueryPlan):
+    """Directly executes a validated read-only QueryPlan against the dataset."""
+    try:
+        res = execute_query_plan(plan, STUDENT_DATA)
+        return {
+            "status": "success",
+            "data": res["rows"],
+            "columns": [c.model_dump() if hasattr(c, 'model_dump') else dict(c) for c in res["columns"]],
+            "totalRows": res["totalRows"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to execute query plan: {str(e)}")

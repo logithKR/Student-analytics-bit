@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 
 export const checkHealth = async () => {
   const response = await axios.get(`${API_URL}/health`);
@@ -75,5 +75,22 @@ export const getBatchComparison = async (department = 'All') => {
 
 export const getAtRiskStudents = async (department = 'All', semester = 'All') => {
   const response = await axios.get(`${API_URL}/dashboard/at-risk`, { params: { department, semester } });
+  return response.data;
+};
+
+// ── AI Dynamic Analytics & Chart Services ──
+
+export const queryAI = async (question, mode = 'chat_viz', history = []) => {
+  const response = await axios.post(`${API_URL}/ai/query`, { question, mode, history });
+  return response.data;
+};
+
+export const getAISchema = async () => {
+  const response = await axios.get(`${API_URL}/ai/schema`);
+  return response.data;
+};
+
+export const executeAIPlan = async (plan) => {
+  const response = await axios.post(`${API_URL}/ai/execute-plan`, plan);
   return response.data;
 };

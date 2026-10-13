@@ -4,18 +4,62 @@ import pandas as pd
 import numpy as np
 import joblib
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, "model")
-MODEL_PATH = os.path.join(MODEL_DIR, "xgboost_probability_model.joblib")
-FEATURES_PATH = os.path.join(MODEL_DIR, "prob_features.joblib")
+
+def resolve_model_path() -> str:
+    env_path = os.getenv("MODEL_PATH")
+    if env_path:
+        candidate = env_path if os.path.isabs(env_path) else os.path.abspath(os.path.join(BASE_DIR, env_path))
+        if os.path.exists(candidate):
+            return candidate
+
+    candidates = [
+        os.path.join(BASE_DIR, "model", "xgboost_probability_model.joblib"),
+        os.path.abspath(os.path.join(BASE_DIR, "..", "..", "training", "model", "new", "xgboost_probability_model.joblib")),
+        os.path.abspath(os.path.join(BASE_DIR, "..", "..", "training", "model", "xgboost_probability_model.joblib")),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return os.path.join(BASE_DIR, "model", "xgboost_probability_model.joblib")
+
+
+def resolve_features_path() -> str:
+    env_path = os.getenv("FEATURES_PATH")
+    if env_path:
+        candidate = env_path if os.path.isabs(env_path) else os.path.abspath(os.path.join(BASE_DIR, env_path))
+        if os.path.exists(candidate):
+            return candidate
+
+    candidates = [
+        os.path.join(BASE_DIR, "model", "prob_features.joblib"),
+        os.path.abspath(os.path.join(BASE_DIR, "..", "..", "training", "model", "new", "prob_features.joblib")),
+        os.path.abspath(os.path.join(BASE_DIR, "..", "..", "training", "model", "prob_features.joblib")),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return os.path.join(BASE_DIR, "model", "prob_features.joblib")
+
+
+MODEL_PATH = resolve_model_path()
+FEATURES_PATH = resolve_features_path()
 
 _model = None
 _feature_names = ['Avg_Internal_Pct', 'Min_Internal_Pct', 'Low_Internal_Count']
 
 
 def load_model_if_needed():
-    global _model, _feature_names
+    global _model, _feature_names, MODEL_PATH, FEATURES_PATH
     if _model is None:
+        MODEL_PATH = resolve_model_path()
+        FEATURES_PATH = resolve_features_path()
         if os.path.exists(MODEL_PATH):
             _model = joblib.load(MODEL_PATH)
             try:
@@ -90,8 +134,23 @@ def compute_features(subject_percentages: list[float]) -> dict:
     }
 
 
-def predict_single(student_id: str, student_name: str, subjects: list[dict]) -> dict:
+def predict_single(
+    student_id: str,
+    student_name: str,
+    subjects: list[dict] = None,
+    internal_marks: list[float] = None
+) -> dict:
+    """
+    Predicts pass/fail probabilities and academic risk for a single student.
+    Accepts either modern schema `subjects: list[dict]` or legacy list `internal_marks: list[float]`
+    for seamless backward compatibility across test suites.
+    """
     model, features = load_model_if_needed()
+
+    if subjects is None and internal_marks is not None:
+        subjects = [{"name": f"Subject {i+1}", "mark": float(m), "max_score": 50.0} for i, m in enumerate(internal_marks)]
+    elif subjects is None:
+        subjects = []
     
     subject_percentages = []
     at_risk_subjects = []
@@ -145,6 +204,17 @@ def predict_single(student_id: str, student_name: str, subjects: list[dict]) -> 
     }
 
 
+def get_subject_header(df_raw: pd.DataFrame, sub_header_idx: int, col: int) -> str:
+    """Scans upward and leftward from the IM cell to extract the Subject Code/Name across merged cells."""
+    for r in range(sub_header_idx - 1, -1, -1):
+        for c in range(col, max(-1, col - 4), -1):
+            val = str(df_raw.iloc[r, c]).strip()
+            if val and val.upper() not in ['NAN', 'NONE', 'UNNAMED', '']:
+                if not any(k in val.upper() for k in ['REGISTER', 'STUDENT', 'NAME', 'NO.', 'S.NO', 'ACADEMIC', 'REPORT']):
+                    return val.replace('\n', ' ')
+    return f"Subject {col + 1}"
+
+
 def parse_and_predict_excel(file_bytes: bytes) -> dict:
     """
     Parses dynamic college Excel sheets or simple mark tables,
@@ -166,11 +236,7 @@ def parse_and_predict_excel(file_bytes: bytes) -> dict:
         if 'IM' in row_str or 'EM' in row_str or 'TOTAL' in row_str:
             for j, val in enumerate(row_str):
                 if val == 'IM':
-                    subj_code = f"Subject {j+1}"
-                    if i > 0:
-                        header_above = str(df_raw.iloc[i-1, j]).strip()
-                        if header_above and header_above.upper() not in ["NAN", "NONE", ""]:
-                            subj_code = header_above
+                    subj_code = get_subject_header(df_raw, i, j)
                     im_cols.append({"col_idx": j, "subject_code": subj_code})
             
             if im_cols:

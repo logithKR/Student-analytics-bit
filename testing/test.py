@@ -1,15 +1,49 @@
 import os
+import glob
 import pandas as pd
 import numpy as np
 import joblib
 
 # ==========================================
-# 1. Configuration & Paths
+# 1. Configuration & Dynamic Relative Paths
 # ==========================================
-TEST_FILE = r"D:\ramesh\student analysis\dataset\UG\IT\V\IT-CONS-WO.xlsx"
-OUTPUT_DIR = r"D:\ramesh\student analysis\testing"
-MODEL_PATH = r"D:\ramesh\student analysis\training\model\xgboost_probability_model.joblib"
-FEATURES_PATH = r"D:\ramesh\student analysis\training\model\prob_features.joblib"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+OUTPUT_DIR = os.path.join(BASE_DIR, "output")
+
+# Look for test file in repo dataset or backend sample data
+dataset_candidates = [
+    os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "data", "UG", "IT", "V", "IT-CONS-WO.xlsx"),
+    os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "data", "UG", "CSE", "V", "CSE-CONS-WO.xlsx"),
+    os.path.join(REPO_ROOT, "dataset", "UG", "IT", "V", "IT-CONS-WO.xlsx")
+]
+
+TEST_FILE = None
+for c in dataset_candidates:
+    if os.path.exists(c):
+        TEST_FILE = c
+        break
+
+if not TEST_FILE:
+    found = glob.glob(os.path.join(REPO_ROOT, "**", "*.xlsx"), recursive=True)
+    if found:
+        TEST_FILE = found[0]
+
+# Model & features resolution
+model_candidates = [
+    os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "model", "xgboost_probability_model.joblib"),
+    os.path.join(REPO_ROOT, "training", "model", "new", "xgboost_probability_model.joblib"),
+    os.path.join(REPO_ROOT, "training", "model", "xgboost_probability_model.joblib")
+]
+MODEL_PATH = next((m for m in model_candidates if os.path.exists(m)), model_candidates[0])
+
+features_candidates = [
+    os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "model", "prob_features.joblib"),
+    os.path.join(REPO_ROOT, "training", "model", "new", "prob_features.joblib"),
+    os.path.join(REPO_ROOT, "training", "model", "prob_features.joblib")
+]
+FEATURES_PATH = next((f for f in features_candidates if os.path.exists(f)), features_candidates[0])
+
 
 def run_test():
     print("--- Starting Standalone Model Test ---")
@@ -18,12 +52,17 @@ def run_test():
     try:
         model = joblib.load(MODEL_PATH)
         feature_cols = joblib.load(FEATURES_PATH)
-        print(f"[*] Successfully loaded model and features: {feature_cols}")
+        print(f"[*] Successfully loaded model from: {MODEL_PATH}")
+        print(f"[*] Features: {feature_cols}")
     except Exception as e:
         print(f"[!] Error loading model: {e}")
         return
 
     # 2. Read Raw Excel File
+    if not TEST_FILE or not os.path.exists(TEST_FILE):
+        print("[!] No test spreadsheet found.")
+        return
+
     print(f"[*] Reading test file: {TEST_FILE}")
     try:
         df_raw = pd.read_excel(TEST_FILE, header=None)
@@ -45,7 +84,6 @@ def run_test():
         
     print(f"[*] Found 'IM' header at row index {sub_header_idx}")
     
-    # Get exact column indexes that contain 'IM'
     im_cols = [j for j, val in enumerate(df_raw.iloc[sub_header_idx]) if str(val).strip().upper() == 'IM']
     print(f"[*] Extracting marks from column indices: {im_cols}")
 
@@ -55,23 +93,19 @@ def run_test():
 
     for i in range(sub_header_idx + 1, len(df_raw)):
         row = df_raw.iloc[i]
-        reg_no = str(row[0]).strip()
-        name = str(row[1]).strip()
+        reg_no = str(row[1] if len(row) > 1 and str(row[1]).startswith("7376") else row[0]).strip()
+        name = str(row[2] if len(row) > 2 and str(row[1]).startswith("7376") else (row[1] if len(row) > 1 else "Student")).strip()
         
-        # Skip empty rows or generic text
-        if pd.isna(row[0]) or reg_no == '' or reg_no.lower() == 'nan':
+        if pd.isna(row[0]) or reg_no == '' or reg_no.lower() in ['nan', 'none']:
             continue
             
         im_values = []
         for col in im_cols:
             val = str(row[col]).strip().upper()
-            
-            # --- THE FIX IS HERE ---
             if val.replace('.', '', 1).isdigit():
                 im_values.append(float(val))
-            elif val in ['AB', 'U', 'W']: # ONLY true fails/absents get 0.0
+            elif val in ['AB', 'U', 'W']:
                 im_values.append(0.0)
-            # Hyphens ('-') and empty cells ('', 'NAN') are completely ignored
                 
         if not im_values:
             continue
@@ -93,22 +127,18 @@ def run_test():
     # 6. Process features and predict
     results = []
     for student in students_data:
-        # Apply scaling
         scaled_ims = [x * scale_factor for x in student['im_values']]
         
-        # Calculate features matching model training
         avg_im = np.mean(scaled_ims)
         min_im = np.min(scaled_ims)
         low_count = sum(1 for x in scaled_ims if x < 25.0)
         
-        # Predict
         X_test = pd.DataFrame([[avg_im, min_im, low_count]], columns=feature_cols)
         probs = model.predict_proba(X_test)[0]
         
         pass_prob = round(probs[0] * 100, 2)
         fail_prob = round(probs[1] * 100, 2)
         
-        # Status Labeling
         if fail_prob >= 50.0:
             risk = "HIGH RISK (FAIL)"
         elif fail_prob >= 25.0:

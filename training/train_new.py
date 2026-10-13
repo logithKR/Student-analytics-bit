@@ -9,8 +9,16 @@ from sklearn.metrics import classification_report, accuracy_score
 # ==========================================
 # 1. Configuration & Paths
 # ==========================================
-DATASET_DIR = r"D:\ramesh\student analysis\dataset\UG"
-OUTPUT_DIR = r"D:\ramesh\student analysis\training\model\new"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+
+dataset_candidates = [
+    os.getenv("DATASET_DIR"),
+    os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "data", "UG"),
+    os.path.join(REPO_ROOT, "dataset", "UG"),
+]
+DATASET_DIR = next((d for d in dataset_candidates if d and os.path.exists(d)), os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "data", "UG"))
+OUTPUT_DIR = os.path.join(BASE_DIR, "model", "new")
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 MODEL_PATH = os.path.join(OUTPUT_DIR, "xgboost_probability_model.joblib")
@@ -169,12 +177,20 @@ def train_model():
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-    print("\n--- Training XGBoost Model on RTX 3060 GPU ---")
+    device = 'cuda'
+    try:
+        import torch
+        if not torch.cuda.is_available():
+            device = 'cpu'
+    except Exception:
+        device = 'cpu'
+
+    print(f"\n--- Training XGBoost Model on {device.upper()} ---")
     
-    # Initialize GPU-accelerated XGBoost
+    # Initialize XGBoost with auto-detected device
     model = XGBClassifier(
         tree_method='hist',      
-        device='cuda',           
+        device=device,           
         max_depth=4,             
         learning_rate=0.05,
         n_estimators=200,

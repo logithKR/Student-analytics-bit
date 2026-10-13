@@ -28,12 +28,17 @@ MANIFEST
 
 # Environments
 .env
+*.env
 .venv
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Test output directories
+testing/output/
+
 
 # Node.js
 # Logs
@@ -81,16 +86,15 @@ Thumbs.db
 *.swp
 *.swo
 
-# Datasets
+# External raw datasets
 dataset/
 
 # Personal Documents & Spreadsheets
 *.pdf
-*.xlsx
-*.xls
 *.csv
 *.doc
 *.docx
 
-# Ignore entire data folder
-student-analysis-dashboard/backend/data/
+# Allow sample data in backend
+!student-analysis-dashboard/backend/data/
+!student-analysis-dashboard/backend/data/**

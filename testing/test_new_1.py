@@ -6,15 +6,32 @@ import joblib
 # ==========================================
 # 1. Configuration & Paths
 # ==========================================
-TEST_FILE = r"D:\ramesh\student analysis\dataset\test\CD\V\CD-CONS-WO.xlsx"
-MODEL_DIR = r"D:\ramesh\student analysis\training\model\new"
-output_dir = r"D:\ramesh\student analysis\testing"
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+output_dir = os.path.join(BASE_DIR, "output")
 os.makedirs(output_dir, exist_ok=True)
 
-MODEL_PATH = os.path.join(MODEL_DIR, "xgboost_probability_model.joblib")
-FEATURES_PATH = os.path.join(MODEL_DIR, "prob_features.joblib")
-OUTPUT_EXCEL = os.path.join(output_dir, "CD-CONS-WO_Risk_Predictions.xlsx")
+# Dynamic test file resolution
+candidate_files = [
+    os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "data", "UG", "CSE", "V", "CSE-CONS-WO.xlsx"),
+    os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "data", "UG", "IT", "V", "IT-CONS-WO.xlsx"),
+]
+TEST_FILE = next((f for f in candidate_files if os.path.exists(f)), None)
+
+# Model paths resolution
+model_candidates = [
+    os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "model", "xgboost_probability_model.joblib"),
+    os.path.join(REPO_ROOT, "training", "model", "new", "xgboost_probability_model.joblib"),
+]
+MODEL_PATH = next((m for m in model_candidates if os.path.exists(m)), model_candidates[0])
+
+features_candidates = [
+    os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "model", "prob_features.joblib"),
+    os.path.join(REPO_ROOT, "training", "model", "new", "prob_features.joblib"),
+]
+FEATURES_PATH = next((f for f in features_candidates if os.path.exists(f)), features_candidates[0])
+
+OUTPUT_EXCEL = os.path.join(output_dir, "Detailed_Risk_Predictions_Output.xlsx")
 
 # ==========================================
 # 2. Helper Functions

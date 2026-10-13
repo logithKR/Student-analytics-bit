@@ -24,7 +24,9 @@ const StudentDetail = () => {
   }, [id]);
 
   if (loading) return <div className="loading-spinner">Loading Profile...</div>;
-  if (!student || student.error) return <div style={{ padding: '2rem', textAlign: 'center' }}>Student not found.</div>;
+  if (!student || student.error || !student.records || student.records.length === 0) {
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>Student records not found.</div>;
+  }
 
   const gpaData = student.records.map(r => ({
     semester: `Sem ${r.semester}`,

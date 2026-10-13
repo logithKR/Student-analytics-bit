@@ -20,6 +20,10 @@ const Sidebar = () => {
           <BrainCircuit size={20} color="#3b82f6" />
           Prediction Hub
         </NavLink>
+        <NavLink to="/ai-analytics" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+          <Sparkles size={20} color="#60a5fa" />
+          AI Analytics
+        </NavLink>
         <NavLink to="/students" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           <Users size={20} />
           Student Directory

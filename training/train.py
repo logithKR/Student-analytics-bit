@@ -10,8 +10,10 @@ import numpy as np
 # ==========================================
 # 1. Configuration & Paths
 # ==========================================
-DATA_BASE_DIR = r"D:\ramesh\student analysis\dataset\CSE NOV 2025"
-MODEL_SAVE_DIR = r"D:\ramesh\student analysis\training\model"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+DATA_BASE_DIR = os.getenv("DATA_BASE_DIR", os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "data", "UG"))
+MODEL_SAVE_DIR = os.path.join(BASE_DIR, "model")
 MODEL_SAVE_PATH = os.path.join(MODEL_SAVE_DIR, "xgboost_model.joblib")
 
 # Updated based on your Excel snippet
@@ -103,13 +105,19 @@ def main():
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
         # Step 4: Initialize and Train XGBoost Model
-        print("[4/5] Training XGBoost model on RTX 3060 (GPU)...")
+        device = 'cuda'
+        try:
+            import torch
+            if not torch.cuda.is_available(): device = 'cpu'
+        except Exception:
+            device = 'cpu'
+        print(f"[4/5] Training XGBoost model on {device.upper()}...")
         model = xgb.XGBRegressor(
             n_estimators=200,
             learning_rate=0.05,
             max_depth=5,
             tree_method="hist",
-            device="cuda",
+            device=device,
             random_state=42
         )
         model.fit(X_train, y_train)

@@ -2,9 +2,16 @@ import pandas as pd
 import numpy as np
 
 # ==========================================
-# 1. Target Test File (Change this to any one of your files to test)
-# ==========================================
-TEST_FILE = r"D:\ramesh\student analysis\dataset\UG\AD\V\AD-CONS-WO.xlsx"
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+
+candidate_files = [
+    os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "data", "UG", "CSE", "V", "CSE-CONS-WO.xlsx"),
+    os.path.join(REPO_ROOT, "student-analysis-dashboard", "backend", "data", "UG", "IT", "V", "IT-CONS-WO.xlsx"),
+]
+TEST_FILE = next((f for f in candidate_files if os.path.exists(f)), None)
 
 def get_subject_total(max_score):
     if max_score > 50: return 60.0
