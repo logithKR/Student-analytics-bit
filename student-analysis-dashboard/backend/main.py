@@ -25,6 +25,10 @@ from ai_service import (
     AIQueryRequest, AIQueryResponse, QueryPlan
 )
 
+from logger_service import (
+    get_ai_logs, get_ai_log_by_id, clear_ai_logs, get_ai_logs_stats
+)
+
 app = FastAPI(title="Academic Intelligence Platform API", version="1.0.0")
 
 # Configure CORS cleanly from environment
@@ -252,3 +256,40 @@ def handle_execute_plan(plan: QueryPlan):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to execute query plan: {str(e)}")
+
+
+# ==========================================
+# AI Audit Logs Endpoints
+# ==========================================
+
+@app.get("/api/ai/logs")
+def handle_get_ai_logs(
+    limit: int = Query(50, ge=1, le=200),
+    status: Optional[str] = Query(None),
+    mode: Optional[str] = Query(None),
+    search: Optional[str] = Query(None)
+):
+    """Returns the list of AI query audit logs with optional filters."""
+    return get_ai_logs(limit=limit, status=status, mode=mode, search=search)
+
+
+@app.get("/api/ai/logs/stats")
+def handle_get_ai_logs_stats():
+    """Returns summary metrics about logged AI queries (counts, success rate, latency)."""
+    return get_ai_logs_stats()
+
+
+@app.get("/api/ai/logs/{log_id}")
+def handle_get_ai_log_by_id(log_id: str):
+    """Returns full details of a specific AI interaction log by ID."""
+    entry = get_ai_log_by_id(log_id)
+    if not entry:
+        raise HTTPException(status_code=404, detail="AI log entry not found")
+    return entry
+
+
+@app.delete("/api/ai/logs")
+def handle_clear_ai_logs():
+    """Clears all logged AI queries."""
+    clear_ai_logs()
+    return {"status": "success", "message": "All AI interaction logs cleared."}

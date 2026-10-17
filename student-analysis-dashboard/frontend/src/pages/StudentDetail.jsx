@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getStudentDetails } from '../services/api';
 import { ArrowLeft, Download, CheckCircle, GraduationCap, AlertTriangle, Lightbulb, BookOpen, Calendar } from 'lucide-react';
-import { AreaChart, Area, BarChart, Bar, Cell, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+
+import ChartContainer from '../components/charts/ChartContainer';
+import AreaChartComponent from '../components/charts/AreaChartComponent';
+import BarChartComponent from '../components/charts/BarChartComponent';
+import { getSemanticColor } from '../components/charts/colorSystem';
 
 const StudentDetail = () => {
   const { id } = useParams();
@@ -45,12 +50,12 @@ const StudentDetail = () => {
     });
   });
   const gradeData = Object.entries(gradeCount).map(([grade, count]) => ({ grade, count }));
-  const GRADE_COLORS_MAP = { 'S': '#059669', 'A+': '#0d9488', 'A': '#0891b2', 'B+': '#2563eb', 'B': '#7c3aed', 'C': '#f59e0b', 'U': '#ef4444' };
 
   // Subject performance for the latest semester bar chart
   const latestSubjects = latestRecord.subjects.map(s => ({
     code: s.code,
-    total: s.tot
+    total: s.tot,
+    color: s.tot >= 50 ? '#2563eb' : '#ef4444'
   }));
 
   return (
@@ -90,30 +95,22 @@ const StudentDetail = () => {
       </div>
 
       {/* Row 1: GPA Chart + CGPA + Risk */}
-      <div className="charts-grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
-        <div className="chart-card" style={{ display: 'flex', flexDirection: 'column' }}>
-          <div className="chart-card-header">
-            <h3 className="chart-header" style={{ marginBottom: 0 }}>SGPA Progression</h3>
-            <span style={{ fontSize: '0.75rem', color: '#64748b', background: '#f1f5f9', padding: '4px 8px', borderRadius: '4px' }}>Actual SGPA</span>
-          </div>
-          <div style={{ flex: 1, minHeight: '280px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={gpaData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-                <defs>
-                  <linearGradient id="colorGpaP" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0f172a" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#0f172a" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="semester" stroke="#64748b" tickLine={false} axisLine={false} dy={10} />
-                <YAxis domain={[0, 10]} stroke="#64748b" tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-                <Area type="monotone" dataKey="gpa" stroke="#0f172a" strokeWidth={3} fillOpacity={1} fill="url(#colorGpaP)" dot={{ r: 5, fill: '#0f172a', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 8 }} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <div style={{ background: '#f8fafc', padding: '0.875rem', borderRadius: '8px', marginTop: '0.75rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--panel-border)' }}>
+      <div className="charts-grid-2-1">
+        <ChartContainer
+          title="SGPA Progression"
+          subtitle="Semester GPA trajectory"
+          badge="Actual SGPA"
+          height={340}
+        >
+          <AreaChartComponent
+            data={gpaData}
+            xField="semester"
+            yField="gpa"
+            height={230}
+            domain={[0, 10]}
+            color="#2563eb"
+          />
+          <div style={{ background: '#f8fafc', padding: '0.75rem', borderRadius: '8px', marginTop: '0.75rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--panel-border)' }}>
             <Lightbulb size={16} color="#2563eb" />
             <span style={{ fontWeight: 600, color: '#0f172a' }}>Insight:</span>
             {isOptimal
@@ -121,7 +118,7 @@ const StudentDetail = () => {
               : ` Student needs academic support. Current GPA: ${latestRecord.gpa}. ${totalArrears} total arrears across semesters.`
             }
           </div>
-        </div>
+        </ChartContainer>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {/* CGPA Card */}
@@ -157,7 +154,7 @@ const StudentDetail = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={gradeData} cx="50%" cy="50%" innerRadius={30} outerRadius={45} paddingAngle={2} dataKey="count" stroke="none">
-                      {gradeData.map((entry, index) => <Cell key={index} fill={GRADE_COLORS_MAP[entry.grade] || '#94a3b8'} />)}
+                      {gradeData.map((entry, index) => <Cell key={index} fill={getSemanticColor(entry.grade, index)} />)}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
@@ -165,7 +162,7 @@ const StudentDetail = () => {
               <div style={{ flex: 1, paddingLeft: '0.75rem', fontSize: '0.7rem' }}>
                 {gradeData.map((g, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                    <span style={{ color: GRADE_COLORS_MAP[g.grade] || '#94a3b8' }}>● {g.grade}</span>
+                    <span style={{ color: getSemanticColor(g.grade, i) }}>● {g.grade}</span>
                     <span style={{ fontWeight: 600 }}>{g.count}</span>
                   </div>
                 ))}
@@ -176,21 +173,21 @@ const StudentDetail = () => {
       </div>
 
       {/* Row 2: Latest Semester Subject Marks Bar */}
-      <div className="chart-card" style={{ marginBottom: '1.5rem', minHeight: 'auto' }}>
-        <h3 className="chart-header">Latest Semester Subject-wise Marks (Semester {latestRecord.semester})</h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={latestSubjects} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-            <XAxis dataKey="code" stroke="#64748b" tickLine={false} axisLine={false} tick={{ fontSize: 10 }} />
-            <YAxis domain={[0, 100]} stroke="#64748b" tickLine={false} axisLine={false} />
-            <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-            <Bar dataKey="total" radius={[4, 4, 0, 0]}>
-              {latestSubjects.map((entry, index) => (
-                <Cell key={index} fill={entry.total >= 50 ? '#2563eb' : '#ef4444'} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <ChartContainer
+          title={`Latest Semester Subject-wise Marks (Semester ${latestRecord.semester})`}
+          subtitle="Individual course performance (Pass threshold: 50)"
+          badge="Total Marks"
+          height={320}
+        >
+          <BarChartComponent
+            data={latestSubjects}
+            xField="code"
+            yField="total"
+            height={250}
+            domain={[0, 100]}
+          />
+        </ChartContainer>
       </div>
 
       {/* Row 3: Detailed Academic Records */}
@@ -217,26 +214,33 @@ const StudentDetail = () => {
               </div>
             </div>
           </div>
-          
-          <div className="table-container" style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}>
+          <div className="table-container" style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
             <table>
               <thead>
                 <tr>
-                  <th>Subject Code</th>
-                  <th>Internal Marks</th>
-                  <th>External Marks</th>
-                  <th>Total</th>
+                  <th>Course Code</th>
+                  <th>Course Title</th>
                   <th>Grade</th>
+                  <th>Total Marks</th>
+                  <th>Result</th>
                 </tr>
               </thead>
               <tbody>
-                {record.subjects.map((sub, sidx) => (
-                  <tr key={sidx}>
+                {record.subjects.map((sub, sIdx) => (
+                  <tr key={sIdx}>
                     <td style={{ fontWeight: 600, color: '#2563eb' }}>{sub.code}</td>
-                    <td>{sub.im}</td>
-                    <td>{sub.em}</td>
+                    <td style={{ fontWeight: 500 }}>{sub.title}</td>
+                    <td>
+                      <span className={`badge ${sub.grd === 'U' || sub.grd === 'RA' ? 'fail' : 'pass'}`}>
+                        {sub.grd}
+                      </span>
+                    </td>
                     <td style={{ fontWeight: 600 }}>{sub.tot}</td>
-                    <td><span className={`badge ${['U', 'F', 'RA'].includes(sub.grd) ? 'fail' : 'pass'}`}>{sub.grd}</span></td>
+                    <td>
+                      <span className={`badge ${sub.res.toUpperCase() === 'P' || sub.res.toUpperCase() === 'PASS' ? 'pass' : 'fail'}`}>
+                        {sub.res}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>

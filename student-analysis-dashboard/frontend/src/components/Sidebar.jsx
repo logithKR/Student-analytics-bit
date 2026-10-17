@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { BookOpen, LayoutDashboard, BrainCircuit, Users, ShieldAlert, BarChart3, FileText, Settings, Sparkles } from 'lucide-react';
+import { BookOpen, LayoutDashboard, BrainCircuit, Users, ShieldAlert, BarChart3, FileText, Settings, Sparkles, Terminal } from 'lucide-react';
 
 const Sidebar = () => {
   return (
@@ -11,7 +11,7 @@ const Sidebar = () => {
       </div>
       
       <div className="nav-links">
-        <div style={{ padding: '1rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Analytics & AI</div>
+        <div className="sidebar-category-header">Analytics & AI</div>
         <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           <LayoutDashboard size={20} />
           Overview
@@ -24,6 +24,10 @@ const Sidebar = () => {
           <Sparkles size={20} color="#60a5fa" />
           AI Analytics
         </NavLink>
+        <NavLink to="/ai-logs" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+          <Terminal size={20} color="#10b981" />
+          AI Query Logs
+        </NavLink>
         <NavLink to="/students" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           <Users size={20} />
           Student Directory
@@ -33,7 +37,7 @@ const Sidebar = () => {
           At-Risk Analysis
         </NavLink>
 
-        <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>System</div>
+        <div className="sidebar-category-header">System</div>
         <NavLink to="/reports" className="nav-link">
           <FileText size={20} />
           Reports
@@ -44,7 +48,7 @@ const Sidebar = () => {
         </NavLink>
       </div>
 
-      <div style={{ marginTop: 'auto', padding: '1.5rem' }}>
+      <div className="sidebar-bottom-card">
         <div style={{ background: 'rgba(37, 99, 235, 0.1)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(37, 99, 235, 0.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#60a5fa', fontWeight: 600 }}>
             <Sparkles size={16} /> XGBoost Model

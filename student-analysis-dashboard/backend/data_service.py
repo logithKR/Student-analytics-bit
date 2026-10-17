@@ -294,11 +294,45 @@ def load_data():
     return all_students
 
 
+DEPT_ALIAS_MAP = {
+    "CSE": "CS",
+    "COMPUTER SCIENCE": "CS",
+    "COMPUTER SCIENCE & ENGINEERING": "CS",
+    "COMPUTER SCIENCE AND ENGINEERING": "CS",
+    "AIDS": "AD",
+    "AI&DS": "AD",
+    "AIML": "AL",
+    "AI&ML": "AL",
+    "MECH": "ME",
+    "MECHANICAL": "ME",
+    "CIVIL": "CE",
+    "ECE": "EC",
+    "EEE": "EE",
+    "EIE": "EI",
+    "BIOTECH": "BT",
+    "BIOMED": "BM",
+    "CSBS": "CB",
+    "FOOD": "FT",
+    "TEXTILE": "TT",
+    "AGRI": "AG",
+    "AGRICULTURE": "AG",
+    "MECHATRONICS": "MC",
+    "INFORMATION SCIENCE": "ISE",
+    "INFORMATION TECHNOLOGY": "IT",
+}
+
+def normalize_dept(dept: str) -> str:
+    if not dept:
+        return dept
+    cleaned = str(dept).strip().upper()
+    return DEPT_ALIAS_MAP.get(cleaned, cleaned)
+
 def _filter_data(data, department=None, semester=None):
     if department and department != "All":
-        data = [s for s in data if s.get("department") == department]
+        norm_dept = normalize_dept(department)
+        data = [s for s in data if normalize_dept(s.get("department")) == norm_dept]
     if semester and semester != "All":
-        data = [s for s in data if s["semester"] == semester]
+        data = [s for s in data if s.get("semester") == semester]
     return data
 
 

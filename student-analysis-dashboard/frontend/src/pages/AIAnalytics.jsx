@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Sparkles, Send, Bot, User, Database, Download,
   Code, ChevronDown, ChevronUp, AlertCircle, RotateCcw,
   MessageSquare, BarChart3, Table2, Search, ArrowUpDown,
-  CheckCircle, HelpCircle, Layers, ArrowRight
+  CheckCircle, HelpCircle, Layers, ArrowRight, AlertTriangle, ShieldAlert,
+  FileText
 } from 'lucide-react';
 import { queryAI } from '../services/api';
 import DynamicChartRenderer from '../components/charts/DynamicChartRenderer';
@@ -17,10 +19,12 @@ const PROMPTS_BY_MODE = {
     "What intervention is recommended for students with backlogs?"
   ],
   chat_viz: [
-    "Show average GPA by department",
-    "Pass vs fail student distribution",
-    "Semester GPA progression trends",
-    "At-risk students with active backlogs"
+    "Top 5 performing departments based on average percentage",
+    "Compare pass and fail students for each department",
+    "What percentage of students are in each performance category?",
+    "Show average marks for each subject",
+    "Semester SGPA progression trends",
+    "Grade distribution breakdown"
   ],
   data_table: [
     "Top 10 academic achievers ranked by GPA",
@@ -55,7 +59,7 @@ const AIAnalytics = () => {
   const [activeColumns, setActiveColumns] = useState([]);
   const [activeConfig, setActiveConfig] = useState(null);
   const [aiRecommendedConfig, setAiRecommendedConfig] = useState(null);
-  const [compatibleChartTypes, setCompatibleChartTypes] = useState(['bar', 'line', 'pie', 'table']);
+  const [compatibleChartTypes, setCompatibleChartTypes] = useState(['bar', 'horizontal_bar', 'line', 'donut', 'table']);
   const [fallbackNotice, setFallbackNotice] = useState(null);
   const [activeQueryPlan, setActiveQueryPlan] = useState(null);
   const [showJsonPlan, setShowJsonPlan] = useState(false);
@@ -73,11 +77,6 @@ const AIAnalytics = () => {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
-
-  // Initial prompt on load (only in chat_viz mode)
-  useEffect(() => {
-    handleRunQuery("Show average GPA by department", 'chat_viz');
-  }, []);
 
   const handleRunQuery = async (questionText, targetMode = mode) => {
     if (!questionText || !questionText.trim() || loading) return;
@@ -114,6 +113,8 @@ const AIAnalytics = () => {
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           meta: {
             modelUsed: response.modelUsed,
+            keyUsed: response.keyUsed,
+            failoverAttempts: response.failoverAttempts || [],
             totalRows: response.totalRows,
             executedAt: response.executedAt,
             intent: response.intent,
@@ -130,36 +131,84 @@ const AIAnalytics = () => {
         setFallbackNotice(response.fallbackNotice || null);
         setActiveQueryPlan(response.queryPlan);
 
-        // Update chart config if present
-        if (response.visualization) {
+        // Update chart config if present (prefer graphSpecification over visualization)
+        if (response.graphSpecification) {
+          setActiveConfig(response.graphSpecification);
+          setAiRecommendedConfig(response.graphSpecification);
+        } else if (response.visualization) {
           setActiveConfig(response.visualization);
           setAiRecommendedConfig(response.visualization);
-        } else if (response.data?.length > 0 && response.columns?.length > 0) {
-          const numCol = response.columns.find(c => c.type === 'number')?.name;
-          const defaultCfg = {
-            type: response.compatibleChartTypes?.[0] || 'bar',
-            title: 'Query Results Visualization',
-            xField: response.columns[0]?.name,
-            yField: numCol || response.columns[1]?.name || response.columns[0]?.name,
-            legend: true,
-            showGrid: true
-          };
-          setActiveConfig(defaultCfg);
-          setAiRecommendedConfig(defaultCfg);
+        } else {
+          // ============================================================
+          // DEFAULT/MOCK GRAPH CONFIGURATION
+          // ============================================================
+          // DISABLED INTENTIONALLY.
+          //
+          // The production AI Graph Engine must use the real Groq API.
+          // Never fabricate a default graph configuration when Groq
+          // did not generate a graph specification.
+          //
+          // const numCol = response.columns.find(c => c.type === 'number')?.name;
+          // const defaultCfg = { ... };
+          // setActiveConfig(defaultCfg);
+          // ============================================================
+          setActiveConfig(null);
+          setAiRecommendedConfig(null);
         }
       } else {
-        throw new Error(response.error || "Failed to process query.");
+        // Explicit Error Returned by Engine
+        const errorDetail = {
+          message: response.error || response.answer || "AI request failed.",
+          stage: response.errorStage || "Groq API Request",
+          type: response.errorType || "api_error"
+        };
+        setError(errorDetail);
+        setActiveData([]);
+        setActiveColumns([]);
+        setActiveConfig(null);
+        setActiveQueryPlan(null);
+
+        const errorMsg = {
+          id: `err-${Date.now()}`,
+          role: 'assistant',
+          text: response.answer || `⚠️ Query request encountered an issue: ${response.error}`,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          meta: {
+            isError: true,
+            errorStage: response.errorStage,
+            errorType: response.errorType,
+            modelUsed: response.modelUsed
+          }
+        };
+        setMessages(prev => [...prev, errorMsg]);
+        return;
       }
     } catch (err) {
       console.error("AI Query Error:", err);
-      const errMsg = err.response?.data?.detail || err.message || "Unable to reach AI service.";
-      setError(errMsg);
+      const errMsg = err.response?.data?.detail || err.response?.data?.error || err.message || "Unable to reach AI service.";
+      const errStage = err.response?.data?.errorStage || "Groq API Request";
+      const errType = err.response?.data?.errorType || "network_error";
+
+      setError({
+        message: errMsg,
+        stage: errStage,
+        type: errType
+      });
+      setActiveData([]);
+      setActiveColumns([]);
+      setActiveConfig(null);
+      setActiveQueryPlan(null);
+
       const errorMsg = {
         id: `err-${Date.now()}`,
         role: 'assistant',
-        text: `⚠️ Query request encountered an issue: ${errMsg}`,
+        text: `⚠️ AI Generation Failed: ${errMsg}`,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        meta: null
+        meta: {
+          isError: true,
+          errorStage: errStage,
+          errorType: errType
+        }
       };
       setMessages(prev => [...prev, errorMsg]);
     } finally {
@@ -357,6 +406,29 @@ const AIAnalytics = () => {
             <span>Data Table</span>
           </button>
         </div>
+
+        {/* Audit Logs Quick Access Button */}
+        <Link
+          to="/ai-logs"
+          title="Open AI Query & Response Audit Log"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            padding: '0.45rem 0.85rem',
+            background: '#ffffff',
+            border: '1px solid #cbd5e1',
+            borderRadius: '8px',
+            color: '#334155',
+            textDecoration: 'none',
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <FileText size={15} color="#2563eb" />
+          <span>Audit Logs</span>
+        </Link>
       </div>
 
       {/* ── Main Responsive Content Area Based on Active Mode ── */}
@@ -522,9 +594,17 @@ const AIAnalytics = () => {
                       fontSize: '0.7rem',
                       color: '#64748b',
                       display: 'flex',
-                      gap: '0.75rem'
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: '0.65rem'
                     }}>
                       <span>⚙️ {msg.meta.modelUsed}</span>
+                      {msg.meta.keyUsed && <span>🔑 {msg.meta.keyUsed}</span>}
+                      {msg.meta.failoverAttempts && msg.meta.failoverAttempts.length > 0 && (
+                        <span style={{ color: '#b45309', fontWeight: 600 }}>
+                          ⚡ Failover ({msg.meta.failoverAttempts.length})
+                        </span>
+                      )}
                       {msg.meta.queryExecuted && <span>📊 Verified Data Grounded</span>}
                     </div>
                   )}
@@ -846,12 +926,39 @@ const AIAnalytics = () => {
 
           {/* Right Visualization Pane */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {/* Real Groq Generation Success Status */}
+            {!error && activeConfig && activeData.length > 0 && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0.45rem 0.85rem',
+                marginBottom: '0.75rem',
+                background: '#f0fdf4',
+                border: '1px solid #bbf7d0',
+                borderRadius: '8px',
+                fontSize: '0.78rem',
+                color: '#166534'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontWeight: 600 }}>
+                  <CheckCircle size={14} color="#16a34a" />
+                  <span>✓ Graph generated successfully from Groq AI response</span>
+                </div>
+                <span style={{ fontSize: '0.72rem', color: '#15803d', fontFamily: 'monospace' }}>
+                  Real Grounded Output
+                </span>
+              </div>
+            )}
+
             {/* Intelligent Compact Chart Selector */}
-            {activeConfig && (
+            {!error && activeConfig && (
               <ChartConfigPanel
                 config={activeConfig}
                 onChangeConfig={(newCfg) => setActiveConfig(newCfg)}
                 onResetConfig={handleResetConfig}
+                onExportCSV={handleExportCSV}
+                onToggleSpec={() => setShowJsonPlan(prev => !prev)}
+                showSpec={showJsonPlan}
                 columns={activeColumns}
                 compatibleChartTypes={compatibleChartTypes}
                 fallbackNotice={fallbackNotice}

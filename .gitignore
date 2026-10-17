@@ -95,6 +95,23 @@ dataset/
 *.doc
 *.docx
 
-# Allow sample data in backend
-!student-analysis-dashboard/backend/data/
-!student-analysis-dashboard/backend/data/**
+# Academic records & spreadsheets (exclude real student marks & PII from git)
+*.xlsx
+*.xls
+student-analysis-dashboard/backend/data/**
+!student-analysis-dashboard/backend/data/.gitkeep
+
+# Runtime AI query audit logs & test caches
+*ai_query_logs.json
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.bak
+*.tmp
+*.temp
+
+# Preserve environment examples
+!.env.example
+!*.env.example

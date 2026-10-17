@@ -94,3 +94,25 @@ export const executeAIPlan = async (plan) => {
   const response = await axios.post(`${API_URL}/ai/execute-plan`, plan);
   return response.data;
 };
+
+// ── AI Audit Logs & Diagnostics Services ──
+
+export const getAILogs = async (params = {}) => {
+  const response = await axios.get(`${API_URL}/ai/logs`, { params });
+  return response.data;
+};
+
+export const getAILogsStats = async () => {
+  const response = await axios.get(`${API_URL}/ai/logs/stats`);
+  return response.data;
+};
+
+export const getAILogById = async (logId) => {
+  const response = await axios.get(`${API_URL}/ai/logs/${logId}`);
+  return response.data;
+};
+
+export const clearAILogs = async () => {
+  const response = await axios.delete(`${API_URL}/ai/logs`);
+  return response.data;
+};

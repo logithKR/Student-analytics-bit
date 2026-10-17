@@ -6,6 +6,7 @@ import StudentsList from './pages/StudentsList';
 import StudentDetail from './pages/StudentDetail';
 import PredictionHub from './pages/PredictionHub';
 import AIAnalytics from './pages/AIAnalytics';
+import AILogs from './pages/AILogs';
 import { Search, Bell, User } from 'lucide-react';
 import './index.css';
 
@@ -17,7 +18,10 @@ const Topbar = () => {
   let title = "Department Performance Overview";
   let subtitle = "Comprehensive academic intelligence and analytics dashboard";
   
-  if (location.pathname.includes('/ai-analytics')) {
+  if (location.pathname.includes('/ai-logs')) {
+    title = "AI Query & Response Audit Logs";
+    subtitle = "Inspect raw Groq LLM prompts, completions, query plans, and database execution telemetry";
+  } else if (location.pathname.includes('/ai-analytics')) {
     title = "AI-Powered Dynamic Analytics";
     subtitle = "Natural language queries, real university database analytics & interactive visualization";
   } else if (location.pathname.includes('/prediction-hub')) {
@@ -112,6 +116,7 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/prediction-hub" element={<PredictionHub />} />
               <Route path="/ai-analytics" element={<AIAnalytics />} />
+              <Route path="/ai-logs" element={<AILogs />} />
               <Route path="/students" element={<StudentsList />} />
               <Route path="/student/:id" element={<StudentDetail />} />
               <Route path="/at-risk" element={<Dashboard />} />

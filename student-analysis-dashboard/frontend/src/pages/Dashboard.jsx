@@ -5,22 +5,17 @@ import {
   getBatchComparison, getAtRiskStudents
 } from '../services/api';
 import {
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
-} from 'recharts';
-import {
   TrendingUp, AlertTriangle, GraduationCap, Users, UserCheck,
   BookOpen, Trophy, Medal, Award, ShieldAlert, ArrowRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const GRADE_COLORS = {
-  'S': '#059669', 'A+': '#0d9488', 'A': '#0891b2',
-  'B+': '#2563eb', 'B': '#7c3aed', 'C': '#f59e0b', 'U': '#ef4444'
-};
-
-const DIVISION_COLORS = ['#059669', '#2563eb', '#f59e0b', '#ef4444'];
+import ChartContainer from '../components/charts/ChartContainer';
+import AreaChartComponent from '../components/charts/AreaChartComponent';
+import BarChartComponent from '../components/charts/BarChartComponent';
+import PieChartComponent from '../components/charts/PieChartComponent';
+import RadarChartComponent from '../components/charts/RadarChartComponent';
+import StackedBarChartComponent from '../components/charts/StackedBarChartComponent';
 
 const Dashboard = () => {
   const [department, setDepartment] = useState('All');
@@ -83,11 +78,11 @@ const Dashboard = () => {
   }
 
   const rankIcons = [
-    <Trophy size={18} color="#f59e0b" />,
-    <Medal size={18} color="#94a3b8" />,
-    <Award size={18} color="#b45309" />,
-    <span style={{ fontWeight: 700, color: '#64748b' }}>4</span>,
-    <span style={{ fontWeight: 700, color: '#64748b' }}>5</span>
+    <Trophy key="1" size={18} color="#f59e0b" />,
+    <Medal key="2" size={18} color="#94a3b8" />,
+    <Award key="3" size={18} color="#b45309" />,
+    <span key="4" style={{ fontWeight: 700, color: '#64748b' }}>4</span>,
+    <span key="5" style={{ fontWeight: 700, color: '#64748b' }}>5</span>
   ];
 
   // Prepare radar data from subjects
@@ -121,7 +116,7 @@ const Dashboard = () => {
       </div>
 
       {/* ── ROW 1: KPI Cards ── */}
-      <div className="cards-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+      <div className="cards-grid">
         <div className="kpi-card">
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span className="kpi-title">Total Students</span>
@@ -158,28 +153,22 @@ const Dashboard = () => {
       </div>
 
       {/* ── ROW 2: SGPA Trend + Top Performers ── */}
-      <div className="charts-grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
-        <div className="chart-card">
-          <div className="chart-card-header">
-            <h3 className="chart-header" style={{ marginBottom: 0 }}>SGPA Trend (Department Average)</h3>
-            <a href="#" className="view-details-link">View Details</a>
-          </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={trends} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorGpa" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-              <XAxis dataKey="semester" stroke="#64748b" tickLine={false} axisLine={false} />
-              <YAxis domain={[0, 10]} stroke="#64748b" tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-              <Area type="monotone" dataKey="averageGpa" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorGpa)" dot={{ r: 5, fill: '#2563eb', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 8 }} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="charts-grid-2-1">
+        <ChartContainer
+          title="SGPA Trend (Department Average)"
+          subtitle="Semester-by-semester GPA trajectory"
+          badge="Academic Performance"
+          height={320}
+        >
+          <AreaChartComponent
+            data={trends}
+            xField="semester"
+            yField="averageGpa"
+            height={260}
+            domain={[0, 10]}
+            color="#2563eb"
+          />
+        </ChartContainer>
 
         <div className="chart-card" style={{ minHeight: 'auto' }}>
           <div className="chart-card-header">
@@ -202,94 +191,79 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* ── ROW 3: Grade Distribution (Stacked) + Class Division (Donut) + Radar ── */}
-      <div className="charts-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-        {/* Grade Distribution Stacked Bar */}
-        <div className="chart-card">
-          <h3 className="chart-header">Grade Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={gradeDistribution} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-              <XAxis type="number" stroke="#64748b" tickLine={false} axisLine={false} unit="%" />
-              <YAxis type="category" dataKey="grade" stroke="#64748b" tickLine={false} axisLine={false} width={40} />
-              <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-              <Bar dataKey="percentage" radius={[0, 4, 4, 0]}>
-                {gradeDistribution.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={GRADE_COLORS[entry.grade] || '#94a3b8'} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      {/* ── ROW 3: Grade Distribution + Class Division + Radar ── */}
+      <div className="charts-grid-3">
+        <ChartContainer
+          title="Grade Distribution"
+          subtitle="Cohort grade breakdown across courses"
+          badge="Grades"
+          height={340}
+        >
+          <BarChartComponent
+            data={gradeDistribution}
+            xField="grade"
+            yField="percentage"
+            height={270}
+            unit="%"
+          />
+        </ChartContainer>
 
-        {/* Class Division Donut */}
-        <div className="chart-card">
-          <h3 className="chart-header">Class Division Breakdown</h3>
-          <div style={{ position: 'relative' }}>
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie data={classDivision} cx="50%" cy="50%" innerRadius={65} outerRadius={90} paddingAngle={3} dataKey="value" stroke="none">
-                  {classDivision.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={DIVISION_COLORS[index % DIVISION_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div style={{ position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{summary.totalStudents}</div>
-              <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Students</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center', marginTop: '0.5rem' }}>
-            {classDivision.map((d, i) => (
-              <span key={i} style={{ fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: DIVISION_COLORS[i], display: 'inline-block' }}></span>
-                {d.name}: {d.percentage}%
-              </span>
-            ))}
-          </div>
-        </div>
+        <ChartContainer
+          title="Class Division Breakdown"
+          subtitle="Standing classification across cohort"
+          badge="Divisions"
+          height={340}
+        >
+          <PieChartComponent
+            data={classDivision}
+            xField="name"
+            yField="value"
+            isDoughnut={true}
+            height={270}
+            centerLabel="Students"
+          />
+        </ChartContainer>
 
-        {/* Subject Difficulty Radar */}
-        <div className="chart-card">
-          <h3 className="chart-header">Subject Difficulty Radar</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-              <PolarGrid stroke="#e2e8f0" />
-              <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: '#64748b' }} />
-              <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-              <Radar name="Average Marks" dataKey="average" stroke="#2563eb" fill="#2563eb" fillOpacity={0.3} strokeWidth={2} />
-              <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-            </RadarChart>
-          </ResponsiveContainer>
-        </div>
+        <ChartContainer
+          title="Subject Difficulty Radar"
+          subtitle="Average marks across top challenging courses"
+          badge="Mean Score"
+          height={340}
+        >
+          <RadarChartComponent
+            data={radarData}
+            xField="subject"
+            yField="average"
+            height={270}
+            maxDomain={100}
+          />
+        </ChartContainer>
       </div>
 
-      {/* ── ROW 4: Batch Comparison (Stacked Bar) + At-Risk Courses ── */}
-      <div className="charts-grid" style={{ gridTemplateColumns: '3fr 2fr' }}>
-        <div className="chart-card">
-          <h3 className="chart-header">Grade Distribution by Batch (Semester)</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={batchComparison} layout="vertical" margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-              <XAxis type="number" stroke="#64748b" tickLine={false} axisLine={false} unit="%" />
-              <YAxis type="category" dataKey="semester" stroke="#64748b" tickLine={false} axisLine={false} width={60} />
-              <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-              <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
-              {Object.keys(GRADE_COLORS).map(g => (
-                <Bar key={g} dataKey={g} stackId="a" fill={GRADE_COLORS[g]} />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      {/* ── ROW 4: Batch Comparison + At-Risk Courses ── */}
+      <div className="charts-grid-3-2">
+        <ChartContainer
+          title="Grade Distribution by Batch (Semester)"
+          subtitle="Relative grade comparison by academic semester"
+          badge="Batch Trends"
+          height={340}
+        >
+          <StackedBarChartComponent
+            data={batchComparison}
+            xField="semester"
+            series={['S', 'A+', 'A', 'B+', 'B', 'C', 'U']}
+            layout="vertical"
+            height={270}
+            unit="%"
+          />
+        </ChartContainer>
 
         <div className="chart-card">
           <div className="chart-card-header">
             <h3 className="chart-header" style={{ marginBottom: 0 }}>Top At-Risk Courses</h3>
             <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Fail %</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '0.5rem' }}>
             {subjects.map((sub, index) => {
               const total = sub.passCount + sub.failCount;
               const failPercent = total > 0 ? Math.round((sub.failCount / total) * 100) : 0;
@@ -368,7 +342,7 @@ const Dashboard = () => {
       )}
 
       {/* ── ROW 6: Performance Summary + Quick Stats ── */}
-      <div className="charts-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+      <div className="charts-grid-2">
         <div className="chart-card" style={{ minHeight: 'auto' }}>
           <h3 className="chart-header">Performance Summary</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -390,22 +364,21 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="chart-card" style={{ minHeight: 'auto' }}>
-          <h3 className="chart-header">Subject-wise Average Marks</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={subjects} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-              <XAxis dataKey="subject" stroke="#64748b" tickLine={false} axisLine={false} tick={{ fontSize: 10 }} />
-              <YAxis domain={[0, 100]} stroke="#64748b" tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-              <Bar dataKey="average" radius={[4, 4, 0, 0]}>
-                {subjects.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={['#2563eb', '#059669', '#7c3aed', '#f59e0b', '#0891b2'][index % 5]} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <ChartContainer
+          title="Subject-wise Average Marks"
+          subtitle="Cohort mean performance per subject"
+          badge="Mean Mark"
+          height={340}
+        >
+          <BarChartComponent
+            data={subjects}
+            xField="subject"
+            yField="average"
+            height={270}
+            domain={[0, 100]}
+            barColor="#2563eb"
+          />
+        </ChartContainer>
       </div>
     </div>
   );
