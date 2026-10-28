@@ -622,3 +622,52 @@ tbody tr:hover {
   }
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Print Media Styles for Direct Browser Print ── */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .sidebar,
+  .topbar,
+  button,
+  .semester-filters,
+  .nav-links {
+    display: none !important;
+  }
+  .app-container,
+  .main-content,
+  .page-content {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+  .chart-card,
+  .kpi-card,
+  .table-container {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+    margin-bottom: 1rem !important;
+  }
+  .charts-grid-2-1,
+  .charts-grid-3,
+  .charts-grid-3-2 {
+    display: grid !important;
+    break-inside: avoid;
+  }
+}
+

@@ -43,7 +43,7 @@ const StudentsList = () => {
   const paginated = students.slice((page - 1) * perPage, page * perPage);
 
   const getRiskBadge = (student) => {
-    const isPass = student.result.toUpperCase() === 'P' || student.result.toUpperCase() === 'PASS';
+    const isPass = student.result ? (student.result.toUpperCase() === 'P' || student.result.toUpperCase() === 'PASS') : (student.failCount === 0);
     if (!isPass || student.gpa < 5.0 || student.failCount >= 2) return <span className="badge fail">🔴 Critical</span>;
     if (student.gpa < 6.0 || student.failCount === 1) return <span className="badge warning">🟡 Warning</span>;
     return <span className="badge pass">🟢 Optimal</span>;

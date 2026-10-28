@@ -94,6 +94,10 @@ dataset/
 *.csv
 *.doc
 *.docx
+!Project_Report_Final.docx
+~$*
+*_backup.*
+*.bak
 
 # Academic records & spreadsheets (exclude real student marks & PII from git)
 *.xlsx

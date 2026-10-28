@@ -4,9 +4,10 @@ import {
   getTopPerformers, getClassDivision, getGradeDistribution,
   getBatchComparison, getAtRiskStudents
 } from '../services/api';
+import { exportClassReportPDF } from '../services/pdfReportService';
 import {
   TrendingUp, AlertTriangle, GraduationCap, Users, UserCheck,
-  BookOpen, Trophy, Medal, Award, ShieldAlert, ArrowRight
+  BookOpen, Trophy, Medal, Award, ShieldAlert, ArrowRight, Download
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,6 +31,7 @@ const Dashboard = () => {
   const [batchComparison, setBatchComparison] = useState([]);
   const [atRisk, setAtRisk] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => { 
@@ -73,6 +75,30 @@ const Dashboard = () => {
     setLoading(false);
   };
 
+  const handleDownloadClassReport = async () => {
+    if (isExporting || !summary) return;
+    setIsExporting(true);
+    try {
+      await exportClassReportPDF({
+        department,
+        semester,
+        summary,
+        trends,
+        topPerformers,
+        gradeDistribution,
+        classDivision,
+        radarData,
+        subjects,
+        atRisk
+      });
+    } catch (err) {
+      console.error('Failed to export class report PDF:', err);
+      alert('Unable to generate class PDF report. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (loading || !summary) {
     return <div className="loading-spinner">Loading Analytics...</div>;
   }
@@ -94,25 +120,59 @@ const Dashboard = () => {
 
   return (
     <div>
-      {/* Filters */}
-      <div className="semester-filters" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="semester-selector">
-          <select value={department} onChange={(e) => setDepartment(e.target.value)}>
-            <option value="All">All Departments</option>
-            {availableDepartments.map(dept => (
-              <option key={dept} value={dept}>{dept}</option>
-            ))}
-          </select>
+      {/* Filters & Report Actions */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="semester-filters" style={{ display: 'flex', gap: '1rem', margin: 0 }}>
+          <div className="semester-selector">
+            <select value={department} onChange={(e) => setDepartment(e.target.value)}>
+              <option value="All">All Departments</option>
+              {availableDepartments.map(dept => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
+            </select>
+          </div>
+          <div className="semester-selector">
+            <select value={semester} onChange={(e) => setSemester(e.target.value)}>
+              <option value="All">All Semesters</option>
+              <option value="I">Semester I</option>
+              <option value="III">Semester III</option>
+              <option value="V">Semester V</option>
+              <option value="VII">Semester VII</option>
+            </select>
+          </div>
         </div>
-        <div className="semester-selector">
-          <select value={semester} onChange={(e) => setSemester(e.target.value)}>
-            <option value="All">All Semesters</option>
-            <option value="I">Semester I</option>
-            <option value="III">Semester III</option>
-            <option value="V">Semester V</option>
-            <option value="VII">Semester VII</option>
-          </select>
-        </div>
+
+        <button
+          onClick={handleDownloadClassReport}
+          disabled={isExporting || loading || !summary}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.55rem 1.15rem',
+            background: isExporting ? '#f1f5f9' : '#2563eb',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: isExporting ? 'not-allowed' : 'pointer',
+            color: isExporting ? '#94a3b8' : '#ffffff',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
+            transition: 'all 0.2s ease'
+          }}
+          title="Download complete institutional cohort report PDF with graphs, leaderboard, and at-risk registry"
+        >
+          {isExporting ? (
+            <>
+              <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid #94a3b8', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              Generating Class PDF...
+            </>
+          ) : (
+            <>
+              <Download size={16} /> Download Class PDF Report
+            </>
+          )}
+        </button>
       </div>
 
       {/* ── ROW 1: KPI Cards ── */}

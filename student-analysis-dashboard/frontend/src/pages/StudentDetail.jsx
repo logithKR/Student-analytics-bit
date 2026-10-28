@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getStudentDetails } from '../services/api';
-import { ArrowLeft, Download, CheckCircle, GraduationCap, AlertTriangle, Lightbulb, BookOpen, Calendar } from 'lucide-react';
+import { exportStudentReportPDF } from '../services/pdfReportService';
+import { ArrowLeft, Download, CheckCircle, GraduationCap, AlertTriangle, Lightbulb, BookOpen, Calendar, Loader2 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 import ChartContainer from '../components/charts/ChartContainer';
@@ -14,6 +15,7 @@ const StudentDetail = () => {
   const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -28,6 +30,19 @@ const StudentDetail = () => {
     fetchDetail();
   }, [id]);
 
+  const handleDownloadReport = async () => {
+    if (isExporting || !student) return;
+    setIsExporting(true);
+    try {
+      await exportStudentReportPDF(student);
+    } catch (err) {
+      console.error('Failed to export student PDF report:', err);
+      alert('Unable to generate PDF report. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (loading) return <div className="loading-spinner">Loading Profile...</div>;
   if (!student || student.error || !student.records || student.records.length === 0) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Student records not found.</div>;
@@ -40,7 +55,7 @@ const StudentDetail = () => {
 
   const latestRecord = student.records[student.records.length - 1];
   const totalArrears = student.records.reduce((sum, r) => sum + (r.failCount || 0), 0);
-  const isOptimal = latestRecord.gpa >= 6.0 && (latestRecord.result.toUpperCase() === 'P' || latestRecord.result.toUpperCase() === 'PASS');
+  const isOptimal = latestRecord.gpa >= 6.0 && (latestRecord.result ? (latestRecord.result.toUpperCase() === 'P' || latestRecord.result.toUpperCase() === 'PASS') : (latestRecord.failCount === 0));
 
   // Grade distribution across all semesters for this student
   const gradeCount = {};
@@ -64,8 +79,36 @@ const StudentDetail = () => {
         <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, fontSize: '0.875rem' }}>
           <ArrowLeft size={18} /> Back to Directory
         </button>
-        <button style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#ffffff', border: '1px solid var(--panel-border)', borderRadius: '8px', cursor: 'pointer', color: '#2563eb', fontWeight: 500, fontSize: '0.875rem' }}>
-          <Download size={16} /> Download Report
+        <button 
+          onClick={handleDownloadReport}
+          disabled={isExporting}
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem', 
+            padding: '0.55rem 1.15rem', 
+            background: isExporting ? '#f1f5f9' : '#ffffff', 
+            border: '1px solid var(--panel-border)', 
+            borderRadius: '8px', 
+            cursor: isExporting ? 'not-allowed' : 'pointer', 
+            color: isExporting ? '#94a3b8' : '#2563eb', 
+            fontWeight: 600, 
+            fontSize: '0.875rem',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+            transition: 'all 0.2s ease'
+          }}
+          title="Download full 2-page institutional dossier PDF with graphs and academic ledger"
+        >
+          {isExporting ? (
+            <>
+              <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid #94a3b8', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              Generating PDF Report...
+            </>
+          ) : (
+            <>
+              <Download size={16} /> Download Official PDF Report
+            </>
+          )}
         </button>
       </div>
 
@@ -207,8 +250,8 @@ const StudentDetail = () => {
               <div style={{ textAlign: 'right' }}>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase' }}>Result</span>
                 <div style={{ marginTop: '0.25rem' }}>
-                  <span className={`badge ${record.result.toUpperCase() === 'P' || record.result.toUpperCase() === 'PASS' ? 'pass' : 'fail'}`}>
-                    {record.result}
+                  <span className={`badge ${(record.result || '').toUpperCase() === 'P' || (record.result || '').toUpperCase() === 'PASS' || record.failCount === 0 ? 'pass' : 'fail'}`}>
+                    {record.result || (record.failCount === 0 ? 'PASS' : 'FAIL')}
                   </span>
                 </div>
               </div>
@@ -237,9 +280,14 @@ const StudentDetail = () => {
                     </td>
                     <td style={{ fontWeight: 600 }}>{sub.tot}</td>
                     <td>
-                      <span className={`badge ${sub.res.toUpperCase() === 'P' || sub.res.toUpperCase() === 'PASS' ? 'pass' : 'fail'}`}>
-                        {sub.res}
-                      </span>
+                      {(() => {
+                        const isSubPass = (sub.res && (sub.res.toUpperCase() === 'P' || sub.res.toUpperCase() === 'PASS')) || (sub.tot >= 50 && sub.grd !== 'U' && sub.grd !== 'RA');
+                        return (
+                          <span className={`badge ${isSubPass ? 'pass' : 'fail'}`}>
+                            {sub.res || (isSubPass ? 'PASS' : 'FAIL')}
+                          </span>
+                        );
+                      })()}
                     </td>
                   </tr>
                 ))}
