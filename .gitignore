@@ -107,6 +107,8 @@ student-analysis-dashboard/backend/data/**
 
 # Runtime AI query audit logs & test caches
 *ai_query_logs.json
+*.db
+*.sqlite3
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/

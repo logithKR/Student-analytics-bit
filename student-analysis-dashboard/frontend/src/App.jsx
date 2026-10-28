@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate, Link } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import StudentsList from './pages/StudentsList';
@@ -7,12 +7,17 @@ import StudentDetail from './pages/StudentDetail';
 import PredictionHub from './pages/PredictionHub';
 import AIAnalytics from './pages/AIAnalytics';
 import AILogs from './pages/AILogs';
-import { Search, Bell, User } from 'lucide-react';
+import LandingPage from './pages/LandingPage';
+import AuthPage from './pages/AuthPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { Search, Bell, User, LogOut, Home, ShieldCheck } from 'lucide-react';
 import './index.css';
 
 const Topbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [searchVal, setSearchVal] = React.useState('');
 
   let title = "Department Performance Overview";
@@ -50,6 +55,11 @@ const Topbar = () => {
     }
   };
 
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
   return (
     <div className="topbar">
       <div className="topbar-left">
@@ -57,6 +67,26 @@ const Topbar = () => {
         <p>{subtitle}</p>
       </div>
       <div className="topbar-right">
+        <Link
+          to="/"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            color: '#000000',
+            background: '#facc15',
+            padding: '6px 14px',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            boxShadow: '0 2px 8px rgba(250, 204, 21, 0.25)'
+          }}
+        >
+          <Home size={15} color="#000000" />
+          Landing Page
+        </Link>
+
         <div className="search-bar">
           <Search size={18} color="#94a3b8" />
           <input 
@@ -67,18 +97,37 @@ const Topbar = () => {
             onKeyDown={handleSearchSubmit}
           />
         </div>
+        
         <div style={{ position: 'relative', cursor: 'pointer' }} title="System Notifications">
           <Bell size={20} color="#64748b" />
           <span style={{ position: 'absolute', top: -4, right: -4, background: '#10b981', width: 8, height: 8, borderRadius: '50%' }}></span>
         </div>
+
         <div className="profile-section">
           <div className="profile-img">
             <User size={24} color="#94a3b8" style={{ margin: '6px' }} />
           </div>
           <div className="profile-info">
-            <span className="profile-name">Academic Faculty</span>
-            <span className="profile-role">Department Portal</span>
+            <span className="profile-name">{user?.full_name || 'Academic Faculty'}</span>
+            <span className="profile-role">{user?.role || 'Department Portal'}</span>
           </div>
+          <button
+            onClick={handleLogout}
+            title="Sign Out"
+            style={{
+              marginLeft: '8px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#94a3b8',
+              padding: '4px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <LogOut size={16} />
+          </button>
         </div>
       </div>
     </div>
@@ -89,7 +138,7 @@ const SettingsPage = () => (
   <div style={{ background: '#ffffff', padding: '2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
     <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem' }}>System & ML Model Settings</h2>
     <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-      Connected to XGBoost inference engine with dynamic internal mark benchmark totals (40 / 50 / 60 scale).
+      Connected to XGBoost inference engine with dynamic internal mark benchmark totals (40 / 50 / 60 scale) and secured SQLite authentication.
     </p>
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
       <div style={{ padding: '1.25rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
@@ -97,37 +146,60 @@ const SettingsPage = () => (
         <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Active endpoint: <code>{import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}</code></p>
       </div>
       <div style={{ padding: '1.25rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+        <h4 style={{ fontWeight: 600, marginBottom: '0.25rem' }}>SQLite Database</h4>
+        <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Auto-created <code>users.db</code> with bcrypt salted password hashing.</p>
+      </div>
+      <div style={{ padding: '1.25rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
         <h4 style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Risk Thresholds</h4>
-        <p style={{ fontSize: '0.8rem', color: '#64748b' }}>High Risk: &ge; 50% Fail Chance · Medium Risk: &ge; 25%</p>
+        <p style={{ fontSize: '0.8rem', color: '#64748b' }}>High Risk: &ge; 65% Fail Chance · Medium Risk: &ge; 30%</p>
       </div>
     </div>
   </div>
 );
 
-function App() {
+// Portal layout for authenticated views
+const PortalLayout = ({ children }) => {
   return (
-    <Router>
+    <ProtectedRoute>
       <div className="app-container">
         <Sidebar />
         <main className="main-content">
           <Topbar />
           <div className="page-content">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/prediction-hub" element={<PredictionHub />} />
-              <Route path="/ai-analytics" element={<AIAnalytics />} />
-              <Route path="/ai-logs" element={<AILogs />} />
-              <Route path="/students" element={<StudentsList />} />
-              <Route path="/student/:id" element={<StudentDetail />} />
-              <Route path="/at-risk" element={<Dashboard />} />
-              <Route path="/reports" element={<Dashboard />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            {children}
           </div>
         </main>
       </div>
-    </Router>
+    </ProtectedRoute>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public Landing & Authentication Pages */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<AuthPage initialMode="login" />} />
+          <Route path="/register" element={<AuthPage initialMode="register" />} />
+
+          {/* Protected Institutional Portal Routes */}
+          <Route path="/dashboard" element={<PortalLayout><Dashboard /></PortalLayout>} />
+          <Route path="/prediction-hub" element={<PortalLayout><PredictionHub /></PortalLayout>} />
+          <Route path="/ai-analytics" element={<PortalLayout><AIAnalytics /></PortalLayout>} />
+          <Route path="/ai-logs" element={<PortalLayout><AILogs /></PortalLayout>} />
+          <Route path="/students" element={<PortalLayout><StudentsList /></PortalLayout>} />
+          <Route path="/student/:id" element={<PortalLayout><StudentDetail /></PortalLayout>} />
+          <Route path="/at-risk" element={<PortalLayout><Dashboard /></PortalLayout>} />
+          <Route path="/reports" element={<PortalLayout><Dashboard /></PortalLayout>} />
+          <Route path="/settings" element={<PortalLayout><SettingsPage /></PortalLayout>} />
+
+          {/* Catch-all redirect to Landing Page */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

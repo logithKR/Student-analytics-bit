@@ -2,10 +2,72 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 
+// Interceptor to automatically attach JWT token
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('bit_auth_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
+// Interceptor to handle session expiration
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/') {
+        localStorage.removeItem('bit_auth_token');
+        localStorage.removeItem('bit_auth_user');
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+// ── Authentication Services ──
+
+export const loginUser = async (email, password) => {
+  const response = await axios.post(`${API_URL}/auth/login`, { email, password });
+  return response.data;
+};
+
+export const registerUser = async (userData) => {
+  const response = await axios.post(`${API_URL}/auth/register`, userData);
+  return response.data;
+};
+
+export const getCurrentUser = async () => {
+  const response = await axios.get(`${API_URL}/auth/me`);
+  return response.data;
+};
+
+export const getDemoAccounts = async () => {
+  const response = await axios.get(`${API_URL}/auth/demo-accounts`);
+  return response.data;
+};
+
+export const logoutUser = async () => {
+  try {
+    await axios.post(`${API_URL}/auth/logout`);
+  } catch {
+    // Ignore error on logout
+  }
+  localStorage.removeItem('bit_auth_token');
+  localStorage.removeItem('bit_auth_user');
+};
+
+// ── Health & Diagnostics ──
+
 export const checkHealth = async () => {
   const response = await axios.get(`${API_URL}/health`);
   return response.data;
 };
+
+// ── ML Prediction Engine ──
 
 export const predictSingle = async (studentData) => {
   const response = await axios.post(`${API_URL}/predict/single`, studentData);
@@ -22,6 +84,8 @@ export const predictBulk = async (file) => {
   });
   return response.data;
 };
+
+// ── Academic Dashboard Analytics ──
 
 export const getDepartments = async () => {
   const response = await axios.get(`${API_URL}/departments`);

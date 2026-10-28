@@ -131,9 +131,24 @@ cd Student-analytics-bit
    GROQ_API_KEY_3=gsk_your_tertiary_key_here    # Optional backup
    ```
 
-4. **Launch the FastAPI Server:**
+4. **Launch the FastAPI Server & Auto-Initialize SQLite Database:**
    ```bash
-   python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   python main.py
+   ```
+   *Executing `python main.py` automatically initializes the secured SQLite database (`users.db`), creates encrypted user tables, seeds institutional reviewer accounts, and boots up the FastAPI backend.*
+
+   - API Server: `http://localhost:8000`
+   - Interactive OpenAPI Documentation: `http://localhost:8000/docs`
+   - Seed Demo Accounts:
+     - **Dean of Academics:** `admin@bit.edu` (Password: `Admin@1234`)
+     - **HOD CS:** `hod.cs@bit.edu` (Password: `Hod@1234`)
+     - **IT Faculty:** `faculty@bit.edu` (Password: `Faculty@1234`)
+
+
+
+   ```bash
+   # Alternatively, with live auto-reload:
+   uvicorn main:app --reload --host 0.0.0.0 --port 8000
    ```
    - API Server: `http://localhost:8000`
    - Interactive OpenAPI Documentation: `http://localhost:8000/docs`

@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, Query, UploadFile, File, HTTPException
+from fastapi import FastAPI, Query, UploadFile, File, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
@@ -9,6 +9,11 @@ try:
     load_dotenv()
 except ImportError:
     pass
+
+from auth_db import (
+    init_db, create_user, authenticate_user, create_access_token,
+    decode_access_token, get_user_by_email, get_user_by_id
+)
 
 from data_service import (
     load_data, get_dashboard_summary, get_subject_analytics,
@@ -45,6 +50,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Auto-create SQLite database and ensure tables exist
+print("Initializing SQLite database for authentication...")
+init_db()
 
 # Load existing student data into memory at startup
 print("Loading data from Excel files...")
@@ -293,3 +302,128 @@ def handle_clear_ai_logs():
     """Clears all logged AI queries."""
     clear_ai_logs()
     return {"status": "success", "message": "All AI interaction logs cleared."}
+
+
+# ==========================================
+# Authentication & User Management Endpoints (SQLite)
+# ==========================================
+
+class RegisterRequest(BaseModel):
+    email: str = Field(..., example="faculty@bit.edu")
+    full_name: str = Field(..., example="Dr. Ramesh")
+    department: str = Field(..., example="Computer Science & Engineering")
+    role: str = Field(default="Faculty", example="Faculty")
+    password: str = Field(..., min_length=6, example="Secret123")
+
+class LoginRequest(BaseModel):
+    email: str = Field(..., example="admin@bit.edu")
+    password: str = Field(..., example="Admin@1234")
+
+
+@app.post("/api/auth/register")
+def register_user(payload: RegisterRequest):
+    """Registers a new faculty/staff user into SQLite with bcrypt hashed password."""
+    try:
+        user = create_user(
+            email=payload.email,
+            full_name=payload.full_name,
+            department=payload.department,
+            role=payload.role,
+            password=payload.password
+        )
+        token = create_access_token({"sub": user["email"], "id": user["id"], "role": user["role"]})
+        return {
+            "status": "success",
+            "message": "Account created successfully.",
+            "token": token,
+            "user": user
+        }
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+
+
+@app.post("/api/auth/login")
+def login_user(payload: LoginRequest, request: Request):
+    """Authenticates against SQLite database and returns signed JWT token."""
+    client_ip = request.client.host if request.client else None
+    user = authenticate_user(payload.email, payload.password, ip_address=client_ip)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+        
+    token = create_access_token({"sub": user["email"], "id": user["id"], "role": user["role"]})
+    return {
+        "status": "success",
+        "message": "Authentication successful.",
+        "token": token,
+        "user": user
+    }
+
+
+@app.get("/api/auth/me")
+def get_current_user(authorization: Optional[str] = Header(None)):
+    """Verifies bearer token and returns current active profile."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or malformed Authorization header.")
+    
+    token = authorization.split(" ")[1]
+    payload = decode_access_token(token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(status_code=401, detail="Invalid or expired access token.")
+        
+    user = get_user_by_email(payload["sub"])
+    if not user:
+        raise HTTPException(status_code=404, detail="User account not found.")
+        
+    return {
+        "status": "success",
+        "user": user
+    }
+
+
+@app.get("/api/auth/demo-accounts")
+def get_demo_accounts():
+    """Provides seed accounts for rapid 1-click evaluation and testing."""
+    return [
+        {
+            "role": "Dean / Administrator",
+            "email": "admin@bit.edu",
+            "password": "Admin@1234",
+            "department": "Academic Administration",
+            "name": "Dr. Ramesh Sakthivel"
+        },
+        {
+            "role": "Head of Department (HOD)",
+            "email": "hod.cs@bit.edu",
+            "password": "Hod@1234",
+            "department": "Computer Science & Engineering",
+            "name": "Dr. S. K. Sharma"
+        },
+        {
+            "role": "Assistant Professor",
+            "email": "faculty@bit.edu",
+            "password": "Faculty@1234",
+            "department": "Information Technology",
+            "name": "Prof. A. Priya"
+        },
+        {
+            "role": "Academic Advisor",
+            "email": "advisor.ad@bit.edu",
+            "password": "Advisor@1234",
+            "department": "Artificial Intelligence & Data Science",
+            "name": "Dr. K. Balaji"
+        }
+    ]
+
+
+@app.post("/api/auth/logout")
+def logout_user():
+    """Logs out user session."""
+    return {"status": "success", "message": "Successfully logged out."}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
