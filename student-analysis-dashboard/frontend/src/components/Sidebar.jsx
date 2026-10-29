@@ -69,9 +69,9 @@ const Sidebar = () => {
         </NavLink>
 
         <div className="sidebar-category-header">Administration</div>
-        <NavLink to="/reports" className="nav-link">
+        <NavLink to="/ai-report" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
           <FileText size={18} />
-          Academic Reports
+          AI Report Builder
         </NavLink>
         <NavLink to="/settings" className="nav-link">
           <Settings size={18} />

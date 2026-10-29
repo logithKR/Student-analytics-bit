@@ -180,3 +180,43 @@ export const clearAILogs = async () => {
   const response = await axios.delete(`${API_URL}/ai/logs`);
   return response.data;
 };
+
+// ── Report Card & Dynamic Report Builder Services ──
+
+export const getReportBuilderStudent = async (registerNumber) => {
+  const response = await axios.get(`${API_URL}/report-builder/student/${encodeURIComponent(registerNumber)}`);
+  return response.data;
+};
+
+export const getReportBuilderDepartment = async (department = 'All', semester = 'All') => {
+  const response = await axios.get(`${API_URL}/report-builder/department`, {
+    params: { department, semester }
+  });
+  return response.data;
+};
+
+export const generateReportAIInsight = async ({ scope = 'student', data = {}, insight_type = 'summary' }) => {
+  const response = await axios.post(`${API_URL}/report-builder/ai-insight`, {
+    scope,
+    data,
+    insight_type
+  });
+  return response.data;
+};
+
+export const sendReportAIChat = async ({
+  question,
+  scope = 'student',
+  entity_data = {},
+  available_components = [],
+  history = []
+}) => {
+  const response = await axios.post(`${API_URL}/report-builder/chat`, {
+    question,
+    scope,
+    entity_data,
+    available_components,
+    history
+  });
+  return response.data;
+};

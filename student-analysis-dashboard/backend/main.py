@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, Query, UploadFile, File, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 try:
     from dotenv import load_dotenv
@@ -32,6 +32,13 @@ from ai_service import (
 
 from logger_service import (
     get_ai_logs, get_ai_log_by_id, clear_ai_logs, get_ai_logs_stats
+)
+
+from report_builder_service import (
+    get_student_report_dataset,
+    get_department_report_dataset,
+    generate_factual_ai_insight,
+    chat_with_report_ai
 )
 
 app = FastAPI(title="Academic Intelligence Platform API", version="1.0.0")
@@ -302,6 +309,90 @@ def handle_clear_ai_logs():
     """Clears all logged AI queries."""
     clear_ai_logs()
     return {"status": "success", "message": "All AI interaction logs cleared."}
+
+
+# ==========================================
+# Report Builder Module Endpoints
+# ==========================================
+
+class ReportInsightRequest(BaseModel):
+    scope: str = Field(default="student", example="student")
+    data: Dict[str, Any] = Field(default_factory=dict)
+    insight_type: str = Field(default="summary", example="summary")
+
+class ReportChatRequest(BaseModel):
+    question: str = Field(..., example="What are the student's strongest subjects?")
+    scope: str = Field(default="student", example="student")
+    entity_data: Dict[str, Any] = Field(default_factory=dict)
+    available_components: List[Dict[str, Any]] = Field(default_factory=list)
+    history: Optional[List[Dict[str, Any]]] = None
+
+
+@app.get("/api/report-builder/student/{register_number}")
+def get_report_builder_student(register_number: str):
+    """
+    Fetches real academic records across all semesters for a student and
+    returns structured metadata, summary stats, and available chart configurations.
+    """
+    dataset = get_student_report_dataset(STUDENT_DATA, register_number)
+    if not dataset:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Student with register number '{register_number}' not found in academic database."
+        )
+    return dataset
+
+
+@app.get("/api/report-builder/department")
+def get_report_builder_department(
+    department: str = Query("All"),
+    semester: str = Query("All")
+):
+    """
+    Fetches cohort statistics for the specified department and semester,
+    returning structured KPI data, distributions, and available chart components.
+    """
+    return get_department_report_dataset(STUDENT_DATA, department, semester)
+
+
+@app.post("/api/report-builder/ai-insight")
+def get_report_builder_ai_insight(payload: ReportInsightRequest):
+    """
+    Generates a factual, non-hallucinated academic diagnosis summary for a student or cohort.
+    """
+    try:
+        insight = generate_factual_ai_insight(
+            scope=payload.scope,
+            data=payload.data,
+            insight_type=payload.insight_type
+        )
+        return {
+            "status": "success",
+            "insight": insight
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate AI insight: {str(e)}")
+
+
+@app.post("/api/report-builder/chat")
+def get_report_builder_chat(payload: ReportChatRequest):
+    """
+    Factual conversational assistant for the Report Builder canvas.
+    Answers natural language questions strictly grounded in the loaded student/department dataset,
+    and returns relevant component recommendations.
+    """
+    try:
+        res = chat_with_report_ai(
+            question=payload.question,
+            scope=payload.scope,
+            entity_data=payload.entity_data,
+            available_components=payload.available_components,
+            history=payload.history,
+            student_data=STUDENT_DATA
+        )
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to process chat: {str(e)}")
 
 
 # ==========================================

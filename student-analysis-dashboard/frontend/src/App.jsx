@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate, Link } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
+import AIReportBuilder from './pages/AIReportBuilder/AIReportBuilder';
 import StudentsList from './pages/StudentsList';
 import StudentDetail from './pages/StudentDetail';
 import PredictionHub from './pages/PredictionHub';
@@ -41,9 +42,9 @@ const Topbar = () => {
   } else if (location.pathname.includes('/at-risk')) {
     title = "At-Risk Academic Intervention";
     subtitle = "Identified students requiring remedial counseling and monitoring";
-  } else if (location.pathname.includes('/reports')) {
-    title = "Academic Performance Reports";
-    subtitle = "Downloadable semester summaries and department evaluations";
+  } else if (location.pathname.includes('/ai-report') || location.pathname.includes('/reports')) {
+    title = "AI Report Card & Dynamic Dossier Builder";
+    subtitle = "Drag-and-drop report workspace with factual database queries and high-DPI PDF generation";
   } else if (location.pathname.includes('/settings')) {
     title = "System Configuration & ML Settings";
     subtitle = "API connections, prediction thresholds, and grading parameters";
@@ -192,7 +193,8 @@ function App() {
           <Route path="/students" element={<PortalLayout><StudentsList /></PortalLayout>} />
           <Route path="/student/:id" element={<PortalLayout><StudentDetail /></PortalLayout>} />
           <Route path="/at-risk" element={<PortalLayout><Dashboard /></PortalLayout>} />
-          <Route path="/reports" element={<PortalLayout><Dashboard /></PortalLayout>} />
+          <Route path="/reports" element={<PortalLayout><AIReportBuilder /></PortalLayout>} />
+          <Route path="/ai-report" element={<PortalLayout><AIReportBuilder /></PortalLayout>} />
           <Route path="/settings" element={<PortalLayout><SettingsPage /></PortalLayout>} />
 
           {/* Catch-all redirect to Landing Page */}

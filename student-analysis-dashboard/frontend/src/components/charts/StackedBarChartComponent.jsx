@@ -71,11 +71,11 @@ export const StackedBarChartComponent = ({
               stroke="#64748b"
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11 }}
-              interval={0}
-              angle={data.length > 5 ? -25 : 0}
+              tick={{ fontSize: data.length > 8 ? 9 : 11 }}
+              interval={data.length > 8 ? 'preserveStartEnd' : 0}
+              angle={data.length > 5 ? -35 : 0}
               textAnchor={data.length > 5 ? 'end' : 'middle'}
-              tickFormatter={(val) => truncateLabel(val, 14)}
+              tickFormatter={(val) => truncateLabel(val, 12)}
             />
             <YAxis
               stroke="#64748b"

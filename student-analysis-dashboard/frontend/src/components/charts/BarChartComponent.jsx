@@ -26,13 +26,23 @@ export const BarChartComponent = ({
   if (!data || data.length === 0) return null;
 
   const total = data.reduce((acc, d) => acc + (parseFloat(d[yField]) || 0), 0);
-  const shouldAngleLabels = data.length > 5;
+  const count = data.length;
+  const isCramped = count > 6;
+  const isExtreme = count > 10;
+
+  // Collision-free responsive typography & layout
+  const tickFontSize = isExtreme ? 9 : (isCramped ? 10 : 11);
+  const angle = isCramped ? -45 : (count > 4 ? -25 : 0);
+  const bottomMargin = isCramped ? 46 : (count > 4 ? 30 : 15);
+  // Recharts 'preserveStartEnd' algorithm mathematically drops collisions when count > 10
+  const interval = isExtreme ? 'preserveStartEnd' : 0;
+  const maxBarSize = isExtreme ? 18 : (isCramped ? 24 : 38);
 
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart
         data={data}
-        margin={{ top: 15, right: 25, left: 10, bottom: shouldAngleLabels ? 35 : 15 }}
+        margin={{ top: 10, right: 15, left: -10, bottom: bottomMargin }}
       >
         {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />}
         
@@ -41,13 +51,13 @@ export const BarChartComponent = ({
           stroke="#64748b"
           tickLine={false}
           axisLine={false}
-          tick={{ fontSize: 11, fill: '#64748b' }}
-          interval={0}
-          angle={shouldAngleLabels ? -25 : 0}
-          textAnchor={shouldAngleLabels ? 'end' : 'middle'}
+          tick={{ fontSize: tickFontSize, fill: '#64748b' }}
+          interval={interval}
+          angle={angle}
+          textAnchor={isCramped || count > 4 ? 'end' : 'middle'}
           tickFormatter={(val) => {
             const str = String(val ?? '');
-            return str.length > 14 ? `${str.substring(0, 12)}...` : str;
+            return str.length > 9 ? `${str.substring(0, 8)}.` : str;
           }}
         />
 
@@ -55,9 +65,9 @@ export const BarChartComponent = ({
           stroke="#64748b"
           tickLine={false}
           axisLine={false}
-          tick={{ fontSize: 11, fill: '#64748b' }}
+          tick={{ fontSize: 10, fill: '#64748b' }}
           domain={domain}
-          width={45}
+          width={38}
           tickFormatter={(val) => formatAxisTick(val) + (unit === '%' ? '%' : '')}
         />
 
@@ -73,15 +83,15 @@ export const BarChartComponent = ({
 
         {showLegend && (
           <Legend
-            wrapperStyle={{ fontSize: '0.75rem', paddingTop: '10px' }}
+            wrapperStyle={{ fontSize: '0.72rem', paddingTop: '6px' }}
           />
         )}
 
         <Bar
           dataKey={yField}
           radius={barRadius}
-          maxBarSize={48}
-          animationDuration={600}
+          maxBarSize={maxBarSize}
+          animationDuration={500}
         >
           {data.map((entry, idx) => {
             const label = entry[xField];

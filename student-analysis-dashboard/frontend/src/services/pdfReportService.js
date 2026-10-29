@@ -5,101 +5,178 @@ import html2canvas from 'html2canvas';
  * High-Resolution Chart SVG to PNG Data URL converter.
  * Inlines computed CSS styles to guarantee razor-sharp vector-like rendering in PDF.
  */
+/**
+ * High-Resolution Chart SVG to PNG Data URL converter.
+ * Inlines computed styles safely without breaking XML and eliminates absolute origin URLs.
+ */
 export const captureSvgToDataUrl = async (svgElement, scale = 2.5) => {
   if (!svgElement) return null;
 
   try {
     const rect = svgElement.getBoundingClientRect();
-    const width = Math.max(rect.width || 600, 400);
-    const height = Math.max(rect.height || 300, 240);
+    const attrW = parseFloat(svgElement.getAttribute('width'));
+    const attrH = parseFloat(svgElement.getAttribute('height'));
+    const width = Math.max(attrW || rect.width || 400, 300);
+    const height = Math.max(attrH || rect.height || 260, 200);
 
     const clonedSvg = svgElement.cloneNode(true);
-    clonedSvg.setAttribute('width', width);
-    clonedSvg.setAttribute('height', height);
+    clonedSvg.setAttribute('width', String(width));
+    clonedSvg.setAttribute('height', String(height));
+    clonedSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
     clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     clonedSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
-    const copyStyles = (source, target) => {
-      const computed = window.getComputedStyle(source);
-      const fill = computed.getPropertyValue('fill');
-      const stroke = computed.getPropertyValue('stroke');
-      const strokeWidth = computed.getPropertyValue('stroke-width');
-      const font = computed.getPropertyValue('font-family');
-      const fontSize = computed.getPropertyValue('font-size');
-      const fontWeight = computed.getPropertyValue('font-weight');
-      const opacity = computed.getPropertyValue('opacity');
-      const fillOpacity = computed.getPropertyValue('fill-opacity');
-      const strokeOpacity = computed.getPropertyValue('stroke-opacity');
+    const copyStylesSafe = (source, target) => {
+      if (!source || !target || target.nodeType !== 1) return;
+      const tag = target.tagName ? target.tagName.toLowerCase() : '';
 
-      const attrFill = source.getAttribute('fill');
-      if (attrFill && attrFill.startsWith('url(')) {
-        target.setAttribute('fill', attrFill);
-      } else if (fill && fill !== 'none') {
-        target.style.fill = fill;
+      // Skip definitions, clip paths, masks internal structure
+      if (tag === 'defs' || tag === 'clippath' || tag === 'mask') return;
+
+      const computed = window.getComputedStyle(source);
+      if (!computed) return;
+
+      // Text styling
+      if (tag === 'text' || tag === 'tspan') {
+        const fill = computed.getPropertyValue('fill');
+        if (fill && fill !== 'none') target.setAttribute('fill', fill);
+        target.setAttribute('font-family', 'sans-serif');
+        const fSize = computed.getPropertyValue('font-size');
+        if (fSize) target.setAttribute('font-size', fSize);
+        const fWeight = computed.getPropertyValue('font-weight');
+        if (fWeight) target.setAttribute('font-weight', fWeight);
+        const anchor = computed.getPropertyValue('text-anchor');
+        if (anchor) target.setAttribute('text-anchor', anchor);
       }
 
-      if (stroke && stroke !== 'none') target.style.stroke = stroke;
-      if (strokeWidth) target.style.strokeWidth = strokeWidth;
-      if (font) target.style.fontFamily = font;
-      if (fontSize) target.style.fontSize = fontSize;
-      if (fontWeight) target.style.fontWeight = fontWeight;
-      if (opacity && opacity !== '1') target.style.opacity = opacity;
-      if (fillOpacity && fillOpacity !== '1') target.style.fillOpacity = fillOpacity;
-      if (strokeOpacity && strokeOpacity !== '1') target.style.strokeOpacity = strokeOpacity;
-
-      for (let i = 0; i < source.children.length; i++) {
-        if (target.children[i]) {
-          copyStyles(source.children[i], target.children[i]);
+      // Shape styling
+      if (tag === 'path' || tag === 'rect' || tag === 'circle' || tag === 'line' || tag === 'polygon') {
+        const attrFill = source.getAttribute('fill');
+        if (attrFill) {
+          target.setAttribute('fill', attrFill.replace(/url\(["']?https?:\/\/[^#]*#/gi, 'url(#').replace(/['"]/g, ''));
+        } else {
+          const computedFill = computed.getPropertyValue('fill');
+          if (computedFill && computedFill !== 'none') {
+            const cleanFill = computedFill.replace(/url\(["']?https?:\/\/[^#]*#/gi, 'url(#').replace(/['"]/g, '');
+            target.setAttribute('fill', cleanFill);
+          }
         }
+
+        const attrStroke = source.getAttribute('stroke');
+        if (attrStroke) {
+          target.setAttribute('stroke', attrStroke.replace(/url\(["']?https?:\/\/[^#]*#/gi, 'url(#').replace(/['"]/g, ''));
+        } else {
+          const stroke = computed.getPropertyValue('stroke');
+          if (stroke && stroke !== 'none') {
+            target.setAttribute('stroke', stroke);
+          }
+        }
+
+        const sWidth = source.getAttribute('stroke-width') || computed.getPropertyValue('stroke-width');
+        if (sWidth && sWidth !== '0px') target.setAttribute('stroke-width', sWidth);
+
+        const sDash = source.getAttribute('stroke-dasharray') || computed.getPropertyValue('stroke-dasharray');
+        if (sDash && sDash !== 'none') target.setAttribute('stroke-dasharray', sDash);
+      }
+
+      // Clip path sanitization (keep purely relative)
+      const clip = target.getAttribute('clip-path') || computed.getPropertyValue('clip-path');
+      if (clip && clip !== 'none') {
+        const cleanClip = clip.replace(/url\(["']?https?:\/\/[^#]*#/gi, 'url(#').replace(/['"]/g, '');
+        target.setAttribute('clip-path', cleanClip);
+      }
+
+      for (let i = 0; i < Math.min(source.children.length, target.children.length); i++) {
+        copyStylesSafe(source.children[i], target.children[i]);
       }
     };
-    copyStyles(svgElement, clonedSvg);
+
+    copyStylesSafe(svgElement, clonedSvg);
 
     const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(clonedSvg);
-    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const svgUrl = URL.createObjectURL(svgBlob);
+    let svgString = serializer.serializeToString(clonedSvg);
+
+    // Sanitize any remaining absolute URLs
+    svgString = svgString.replace(/url\(['"]?https?:\/\/[^#]*#([^'"]+)['"]?\)/gi, 'url(#$1)');
 
     const canvas = document.createElement('canvas');
     canvas.width = width * scale;
     canvas.height = height * scale;
     const ctx = canvas.getContext('2d');
     ctx.scale(scale, scale);
-
-    // Clean background
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
-    return new Promise((resolve) => {
+    // Try base64 data URL
+    let loaded = false;
+    try {
+      const base64 = window.btoa(unescape(encodeURIComponent(svgString)));
+      const dataUrl = `data:image/svg+xml;base64,${base64}`;
       const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, width, height);
-        URL.revokeObjectURL(svgUrl);
-        resolve({
-          dataUrl: canvas.toDataURL('image/png', 1.0),
-          width,
-          height,
-          aspectRatio: width / height
+      loaded = await new Promise((resolve) => {
+        img.onload = () => {
+          try {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(true);
+          } catch (e) {
+            resolve(false);
+          }
+        };
+        img.onerror = () => resolve(false);
+        img.src = dataUrl;
+      });
+    } catch (b64Err) {
+      loaded = false;
+    }
+
+    // Backup: Blob URL
+    if (!loaded) {
+      try {
+        const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const svgUrl = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        loaded = await new Promise((resolve) => {
+          img.onload = () => {
+            try {
+              ctx.drawImage(img, 0, 0, width, height);
+              URL.revokeObjectURL(svgUrl);
+              resolve(true);
+            } catch (e) {
+              URL.revokeObjectURL(svgUrl);
+              resolve(false);
+            }
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(svgUrl);
+            resolve(false);
+          };
+          img.src = svgUrl;
         });
+      } catch (blobErr) {
+        loaded = false;
+      }
+    }
+
+    if (loaded) {
+      return {
+        dataUrl: canvas.toDataURL('image/png', 1.0),
+        width,
+        height,
+        aspectRatio: width / height
       };
-      img.onerror = () => {
-        URL.revokeObjectURL(svgUrl);
-        resolve(null);
-      };
-      img.src = svgUrl;
-    });
+    }
+    return null;
   } catch (err) {
-    console.error('Error in captureSvgToDataUrl:', err);
+    console.warn('Error in captureSvgToDataUrl:', err);
     return null;
   }
 };
 
 /**
  * Capture an entire DOM card or element (including HTML tables, badges, text)
- * at high DPI (2.5x retina) using html2canvas.
+ * at high DPI (2x retina) using html2canvas.
  */
-export const captureElementToCanvas = async (element, scale = 2.5) => {
+export const captureElementToCanvas = async (element, scale = 2.0) => {
   if (!element) return null;
   try {
     const canvas = await html2canvas(element, {
@@ -107,16 +184,14 @@ export const captureElementToCanvas = async (element, scale = 2.5) => {
       useCORS: true,
       logging: false,
       backgroundColor: '#ffffff',
-      windowWidth: element.scrollWidth,
-      windowHeight: element.scrollHeight,
-      onclone: (clonedDoc) => {
-        // Ensure all svgs inside cloned element have explicit dimensions
-        const svgs = clonedDoc.querySelectorAll('svg');
-        svgs.forEach((svg) => {
-          const rect = svg.getBoundingClientRect();
-          if (!svg.getAttribute('width') && rect.width) svg.setAttribute('width', rect.width);
-          if (!svg.getAttribute('height') && rect.height) svg.setAttribute('height', rect.height);
-        });
+      ignoreElements: (el) => {
+        return el.tagName === 'BUTTON' || el.classList?.contains('recharts-tooltip-wrapper');
+      },
+      onclone: (clonedDoc, clonedElement) => {
+        if (clonedElement) {
+          clonedElement.style.transform = 'none';
+          clonedElement.style.boxShadow = 'none';
+        }
       }
     });
 
@@ -127,7 +202,7 @@ export const captureElementToCanvas = async (element, scale = 2.5) => {
       aspectRatio: canvas.width / canvas.height
     };
   } catch (err) {
-    console.error('Error capturing element to canvas:', err);
+    console.warn('html2canvas capture error:', err);
     return null;
   }
 };
@@ -153,14 +228,11 @@ export const captureChart = async (containerOrSvg, scale = 2.5) => {
     const targetElement = isSvg ? containerOrSvg.parentElement : containerOrSvg;
     return await captureElementToCanvas(targetElement, scale);
   } catch (e) {
-    console.error('captureChart error:', e);
+    console.warn('captureChart error:', e);
     return null;
   }
 };
 
-/**
- * Adds an institutional header to an A4 PDF page.
- */
 const addInstitutionalHeader = (doc, reportTitle, subtitle = '') => {
   // Top primary accent bar
   doc.setFillColor(37, 99, 235); // #2563eb
@@ -1045,7 +1117,861 @@ export const exportClassReportPDF = async ({
   return filename;
 };
 
+/**
+ * Dynamic Multi-Page PDF Exporter for AI Report Builder Canvas.
+ * Captures user-configured cards in natural order, automatically handles page breaks,
+ * preserves high-DPI resolution without cropping or splitting, and adds official branding.
+ */
+export const exportCustomReportPDF = async ({
+  title = 'BANNARI AMMAN INSTITUTE OF TECHNOLOGY',
+  subtitle = '',
+  scope = 'student',
+  entityInfo = {},
+  dataset = null,
+  pages = [],
+  canvasElement = null,
+  returnBlob = false
+}) => {
+  const doc = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const marginX = 14;
+  const contentWidth = 182;
+  const maxContentY = 280;
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+  const studentInfo = dataset?.studentInfo || entityInfo || {};
+  const cohortInfo = dataset?.cohortInfo || entityInfo || {};
+
+  // Find DOM element robustly across canvas and preview modal
+  const findComponentElement = (comp) => {
+    if (!comp) return null;
+    const queries = [
+      comp.instanceId ? `[data-component-id="${comp.instanceId}"]` : null,
+      comp.id ? `[data-component-id="${comp.id}"]` : null,
+      comp.originalId ? `[data-component-id*="${comp.originalId}"]` : null,
+      comp.id ? `[data-component-id*="${comp.id}"]` : null
+    ].filter(Boolean);
+
+    for (const q of queries) {
+      try {
+        const el = document.querySelector(q);
+        if (el) return el;
+      } catch (e) {}
+    }
+    return null;
+  };
+
+  // Direct vector chart drawer: guarantees 100% vector fidelity even if DOM image is absent
+  const drawDirectVectorChart = (doc, comp, x, y, width, height) => {
+    const data = comp.data || [];
+    if (!data || data.length === 0) return;
+
+    const viz = comp.visualization || comp.config?.type || '';
+    const isLine = viz === 'line' || comp.id.includes('progression') || comp.id.includes('trend');
+    const isStacked = viz === 'stacked_bar' || comp.id.includes('stacked') || comp.id.includes('internal_external') || comp.id.includes('comparison');
+    const isDonut = viz === 'donut' || viz === 'pie' || comp.id.includes('donut') || comp.id.includes('division');
+
+    const axisY = y + height - 8;
+    const axisX1 = x + 8;
+    const axisX2 = x + width - 4;
+    const plotW = axisX2 - axisX1;
+    const plotH = height - 16;
+
+    // 1. Line Chart (SGPA Progression / Cohort SGPA Trend)
+    if (isLine) {
+      doc.setDrawColor(241, 245, 249);
+      doc.setLineWidth(0.2);
+      doc.line(axisX1, y + plotH * 0.5, axisX2, y + plotH * 0.5);
+
+      doc.setDrawColor(203, 213, 225);
+      doc.setLineWidth(0.3);
+      doc.line(axisX1, axisY, axisX2, axisY);
+
+      const pts = data.slice(0, 8);
+      const n = pts.length;
+      if (n > 0) {
+        const step = plotW / Math.max(1, n - 1 || 1);
+        const coords = pts.map((p, idx) => {
+          const val = parseFloat(p.sgpa || p.averageGpa || p.gpa || p.y || 0);
+          const ratio = Math.max(0, Math.min(1, val / 10.0));
+          const px = n === 1 ? axisX1 + plotW / 2 : axisX1 + idx * step;
+          const py = axisY - ratio * (plotH - 4);
+          return { px, py, val, sem: p.semester || `Sem ${idx + 1}` };
+        });
+
+        doc.setDrawColor(37, 99, 235);
+        doc.setLineWidth(0.7);
+        for (let i = 0; i < coords.length - 1; i++) {
+          doc.line(coords[i].px, coords[i].py, coords[i + 1].px, coords[i + 1].py);
+        }
+
+        coords.forEach((c) => {
+          doc.setFillColor(37, 99, 235);
+          doc.circle(c.px, c.py, 1.2, 'F');
+          doc.setFillColor(255, 255, 255);
+          doc.circle(c.px, c.py, 0.6, 'F');
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(5.5);
+          doc.setTextColor(37, 99, 235);
+          doc.text(String(c.val), c.px, c.py - 2, { align: 'center' });
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(5);
+          doc.setTextColor(100, 116, 139);
+          doc.text(String(c.sem), c.px, axisY + 4, { align: 'center' });
+        });
+      }
+    }
+    // 2. Stacked Bar Chart (Internal vs External Marks / Batch Comparison)
+    else if (isStacked) {
+      doc.setDrawColor(203, 213, 225);
+      doc.setLineWidth(0.3);
+      doc.line(axisX1, axisY, axisX2, axisY);
+
+      doc.setFillColor(37, 99, 235);
+      doc.rect(axisX2 - 28, y + 1, 3, 2.5, 'F');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(5);
+      doc.setTextColor(100, 116, 139);
+      doc.text('CIA', axisX2 - 23, y + 3);
+
+      doc.setFillColor(79, 70, 229);
+      doc.rect(axisX2 - 14, y + 1, 3, 2.5, 'F');
+      doc.text('ESE', axisX2 - 9, y + 3);
+
+      const items = data.slice(0, 8);
+      const n = items.length;
+      const barW = Math.min(6, (plotW / Math.max(1, n)) * 0.6);
+      const step = plotW / Math.max(1, n);
+
+      items.forEach((item, idx) => {
+        const bx = axisX1 + idx * step + (step - barW) / 2;
+        const im = parseFloat(item.internalMarks || item.im || 0);
+        const em = parseFloat(item.externalMarks || item.em || 0);
+        const total = im + em || 1;
+        const maxScore = 100;
+
+        const hIm = Math.max(0, (im / maxScore) * (plotH - 6));
+        const hEm = Math.max(0, (em / maxScore) * (plotH - 6));
+
+        doc.setFillColor(37, 99, 235);
+        doc.rect(bx, axisY - hIm, barW, hIm, 'F');
+
+        doc.setFillColor(79, 70, 229);
+        doc.rect(bx, axisY - hIm - hEm, barW, hEm, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(4.8);
+        doc.setTextColor(15, 23, 42);
+        doc.text(String(Math.round(total)), bx + barW / 2, axisY - hIm - hEm - 1.5, { align: 'center' });
+
+        const label = String(item.code || item.batch || item.semester || '').slice(0, 7);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(4.8);
+        doc.setTextColor(100, 116, 139);
+        doc.text(label, bx + barW / 2, axisY + 4, { align: 'center' });
+      });
+    }
+    // 3. Donut / Pie Grade Distribution
+    else if (isDonut) {
+      const items = data.slice(0, 6);
+      const colors = [
+        [37, 99, 235],
+        [16, 185, 129],
+        [245, 158, 11],
+        [239, 68, 68],
+        [139, 92, 246],
+        [14, 165, 233]
+      ];
+
+      const blockW = (width - 12) / 3;
+      const blockH = 11;
+
+      items.forEach((item, idx) => {
+        const col = idx % 3;
+        const row = Math.floor(idx / 3);
+        const bx = x + 4 + col * (blockW + 2);
+        const by = y + 5 + row * (blockH + 3);
+        const c = colors[idx % colors.length];
+
+        doc.setFillColor(248, 250, 252);
+        doc.roundedRect(bx, by, blockW, blockH, 1, 1, 'F');
+        doc.setDrawColor(226, 232, 240);
+        doc.roundedRect(bx, by, blockW, blockH, 1, 1, 'S');
+
+        doc.setFillColor(c[0], c[1], c[2]);
+        doc.rect(bx + 2, by + 3.5, 2.5, 4, 'F');
+
+        const name = String(item.grade || item.division || item.name || 'Grade').slice(0, 8);
+        const count = item.count !== undefined ? item.count : (item.value || 0);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(6.5);
+        doc.setTextColor(15, 23, 42);
+        doc.text(String(count), bx + 6, by + 5.5);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(5);
+        doc.setTextColor(100, 116, 139);
+        doc.text(name, bx + 6, by + 9.5);
+      });
+    }
+    // 4. Bar Chart (Latest Course Performance / Cohort Grade Distribution)
+    else {
+      doc.setDrawColor(203, 213, 225);
+      doc.setLineWidth(0.3);
+      doc.line(axisX1, axisY, axisX2, axisY);
+
+      const items = data.slice(0, 9);
+      const n = items.length;
+      const barW = Math.min(6.5, (plotW / Math.max(1, n)) * 0.65);
+      const step = plotW / Math.max(1, n);
+
+      items.forEach((item, idx) => {
+        const bx = axisX1 + idx * step + (step - barW) / 2;
+        const val = parseFloat(item.tot || item.count || item.percentage || item.average || item.value || 0);
+        const maxVal = Math.max(100, ...items.map((i) => parseFloat(i.tot || i.count || i.percentage || i.value || 0)));
+        const barH = Math.max(1, (val / maxVal) * (plotH - 6));
+
+        if (val >= 80) doc.setFillColor(16, 185, 129);
+        else if (val >= 60) doc.setFillColor(37, 99, 235);
+        else if (val >= 50) doc.setFillColor(245, 158, 11);
+        else doc.setFillColor(239, 68, 68);
+
+        doc.rect(bx, axisY - barH, barW, barH, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(4.8);
+        doc.setTextColor(15, 23, 42);
+        doc.text(String(Math.round(val)), bx + barW / 2, axisY - barH - 1.5, { align: 'center' });
+
+        const label = String(item.code || item.grade || item.subject || '').slice(0, 7);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(4.8);
+        doc.setTextColor(100, 116, 139);
+        doc.text(label, bx + barW / 2, axisY + 4, { align: 'center' });
+      });
+    }
+  };
+
+  // Render individual chart card
+  const renderChartCard = async (comp, x, y, width, height) => {
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(x, y, width, height, 1.5, 1.5, 'F');
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(x, y, width, height, 1.5, 1.5, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text(comp.title || 'Academic Performance', x + 3.5, y + 5.5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6);
+    doc.setTextColor(100, 116, 139);
+    if (comp.subtitle) {
+      const sub = comp.subtitle.length > 55 ? comp.subtitle.slice(0, 52) + '...' : comp.subtitle;
+      doc.text(sub, x + 3.5, y + 9);
+    }
+
+    const chartEl = findComponentElement(comp);
+    let chartImg = null;
+    if (chartEl) {
+      chartImg = await captureChart(chartEl, 2.5);
+    }
+
+    const topOff = comp.subtitle ? 10.5 : 7.5;
+    if (chartImg && chartImg.dataUrl) {
+      doc.addImage(chartImg.dataUrl, 'PNG', x + 2, y + topOff, width - 4, height - topOff - 2, undefined, 'FAST');
+    } else {
+      drawDirectVectorChart(doc, comp, x + 2, y + topOff, width - 4, height - topOff - 2);
+    }
+  };
+
+  // Render KPI group
+  const renderKPIGroup = (comp, x, y, width, height) => {
+    const data = comp.data || {};
+    const isStudentKpi = 'cgpa' in data;
+    const kpis = isStudentKpi
+      ? [
+          { label: 'CUMULATIVE CGPA', val: `${data.cgpa || 0.0} / 10`, color: '#2563eb' },
+          { label: 'LATEST SGPA', val: `${data.latestSgpa || 0.0}`, color: '#059669' },
+          { label: 'STANDING ARREARS', val: `${data.totalArrears || 0}`, color: data.totalArrears > 0 ? '#dc2626' : '#059669' },
+          { label: 'ACADEMIC STANDING', val: `${data.standing ? data.standing.split(' ')[0] : 'Optimal'}`, color: '#0f172a' }
+        ]
+      : [
+          { label: 'TOTAL ENROLLED', val: `${data.totalStudents || 0}`, color: '#2563eb' },
+          { label: 'PASS PERCENTAGE', val: `${data.passPercentage || 0}%`, color: '#059669' },
+          { label: 'AVERAGE SGPA', val: `${data.averageGpa || 0.0}`, color: '#2563eb' },
+          { label: 'AT-RISK STUDENTS', val: `${data.totalAtRisk || 0}`, color: data.totalAtRisk > 0 ? '#dc2626' : '#059669' }
+        ];
+
+    const tileW = (width - 9) / 4;
+    const tileH = 17;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(15, 23, 42);
+    doc.text(comp.title || 'Core Academic KPIs', x, y + 4);
+
+    kpis.forEach((kpi, kIdx) => {
+      const tx = x + kIdx * (tileW + 3);
+      const ty = y + 6;
+
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(tx, ty, tileW, tileH, 1.5, 1.5, 'F');
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(tx, ty, tileW, tileH, 1.5, 1.5, 'S');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(5.5);
+      doc.setTextColor(100, 116, 139);
+      doc.text(kpi.label, tx + 3, ty + 5);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      if (kpi.color === '#2563eb') doc.setTextColor(37, 99, 235);
+      else if (kpi.color === '#059669') doc.setTextColor(5, 150, 105);
+      else if (kpi.color === '#dc2626') doc.setTextColor(220, 38, 38);
+      else doc.setTextColor(15, 23, 42);
+      doc.text(kpi.val, tx + 3, ty + 12.5);
+    });
+  };
+
+  // Render AI narrative insight card
+  const renderAIInsightCard = (comp, x, y, width, height) => {
+    const insightRaw = comp.data || comp.insightText || '';
+    const insightText = typeof insightRaw === 'string'
+      ? insightRaw
+      : (insightRaw.summary || JSON.stringify(insightRaw));
+
+    doc.setFillColor(250, 245, 255);
+    doc.roundedRect(x, y, width, height, 1.5, 1.5, 'F');
+    doc.setDrawColor(216, 180, 254);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(x, y, width, height, 1.5, 1.5, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(124, 58, 237);
+    doc.text('AI ACADEMIC DIAGNOSTIC & PROGRESSION SUMMARY', x + 4, y + 5.5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6.8);
+    doc.setTextColor(51, 65, 85);
+    const splitText = doc.splitTextToSize(insightText, width - 8);
+    const maxLines = Math.floor((height - 9) / 3.4);
+    doc.text(splitText.slice(0, maxLines), x + 4, y + 10.5);
+  };
+
+  // Render highlight card (Strengths & Vulnerabilities)
+  const renderHighlightCard = (comp, x, y, width, height) => {
+    const data = comp.data || {};
+    const strongest = data.strongest || [];
+    const weakest = data.weakest || [];
+
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(x, y, width, height, 1.5, 1.5, 'F');
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(x, y, width, height, 1.5, 1.5, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text(comp.title || 'Curricular Strengths & Remedial Analysis', x + 3.5, y + 5.5);
+
+    const subBoxW = (width - 7) / 2;
+    const subBoxH = height - 9;
+    const subY = y + 7;
+
+    // Strongest Box (Green)
+    doc.setFillColor(240, 253, 244);
+    doc.roundedRect(x + 2, subY, subBoxW, subBoxH, 1, 1, 'F');
+    doc.setDrawColor(187, 247, 208);
+    doc.setLineWidth(0.2);
+    doc.roundedRect(x + 2, subY, subBoxW, subBoxH, 1, 1, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6);
+    doc.setTextColor(22, 101, 52);
+    doc.text('HIGHEST COMPETENCY', x + 4, subY + 4.5);
+
+    let sY = subY + 9;
+    strongest.slice(0, 4).forEach((s) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(6);
+      doc.setTextColor(15, 23, 42);
+      doc.text(s.code || '', x + 4, sY);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(22, 101, 52);
+      doc.text(`${s.tot || 0}/100`, x + subBoxW - 10, sY);
+      sY += 4.2;
+    });
+
+    // Weakest Box (Red)
+    const rX = x + 2 + subBoxW + 3;
+    doc.setFillColor(254, 242, 242);
+    doc.roundedRect(rX, subY, subBoxW, subBoxH, 1, 1, 'F');
+    doc.setDrawColor(254, 202, 202);
+    doc.setLineWidth(0.2);
+    doc.roundedRect(rX, subY, subBoxW, subBoxH, 1, 1, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6);
+    doc.setTextColor(153, 27, 27);
+    doc.text('REMEDIAL INTERVENTION', rX + 4, subY + 4.5);
+
+    let wY = subY + 9;
+    weakest.slice(0, 4).forEach((w) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(6);
+      doc.setTextColor(15, 23, 42);
+      doc.text(w.code || '', rX + 4, wY);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(185, 28, 28);
+      doc.text(`${w.tot || 0}/100`, rX + subBoxW - 10, wY);
+      wY += 4.2;
+    });
+  };
+
+  // Render Top At-Risk Courses progress bars
+  const renderProgressBars = (comp, x, y, width, height) => {
+    const list = comp.data || [];
+    const colors = [
+      [239, 68, 68],
+      [249, 115, 22],
+      [245, 158, 11],
+      [16, 185, 129],
+      [59, 130, 246]
+    ];
+
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(x, y, width, height, 1.5, 1.5, 'F');
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(x, y, width, height, 1.5, 1.5, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text('Top At-Risk Courses', x + 3.5, y + 5.5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(5.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text('Fail %', x + width - 12, y + 5.5);
+
+    const items = list.slice(0, 5);
+    const rowStep = Math.min(6, (height - 9) / Math.max(1, items.length));
+    items.forEach((item, idx) => {
+      const rowY = y + 9 + idx * rowStep;
+      const failVal = item.failPct !== undefined
+        ? item.failPct
+        : (item.failCount && (item.passCount + item.failCount) > 0
+            ? Math.round((item.failCount / (item.passCount + item.failCount)) * 100)
+            : item.failCount || 0);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(6);
+      doc.setTextColor(30, 41, 59);
+      doc.text(String(item.subject || 'Course'), x + 3.5, rowY + 3.2);
+
+      const trackX = x + 24;
+      const trackW = width - 42;
+      doc.setFillColor(241, 245, 249);
+      doc.roundedRect(trackX, rowY + 1.2, trackW, 2.4, 0.8, 0.8, 'F');
+
+      const fillW = Math.max(1, (Math.min(100, Math.max(5, failVal)) / 100) * trackW);
+      const c = colors[idx % colors.length];
+      doc.setFillColor(c[0], c[1], c[2]);
+      doc.roundedRect(trackX, rowY + 1.2, fillW, 2.4, 0.8, 0.8, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(6);
+      doc.setTextColor(51, 65, 85);
+      doc.text(`${failVal}%`, x + width - 12, rowY + 3.2);
+    });
+  };
+
+  // Render Table Ledger
+  const renderTable = (comp, x, y, width) => {
+    const rows = comp.data || [];
+    const cols = comp.columns || [];
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text(comp.title || 'Official Examination Ledger', x, y + 4);
+
+    if (rows.length > 0) {
+      const tableW = width;
+      const rowH = 5.2;
+      const headerH = 6;
+      const numCols = Math.max(1, cols.length);
+      const colW = tableW / numCols;
+      let curY = y + 6;
+
+      // Header Row
+      doc.setFillColor(241, 245, 249);
+      doc.rect(x, curY, tableW, headerH, 'F');
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.3);
+      doc.rect(x, curY, tableW, headerH, 'S');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(6.5);
+      doc.setTextColor(51, 65, 85);
+      cols.forEach((col, cIdx) => {
+        const label = col.label || col.header || col.name || '';
+        doc.text(label.toUpperCase(), x + cIdx * colW + 2, curY + 4.2);
+      });
+
+      curY += headerH;
+
+      const visibleRows = rows.slice(0, 10);
+      visibleRows.forEach((row, rIdx) => {
+        if (curY + rowH > maxContentY) return;
+
+        doc.setFillColor(rIdx % 2 === 0 ? 255 : 248, rIdx % 2 === 0 ? 255 : 250, rIdx % 2 === 0 ? 255 : 252);
+        doc.rect(x, curY, tableW, rowH, 'F');
+        doc.setDrawColor(241, 245, 249);
+        doc.setLineWidth(0.2);
+        doc.rect(x, curY, tableW, rowH, 'S');
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(6.5);
+        doc.setTextColor(15, 23, 42);
+
+        cols.forEach((col, cIdx) => {
+          let cellVal = row[col.name];
+          if (cellVal === undefined || cellVal === null) cellVal = '—';
+          const cellStr = String(cellVal);
+
+          if (col.name === 'res' || col.name === 'result') {
+            const isPass = cellStr.toUpperCase().includes('PASS');
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(isPass ? 22 : 220, isPass ? 101 : 38, isPass ? 52 : 38);
+            doc.text(cellStr, x + cIdx * colW + 2, curY + 3.6);
+            doc.setTextColor(15, 23, 42);
+            doc.setFont('helvetica', 'normal');
+          } else if (col.name === 'grd' || col.name === 'grade') {
+            doc.setFont('helvetica', 'bold');
+            doc.text(cellStr, x + cIdx * colW + 2, curY + 3.6);
+            doc.setFont('helvetica', 'normal');
+          } else {
+            const maxChars = Math.floor(colW / 2.2);
+            const displayStr = cellStr.length > maxChars ? cellStr.substring(0, maxChars - 2) + '..' : cellStr;
+            doc.text(displayStr, x + cIdx * colW + 2, curY + 3.6);
+          }
+        });
+
+        curY += rowH;
+      });
+    }
+  };
+
+  // Render Signatures block
+  const renderSignatures = (comp, x, y, width, height) => {
+    const signatories = comp.data?.signatories || [
+      { role: 'Faculty Mentor / Class Advisor', dept: 'Department of Computer Science' },
+      { role: 'Head of Department', dept: 'Department of Computer Science' },
+      { role: 'Dean (Academic Quality)', dept: 'Bannari Amman Institute of Technology' }
+    ];
+
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(x, y, width, height, 1.5, 1.5, 'F');
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(x, y, width, height, 1.5, 1.5, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(100, 116, 139);
+    doc.text('OFFICIAL INSTITUTIONAL ENDORSEMENTS & QUALITY VERIFICATION', x + 4, y + 5);
+
+    const colW = (width - 12) / 3;
+    signatories.forEach((sig, sIdx) => {
+      const sx = x + 4 + sIdx * (colW + 4);
+      const lineY = y + 18;
+
+      doc.setDrawColor(148, 163, 184);
+      doc.setLineWidth(0.3);
+      doc.line(sx, lineY, sx + colW - 6, lineY);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(6.5);
+      doc.setTextColor(15, 23, 42);
+      doc.text(sig.role || '', sx, lineY + 3.5);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(5.5);
+      doc.setTextColor(100, 116, 139);
+      doc.text(sig.dept || '', sx, lineY + 6.5);
+    });
+  };
+
+  // Unified component dispatcher
+  const renderComponent = async (comp, x, y, width, height) => {
+    if (comp.type === 'kpi_group') {
+      renderKPIGroup(comp, x, y, width, height);
+    } else if (comp.type === 'ai_insight' || comp.type === 'narrative_card') {
+      renderAIInsightCard(comp, x, y, width, height);
+    } else if (comp.type === 'highlight_card') {
+      renderHighlightCard(comp, x, y, width, height);
+    } else if (comp.id === 'cohort_vulnerable_courses_card' || comp.id === 'cohort_vulnerable_courses_table') {
+      renderProgressBars(comp, x, y, width, height);
+    } else if (comp.type === 'chart') {
+      await renderChartCard(comp, x, y, width, height);
+    } else if (comp.type === 'signature_block') {
+      renderSignatures(comp, x, y, width, height);
+    } else if (comp.type === 'table') {
+      renderTable(comp, x, y, width);
+    } else {
+      await renderChartCard(comp, x, y, width, height);
+    }
+  };
+
+  // Allow brief settle for animations or dynamic charts
+  await new Promise((r) => setTimeout(r, 200));
+
+  if (pages && pages.length > 0) {
+    const totalPages = pages.length;
+
+    for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+      if (pageIndex > 0) {
+        doc.addPage();
+      }
+
+      const pNum = pageIndex + 1;
+      const pageObj = pages[pageIndex];
+      const pageComponents = pageObj.components || [];
+
+      let currentY = 14;
+
+      // ── Page 1: Official Institutional Letterhead + Student Identity Box ──
+      if (pNum === 1) {
+        doc.setFillColor(37, 99, 235);
+        doc.rect(0, 0, pageWidth, 5, 'F');
+
+        doc.setFillColor(15, 23, 42);
+        doc.rect(0, 5, pageWidth, 1.5, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(15, 23, 42);
+        doc.text('BANNARI AMMAN INSTITUTE OF TECHNOLOGY', marginX, 15);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text('Autonomous Institution Affiliated to Anna University • Accredited by NAAC with "A+" Grade', marginX, 19.5);
+
+        doc.setFillColor(239, 246, 255);
+        doc.roundedRect(144, 9, 52, 12, 1.5, 1.5, 'F');
+        doc.setDrawColor(191, 219, 254);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(144, 9, 52, 12, 1.5, 1.5, 'S');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7.5);
+        doc.setTextColor(37, 99, 235);
+        doc.text('OFFICIAL ACADEMIC DOSSIER', 170, 14.5, { align: 'center' });
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(6.5);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`${dateStr} • ${timeStr}`, 170, 18.5, { align: 'center' });
+
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.4);
+        doc.line(marginX, 23, marginX + contentWidth, 23);
+
+        currentY = 26;
+
+        if (scope === 'student' && (studentInfo.name || studentInfo.registerNumber)) {
+          doc.setFillColor(248, 250, 252);
+          doc.roundedRect(marginX, currentY, contentWidth, 23, 2, 2, 'F');
+          doc.setDrawColor(226, 232, 240);
+          doc.setLineWidth(0.3);
+          doc.roundedRect(marginX, currentY, contentWidth, 23, 2, 2, 'S');
+
+          doc.setFillColor(37, 99, 235);
+          doc.circle(marginX + 9, currentY + 11.5, 6, 'F');
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.setTextColor(255, 255, 255);
+          doc.text((studentInfo.name || 'S').charAt(0), marginX + 9, currentY + 14.5, { align: 'center' });
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.setTextColor(15, 23, 42);
+          doc.text(studentInfo.name || 'Student Name', marginX + 19, currentY + 9);
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8);
+          doc.setTextColor(37, 99, 235);
+          doc.text(`REG NO: ${studentInfo.registerNumber || 'N/A'}`, marginX + 19, currentY + 15);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7.5);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`Department: ${studentInfo.department || 'All'}  |  Semester: ${studentInfo.currentSemester || 'All'}  |  Evaluated Terms: ${studentInfo.totalSemesters || 1}`, marginX + 19, currentY + 19.5);
+
+          const cgpaVal = studentInfo.cgpa !== undefined ? `${studentInfo.cgpa}` : 'N/A';
+          const arrearsVal = studentInfo.totalArrears !== undefined ? `${studentInfo.totalArrears}` : '0';
+          const isOptimal = (studentInfo.totalArrears === 0 || studentInfo.totalArrears === undefined);
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(6.5);
+          doc.setTextColor(100, 116, 139);
+          doc.text('CUMULATIVE CGPA', 130, currentY + 7.5);
+          doc.setFontSize(11);
+          doc.setTextColor(37, 99, 235);
+          doc.text(`${cgpaVal} / 10.0`, 130, currentY + 15.5);
+
+          doc.setFontSize(6.5);
+          doc.setTextColor(100, 116, 139);
+          doc.text('ARREARS', 160, currentY + 7.5);
+          doc.setFontSize(11);
+          doc.setTextColor(isOptimal ? 22 : 220, isOptimal ? 163 : 38, isOptimal ? 74 : 38);
+          doc.text(arrearsVal, 160, currentY + 15.5);
+
+          const standingText = studentInfo.standing ? studentInfo.standing.split(' ')[0] : (isOptimal ? 'Optimal' : 'Alert');
+          doc.setFillColor(isOptimal ? 236 : 254, isOptimal ? 253 : 242, isOptimal ? 245 : 242);
+          doc.roundedRect(173, currentY + 8, 20, 9, 1.5, 1.5, 'F');
+          doc.setFontSize(6.5);
+          doc.setTextColor(isOptimal ? 5 : 185, isOptimal ? 150 : 28, isOptimal ? 105 : 28);
+          doc.text(standingText.toUpperCase(), 183, currentY + 13.5, { align: 'center' });
+
+          currentY += 27;
+        } else if (scope === 'department') {
+          doc.setFillColor(248, 250, 252);
+          doc.roundedRect(marginX, currentY, contentWidth, 20, 2, 2, 'F');
+          doc.setDrawColor(226, 232, 240);
+          doc.setLineWidth(0.3);
+          doc.roundedRect(marginX, currentY, contentWidth, 20, 2, 2, 'S');
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10.5);
+          doc.setTextColor(15, 23, 42);
+          doc.text(cohortInfo.departmentLabel || 'Cohort Academic Review', marginX + 6, currentY + 8);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7.5);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`Academic Semester: ${cohortInfo.semesterLabel || 'All'}  |  Total Enrolled: ${cohortInfo.totalStudents || 0}  |  Pass Rate: ${cohortInfo.passPercentage || 0}%`, marginX + 6, currentY + 15);
+
+          currentY += 24;
+        }
+      } else {
+        // Page 2+: Institutional Running Header
+        doc.setFillColor(37, 99, 235);
+        doc.rect(0, 0, pageWidth, 3, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.setTextColor(15, 23, 42);
+        doc.text('BANNARI AMMAN INSTITUTE OF TECHNOLOGY • ACADEMIC EVALUATION DOSSIER', marginX, 10);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(100, 116, 139);
+        const entityLabel = scope === 'student' ? (studentInfo.name || studentInfo.registerNumber || '') : (cohortInfo.departmentLabel || '');
+        doc.text(`${entityLabel}  •  Page ${pNum} of ${totalPages}`, marginX + contentWidth, 10, { align: 'right' });
+
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.3);
+        doc.line(marginX, 13, marginX + contentWidth, 13);
+
+        currentY = 17;
+      }
+
+      // Render Components on this Page
+      let compIdx = 0;
+      while (compIdx < pageComponents.length) {
+        const comp = pageComponents[compIdx];
+        const nextComp = compIdx + 1 < pageComponents.length ? pageComponents[compIdx + 1] : null;
+
+        const isHalf = comp.width === '50' || comp.width === '50%' || comp.width === 'half' || comp.width === '40%' || comp.width === '60%' || comp.width === '33%' || comp.width === '33.3%';
+        const isNextHalf = nextComp && (nextComp.width === '50' || nextComp.width === '50%' || nextComp.width === 'half' || nextComp.width === '40%' || nextComp.width === '60%' || nextComp.width === '33%' || nextComp.width === '33.3%');
+
+        if (isHalf && isNextHalf) {
+          const rowH = 60;
+          const colW = (contentWidth - 6) / 2;
+          await renderComponent(comp, marginX, currentY, colW, rowH);
+          await renderComponent(nextComp, marginX + colW + 6, currentY, colW, rowH);
+          currentY += rowH + 5;
+          compIdx += 2;
+        } else if (isHalf) {
+          const rowH = 60;
+          const colW = (contentWidth - 6) / 2;
+          await renderComponent(comp, marginX, currentY, colW, rowH);
+          currentY += rowH + 5;
+          compIdx += 1;
+        } else {
+          let compH = 60;
+          if (comp.type === 'kpi_group') compH = 24;
+          else if (comp.type === 'signature_block') compH = 26;
+          else if (comp.type === 'table') {
+            const rowCount = Math.min(10, (comp.data || []).length);
+            compH = 12 + rowCount * 5.2;
+          } else if (comp.id === 'cohort_vulnerable_courses_table' || comp.id === 'cohort_vulnerable_courses_card') {
+            compH = 36;
+          } else if (comp.type === 'ai_insight' || comp.type === 'narrative_card') {
+            compH = 28;
+          } else if (comp.type === 'highlight_card') {
+            compH = 28;
+          } else if (comp.type === 'chart') {
+            compH = 62;
+          }
+
+          await renderComponent(comp, marginX, currentY, contentWidth, compH);
+          currentY += compH + 5;
+          compIdx += 1;
+        }
+      }
+
+      // Institutional Footer on every page
+      const footY = 288;
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.3);
+      doc.line(marginX, footY - 3, marginX + contentWidth, footY - 3);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('CONFIDENTIAL & PROPRIETARY  •  BANNARI AMMAN INSTITUTE OF TECHNOLOGY', marginX, footY + 1);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Page ${pNum} of ${totalPages}`, marginX + contentWidth, footY + 1, { align: 'right' });
+    }
+
+    if (returnBlob) {
+      return doc.output('blob');
+    }
+
+    const safeName = (scope === 'student' ? (studentInfo.registerNumber || 'Student') : (cohortInfo.department || 'Department'))
+      .replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `AI_Report_${safeName}_${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(filename);
+    return filename;
+  }
+
+  return null;
+};
+
+
 export default {
+  exportCustomReportPDF,
+
   exportStudentReportPDF,
   exportClassReportPDF,
   captureChart,
