@@ -17,7 +17,7 @@ export const ChartHeader = ({
         <h4 style={{
           fontSize: '1rem',
           fontWeight: 700,
-          color: '#0f172a',
+          color: 'var(--theme-text-primary, #ffffff)',
           margin: 0,
           lineHeight: 1.3
         }}>
@@ -26,13 +26,13 @@ export const ChartHeader = ({
 
         {badge && (
           <span style={{
-            background: '#f1f5f9',
-            color: '#475569',
+            background: 'var(--theme-surface-elevated, #1C1C1C)',
+            color: 'var(--theme-accent, #FFD43B)',
             fontSize: '0.725rem',
             fontWeight: 600,
             padding: '2px 8px',
             borderRadius: '4px',
-            border: '1px solid #e2e8f0'
+            border: '1px solid var(--theme-border, #292929)'
           }}>
             {badge}
           </span>
@@ -42,7 +42,7 @@ export const ChartHeader = ({
       {description && (
         <p style={{
           fontSize: '0.8rem',
-          color: '#64748b',
+          color: 'var(--theme-text-secondary, #A3A3A3)',
           margin: '0.25rem 0 0',
           lineHeight: 1.45
         }}>

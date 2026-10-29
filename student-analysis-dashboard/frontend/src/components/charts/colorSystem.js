@@ -12,21 +12,18 @@
  */
 
 export const PALETTE = [
-  '#2563eb', // Blue 600
-  '#0d9488', // Teal 600
-  '#7c3aed', // Violet 600
-  '#f59e0b', // Amber 500
-  '#06b6d4', // Cyan 500
-  '#ec4899', // Pink 500
-  '#10b981', // Emerald 500
-  '#f97316', // Orange 500
-  '#6366f1', // Indigo 500
-  '#84cc16', // Lime 500
-  '#0284c7', // Sky 600
-  '#9333ea', // Purple 600
-  '#e11d48', // Rose 600
-  '#14b8a6', // Teal 500
-  '#475569'  // Slate 600
+  '#FFD43B', // Golden Yellow (Primary Accent)
+  '#F0C419', // Amber Gold
+  '#A3A3A3', // Soft Neutral Gray
+  '#10B981', // Emerald Pass/Success
+  '#EF4444', // Red Danger/Critical
+  '#F59E0B', // Warning Amber
+  '#525252', // Deep Slate Gray
+  '#0D9488', // Teal Accent
+  '#EAB308', // Warm Yellow
+  '#737373', // Muted Gray
+  '#14B8A6', // Secondary Teal
+  '#D97706'  // Deep Amber
 ];
 
 export const SEMANTIC_PALETTE = {
@@ -91,12 +88,12 @@ export const SEMANTIC_PALETTE = {
   PENDING: '#f59e0b',
 
   // Metrics
-  GPA: '#2563eb',
-  SGPA: '#2563eb',
-  CGPA: '#1d4ed8',
-  AVERAGE_GPA: '#2563eb',
-  STUDENT_COUNT: '#3b82f6',
-  STUDENTS: '#3b82f6'
+  GPA: '#FFD43B',
+  SGPA: '#FFD43B',
+  CGPA: '#F0C419',
+  AVERAGE_GPA: '#FFD43B',
+  STUDENT_COUNT: '#FFD43B',
+  STUDENTS: '#FFD43B'
 };
 
 /**

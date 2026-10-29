@@ -5,9 +5,9 @@ import {
   Code, ChevronDown, ChevronUp, AlertCircle, RotateCcw,
   MessageSquare, BarChart3, Table2, Search, ArrowUpDown,
   CheckCircle, HelpCircle, Layers, ArrowRight, AlertTriangle, ShieldAlert,
-  FileText
+  FileText, Plus
 } from 'lucide-react';
-import { queryAI } from '../services/api';
+import { queryAI, getAIConversations, getAIConversation, createAIConversation, deleteAIConversation } from '../services/api';
 import DynamicChartRenderer from '../components/charts/DynamicChartRenderer';
 import ChartConfigPanel from '../components/charts/ChartConfigPanel';
 
@@ -34,9 +34,180 @@ const PROMPTS_BY_MODE = {
   ]
 };
 
+
+const StudentResultCard = ({ card }) => {
+  if (!card) return null;
+  const isOptimal = (card.failCount || 0) === 0;
+  return (
+    <div style={{
+      marginTop: '0.85rem',
+      padding: '0.85rem 1rem',
+      background: 'var(--theme-card-bg, #141414)',
+      border: '1px solid var(--theme-border, #292929)',
+      borderRadius: '10px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--theme-text-primary, #FFFFFF)' }}>
+              {card.name}
+            </span>
+            <span style={{
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              padding: '2px 8px',
+              borderRadius: '6px',
+              background: 'rgba(255, 212, 59, 0.15)',
+              color: 'var(--theme-accent, #FFD43B)',
+              border: '1px solid rgba(255, 212, 59, 0.3)'
+            }}>
+              {card.registerNumber}
+            </span>
+            {card.rank && (
+              <span style={{
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                padding: '2px 6px',
+                borderRadius: '4px',
+                background: 'var(--theme-surface-elevated, #1C1C1C)',
+                color: 'var(--theme-text-primary, #FFFFFF)',
+                border: '1px solid var(--theme-border, #292929)'
+              }}>
+                Rank #{card.rank}
+              </span>
+            )}
+          </div>
+          <div style={{ fontSize: '0.78rem', color: 'var(--theme-text-secondary, #A3A3A3)', marginTop: '4px' }}>
+            {card.department} • Semester {card.semester}
+          </div>
+        </div>
+
+        <div style={{
+          textAlign: 'right',
+          padding: '4px 12px',
+          background: 'var(--theme-surface-elevated, #1C1C1C)',
+          borderRadius: '8px',
+          border: '1px solid var(--theme-border, #292929)'
+        }}>
+          <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--theme-text-secondary, #A3A3A3)' }}>
+            Cumulative CGPA
+          </div>
+          <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--theme-accent, #FFD43B)' }}>
+            {Number(card.gpa).toFixed(2)} <span style={{ fontSize: '0.7rem', fontWeight: 500, color: 'var(--theme-text-secondary, #A3A3A3)' }}>/ 10</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: '0.75rem',
+        paddingTop: '0.5rem',
+        borderTop: '1px solid var(--theme-border, #292929)',
+        flexWrap: 'wrap',
+        gap: '0.5rem'
+      }}>
+        <span style={{
+          fontSize: '0.72rem',
+          fontWeight: 600,
+          padding: '2px 8px',
+          borderRadius: '12px',
+          background: isOptimal ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+          color: isOptimal ? '#10b981' : '#ef4444',
+          border: `1px solid ${isOptimal ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+        }}>
+          {isOptimal ? '● Optimal Standing (0 Arrears)' : `● At-Risk (${card.failCount} Arrears)`}
+        </span>
+
+        <Link
+          to={`/student/${encodeURIComponent(card.registerNumber)}`}
+          style={{
+            fontSize: '0.75rem',
+            fontWeight: 600,
+            color: 'var(--theme-accent, #FFD43B)',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.3rem'
+          }}
+        >
+          <span>View Dossier</span>
+          <ArrowRight size={13} />
+        </Link>
+      </div>
+    </div>
+  );
+};
+
 const AIAnalytics = () => {
   // Mode Selection: 'chat_only' | 'chat_viz' | 'data_table'
   const [mode, setMode] = useState('chat_viz');
+  // Conversation Session & Persistence State
+  const [conversationId, setConversationId] = useState(() => {
+    return localStorage.getItem('bit_ai_current_conversation_id') || null;
+  });
+
+  // Restore active conversation from server on initial mount
+  useEffect(() => {
+    const restoreSession = async () => {
+      const storedId = localStorage.getItem('bit_ai_current_conversation_id');
+      if (storedId) {
+        try {
+          const res = await getAIConversation(storedId);
+          if (res && res.messages && res.messages.length > 0) {
+            setConversationId(storedId);
+            const restored = res.messages.map(m => ({
+              id: m.id,
+              role: m.role,
+              text: m.content || m.text,
+              time: m.time || (m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''),
+              meta: m.meta || null,
+              dataSnippet: null
+            }));
+            setMessages(restored);
+          }
+        } catch (err) {
+          console.warn("Could not load stored conversation:", err);
+          localStorage.removeItem('bit_ai_current_conversation_id');
+          setConversationId(null);
+        }
+      }
+    };
+    restoreSession();
+  }, []);
+
+  const handleStartNewChat = async () => {
+    try {
+      const res = await createAIConversation('New Academic Chat');
+      const newId = res?.conversation?.id || `conv-${Date.now().toString(36)}`;
+      setConversationId(newId);
+      localStorage.setItem('bit_ai_current_conversation_id', newId);
+    } catch (err) {
+      const newId = `conv-${Date.now().toString(36)}`;
+      setConversationId(newId);
+      localStorage.setItem('bit_ai_current_conversation_id', newId);
+    }
+
+    setMessages([
+      {
+        id: 'welcome',
+        role: 'assistant',
+        text: "Hello! I am your Academic Intelligence AI Assistant. You can ask me conceptual questions, analyze university student records, or examine cohort metrics. Choose your preferred response mode above: Chat Only, Chat + Visualization, or Data Table.",
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        meta: null,
+        dataSnippet: null
+      }
+    ]);
+    setActiveData([]);
+    setActiveColumns([]);
+    setActiveConfig(null);
+    setAiRecommendedConfig(null);
+    setActiveQueryPlan(null);
+    setError(null);
+  };
+
 
   // Conversation State
   const [messages, setMessages] = useState([
@@ -103,7 +274,11 @@ const AIAnalytics = () => {
       .map(m => ({ role: m.role, content: m.text }));
 
     try {
-      const response = await queryAI(trimmed, targetMode, historyPayload);
+      const response = await queryAI(trimmed, targetMode, historyPayload, conversationId);
+      if (response && response.conversation_id) {
+        setConversationId(response.conversation_id);
+        localStorage.setItem('bit_ai_current_conversation_id', response.conversation_id);
+      }
 
       if (response.status === 'success') {
         const assistantMsg = {
@@ -118,7 +293,9 @@ const AIAnalytics = () => {
             totalRows: response.totalRows,
             executedAt: response.executedAt,
             intent: response.intent,
-            queryExecuted: response.queryExecuted
+            queryExecuted: response.queryExecuted,
+            studentCard: response.studentCard || null,
+            clarificationNeeded: response.clarificationNeeded || false
           },
           dataSnippet: targetMode === 'chat_only' && response.data?.length > 0 ? response.data.slice(0, 5) : null
         };
@@ -294,8 +471,8 @@ const AIAnalytics = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* ── Top Header Bar with Segmented 3-Mode Selector ── */}
       <div style={{
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
+        background: 'var(--theme-card-bg, #141414)',
+        border: '1px solid var(--theme-border, #292929)',
         borderRadius: '12px',
         padding: '1rem 1.5rem',
         display: 'flex',
@@ -319,10 +496,10 @@ const AIAnalytics = () => {
             <Sparkles size={20} />
           </div>
           <div>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', margin: 0 }}>
               Academic AI Assistant
             </h2>
-            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--theme-text-secondary, #A3A3A3)', margin: 0 }}>
               Natural language inquiries with database grounding & interactive analytics
             </p>
           </div>
@@ -332,7 +509,7 @@ const AIAnalytics = () => {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          background: '#f1f5f9',
+          background: 'var(--theme-surface-elevated, #1C1C1C)',
           padding: '4px',
           borderRadius: '10px',
           gap: '4px'
@@ -349,8 +526,8 @@ const AIAnalytics = () => {
               border: 'none',
               fontSize: '0.8rem',
               fontWeight: mode === 'chat_only' ? 600 : 500,
-              background: mode === 'chat_only' ? '#ffffff' : 'transparent',
-              color: mode === 'chat_only' ? '#2563eb' : '#475569',
+              background: mode === 'chat_only' ? 'var(--theme-accent, #FFD43B)' : 'transparent',
+              color: mode === 'chat_only' ? 'var(--theme-accent-text, #080808)' : 'var(--theme-text-secondary, #A3A3A3)',
               boxShadow: mode === 'chat_only' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
               cursor: 'pointer',
               transition: 'all 0.15s ease'
@@ -372,8 +549,8 @@ const AIAnalytics = () => {
               border: 'none',
               fontSize: '0.8rem',
               fontWeight: mode === 'chat_viz' ? 600 : 500,
-              background: mode === 'chat_viz' ? '#ffffff' : 'transparent',
-              color: mode === 'chat_viz' ? '#2563eb' : '#475569',
+              background: mode === 'chat_viz' ? 'var(--theme-accent, #FFD43B)' : 'transparent',
+              color: mode === 'chat_viz' ? 'var(--theme-accent-text, #080808)' : 'var(--theme-text-secondary, #A3A3A3)',
               boxShadow: mode === 'chat_viz' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
               cursor: 'pointer',
               transition: 'all 0.15s ease'
@@ -395,8 +572,8 @@ const AIAnalytics = () => {
               border: 'none',
               fontSize: '0.8rem',
               fontWeight: mode === 'data_table' ? 600 : 500,
-              background: mode === 'data_table' ? '#ffffff' : 'transparent',
-              color: mode === 'data_table' ? '#2563eb' : '#475569',
+              background: mode === 'data_table' ? 'var(--theme-accent, #FFD43B)' : 'transparent',
+              color: mode === 'data_table' ? 'var(--theme-accent-text, #080808)' : 'var(--theme-text-secondary, #A3A3A3)',
               boxShadow: mode === 'data_table' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
               cursor: 'pointer',
               transition: 'all 0.15s ease'
@@ -407,6 +584,32 @@ const AIAnalytics = () => {
           </button>
         </div>
 
+        {/* New Chat & Audit Logs Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            type="button"
+            onClick={handleStartNewChat}
+            title="Start fresh conversation session"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.45rem 0.85rem',
+              background: 'var(--theme-accent, #FFD43B)',
+              color: 'var(--theme-accent-text, #080808)',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <Plus size={15} />
+            <span>New Chat</span>
+          </button>
+
         {/* Audit Logs Quick Access Button */}
         <Link
           to="/ai-logs"
@@ -416,19 +619,20 @@ const AIAnalytics = () => {
             alignItems: 'center',
             gap: '0.4rem',
             padding: '0.45rem 0.85rem',
-            background: '#ffffff',
+            background: 'var(--theme-card-bg, #141414)',
             border: '1px solid #cbd5e1',
             borderRadius: '8px',
-            color: '#334155',
+            color: 'var(--theme-text-secondary, #A3A3A3)',
             textDecoration: 'none',
             fontSize: '0.8rem',
             fontWeight: 600,
             transition: 'all 0.15s ease'
           }}
         >
-          <FileText size={15} color="#2563eb" />
+          <FileText size={15} color="var(--theme-accent, #FFD43B)" />
           <span>Audit Logs</span>
         </Link>
+        </div>
       </div>
 
       {/* ── Main Responsive Content Area Based on Active Mode ── */}
@@ -441,8 +645,8 @@ const AIAnalytics = () => {
           maxWidth: '900px',
           width: '100%',
           margin: '0 auto',
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
+          background: 'var(--theme-card-bg, #141414)',
+          border: '1px solid var(--theme-border, #292929)',
           borderRadius: '12px',
           display: 'flex',
           flexDirection: 'column',
@@ -453,19 +657,19 @@ const AIAnalytics = () => {
           {/* Header */}
           <div style={{
             padding: '1rem 1.25rem',
-            borderBottom: '1px solid #f1f5f9',
+            borderBottom: '1px solid var(--theme-border, #292929)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: '#fafafa'
+            background: 'var(--theme-surface-elevated, #1C1C1C)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Bot size={18} color="#2563eb" />
-              <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#0f172a' }}>
+              <Bot size={18} color="var(--theme-accent, #FFD43B)" />
+              <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--theme-text-primary, #FFFFFF)' }}>
                 Academic Assistant (Conversational)
               </span>
             </div>
-            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>
               Focused on natural language explanations
             </span>
           </div>
@@ -473,14 +677,14 @@ const AIAnalytics = () => {
           {/* Suggested Inquiries */}
           <div style={{
             padding: '0.75rem 1rem',
-            background: '#f8fafc',
-            borderBottom: '1px solid #f1f5f9',
+            background: 'var(--theme-surface-elevated, #1C1C1C)',
+            borderBottom: '1px solid var(--theme-border, #292929)',
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
             flexWrap: 'wrap'
           }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', textTransform: 'uppercase' }}>
               Sample Questions:
             </span>
             {PROMPTS_BY_MODE.chat_only.map((prompt, i) => (
@@ -490,13 +694,22 @@ const AIAnalytics = () => {
                 onClick={() => handleRunQuery(prompt, 'chat_only')}
                 disabled={loading}
                 style={{
-                  padding: '3px 8px',
+                  padding: '4px 10px',
                   borderRadius: '6px',
-                  border: '1px solid #e2e8f0',
-                  background: '#ffffff',
-                  color: '#2563eb',
+                  border: '1px solid var(--theme-border, #292929)',
+                  background: 'var(--theme-surface-elevated, #1C1C1C)',
+                  color: 'var(--theme-text-primary, #FFFFFF)',
                   fontSize: '0.75rem',
-                  cursor: 'pointer'
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--theme-accent, #FFD43B)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--theme-border, #292929)';
                 }}
               >
                 {prompt}
@@ -528,20 +741,20 @@ const AIAnalytics = () => {
                     width: 32,
                     height: 32,
                     borderRadius: '50%',
-                    background: '#eff6ff',
+                    background: 'rgba(255, 212, 59, 0.15)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                     marginTop: 2
                   }}>
-                    <Bot size={18} color="#2563eb" />
+                    <Bot size={18} color="var(--theme-accent, #FFD43B)" />
                   </div>
                 )}
 
                 <div style={{
-                  background: msg.role === 'user' ? '#2563eb' : '#f8fafc',
-                  color: msg.role === 'user' ? '#ffffff' : '#0f172a',
+                  background: msg.role === 'user' ? 'var(--theme-accent, #FFD43B)' : 'var(--theme-surface-elevated, #1C1C1C)',
+                  color: msg.role === 'user' ? 'var(--theme-accent-text, #080808)' : 'var(--theme-text-primary, #FFFFFF)',
                   border: msg.role === 'user' ? 'none' : '1px solid #e2e8f0',
                   borderRadius: '12px',
                   padding: '0.85rem 1rem',
@@ -550,23 +763,28 @@ const AIAnalytics = () => {
                 }}>
                   <div>{msg.text}</div>
 
+                  {/* Factual Student Result Card */}
+                  {msg.meta?.studentCard && (
+                    <StudentResultCard card={msg.meta.studentCard} />
+                  )}
+
                   {/* Inline Data Preview Snippet if query retrieved data */}
                   {msg.dataSnippet && (
                     <div style={{
                       marginTop: '0.75rem',
                       padding: '0.5rem',
-                      background: '#ffffff',
-                      border: '1px solid #e2e8f0',
+                      background: 'var(--theme-card-bg, #141414)',
+                      border: '1px solid var(--theme-border, #292929)',
                       borderRadius: '8px',
                       fontSize: '0.75rem'
                     }}>
-                      <div style={{ fontWeight: 600, color: '#475569', marginBottom: '0.25rem' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--theme-text-secondary, #A3A3A3)', marginBottom: '0.25rem' }}>
                         📋 Database Sample ({msg.dataSnippet.length} rows):
                       </div>
                       <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
                           <thead>
-                            <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>
+                            <tr style={{ borderBottom: '1px solid var(--theme-border, #292929)', color: 'var(--theme-text-secondary, #A3A3A3)' }}>
                               {Object.keys(msg.dataSnippet[0]).slice(0, 4).map(k => (
                                 <th key={k} style={{ padding: '2px 6px', textAlign: 'left' }}>{k}</th>
                               ))}
@@ -574,7 +792,7 @@ const AIAnalytics = () => {
                           </thead>
                           <tbody>
                             {msg.dataSnippet.map((r, ri) => (
-                              <tr key={ri} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                              <tr key={ri} style={{ borderBottom: '1px solid var(--theme-border, #292929)' }}>
                                 {Object.values(r).slice(0, 4).map((v, vi) => (
                                   <td key={vi} style={{ padding: '2px 6px' }}>{String(v)}</td>
                                 ))}
@@ -590,9 +808,9 @@ const AIAnalytics = () => {
                     <div style={{
                       marginTop: '0.5rem',
                       paddingTop: '0.5rem',
-                      borderTop: '1px solid #e2e8f0',
+                      borderTop: '1px solid var(--theme-border, #292929)',
                       fontSize: '0.7rem',
-                      color: '#64748b',
+                      color: 'var(--theme-text-secondary, #A3A3A3)',
                       display: 'flex',
                       alignItems: 'center',
                       flexWrap: 'wrap',
@@ -611,7 +829,7 @@ const AIAnalytics = () => {
 
                   <div style={{
                     fontSize: '0.65rem',
-                    color: msg.role === 'user' ? 'rgba(255,255,255,0.7)' : '#94a3b8',
+                    color: msg.role === 'user' ? 'rgba(8,8,8,0.7)' : 'var(--theme-text-secondary, #A3A3A3)',
                     textAlign: 'right',
                     marginTop: '0.35rem'
                   }}>
@@ -637,7 +855,7 @@ const AIAnalytics = () => {
               </div>
             ))}
             {loading && (
-              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', color: '#64748b', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', color: 'var(--theme-text-secondary, #A3A3A3)', fontSize: '0.85rem' }}>
                 <div style={{
                   width: 20,
                   height: 20,
@@ -653,14 +871,14 @@ const AIAnalytics = () => {
           </div>
 
           {/* Input Bar */}
-          <div style={{ padding: '1rem', borderTop: '1px solid #f1f5f9', background: '#ffffff' }}>
+          <div style={{ padding: '1rem', borderTop: '1px solid #f1f5f9', background: 'var(--theme-card-bg, #141414)' }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
               border: '1px solid #cbd5e1',
               borderRadius: '8px',
               padding: '0.4rem 0.6rem',
-              background: '#ffffff'
+              background: 'var(--theme-card-bg, #141414)'
             }}>
               <input
                 type="text"
@@ -675,7 +893,7 @@ const AIAnalytics = () => {
                   outline: 'none',
                   fontSize: '0.9rem',
                   padding: '0.35rem',
-                  color: '#0f172a'
+                  color: 'var(--theme-text-primary, #FFFFFF)'
                 }}
               />
               <button
@@ -683,8 +901,8 @@ const AIAnalytics = () => {
                 onClick={() => handleRunQuery(inputQuestion, 'chat_only')}
                 disabled={loading || !inputQuestion.trim()}
                 style={{
-                  background: loading || !inputQuestion.trim() ? '#94a3b8' : '#2563eb',
-                  color: '#ffffff',
+                  background: loading || !inputQuestion.trim() ? 'var(--theme-surface-elevated, #1C1C1C)' : 'var(--theme-accent, #FFD43B)',
+                  color: 'var(--theme-accent-text, #080808)',
                   border: 'none',
                   borderRadius: '6px',
                   padding: '0.45rem 0.75rem',
@@ -710,8 +928,8 @@ const AIAnalytics = () => {
         }}>
           {/* Left Chat Pane */}
           <div style={{
-            background: '#ffffff',
-            border: '1px solid #e2e8f0',
+            background: 'var(--theme-card-bg, #141414)',
+            border: '1px solid var(--theme-border, #292929)',
             borderRadius: '12px',
             display: 'flex',
             flexDirection: 'column',
@@ -721,19 +939,19 @@ const AIAnalytics = () => {
           }}>
             <div style={{
               padding: '1rem 1.25rem',
-              borderBottom: '1px solid #f1f5f9',
+              borderBottom: '1px solid var(--theme-border, #292929)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              background: '#fafafa'
+              background: 'var(--theme-surface-elevated, #1C1C1C)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Bot size={18} color="#2563eb" />
-                <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#0f172a' }}>
+                <Bot size={18} color="var(--theme-accent, #FFD43B)" />
+                <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--theme-text-primary, #FFFFFF)' }}>
                   Analytical Inquiries
                 </span>
               </div>
-              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>
                 Visualizer Connected
               </span>
             </div>
@@ -741,16 +959,16 @@ const AIAnalytics = () => {
             {/* Prompt Chips */}
             <div style={{
               padding: '0.75rem 1rem',
-              background: '#f8fafc',
-              borderBottom: '1px solid #f1f5f9',
+              background: 'var(--theme-surface-elevated, #1C1C1C)',
+              borderBottom: '1px solid var(--theme-border, #292929)',
               display: 'flex',
               flexDirection: 'column',
               gap: '0.35rem'
             }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', textTransform: 'uppercase' }}>
                 Quick Prompts:
               </span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                 {PROMPTS_BY_MODE.chat_viz.map((prompt, i) => (
                   <button
                     key={i}
@@ -758,14 +976,22 @@ const AIAnalytics = () => {
                     onClick={() => handleRunQuery(prompt, 'chat_viz')}
                     disabled={loading}
                     style={{
-                      padding: '3px 8px',
+                      padding: '4px 10px',
                       borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                      background: '#ffffff',
-                      color: '#2563eb',
+                      border: '1px solid var(--theme-border, #292929)',
+                      background: 'var(--theme-card-bg, #141414)',
+                      color: 'var(--theme-text-primary, #FFFFFF)',
                       fontSize: '0.75rem',
+                      fontWeight: 600,
                       cursor: 'pointer',
-                      textAlign: 'left'
+                      textAlign: 'left',
+                      transition: 'all 0.15s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--theme-accent, #FFD43B)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--theme-border, #292929)';
                     }}
                   >
                     {prompt}
@@ -798,20 +1024,20 @@ const AIAnalytics = () => {
                       width: 28,
                       height: 28,
                       borderRadius: '50%',
-                      background: '#eff6ff',
+                      background: 'rgba(255, 212, 59, 0.15)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0,
                       marginTop: 2
                     }}>
-                      <Bot size={16} color="#2563eb" />
+                      <Bot size={16} color="var(--theme-accent, #FFD43B)" />
                     </div>
                   )}
 
                   <div style={{
-                    background: msg.role === 'user' ? '#2563eb' : '#f8fafc',
-                    color: msg.role === 'user' ? '#ffffff' : '#0f172a',
+                    background: msg.role === 'user' ? 'var(--theme-accent, #FFD43B)' : 'var(--theme-surface-elevated, #1C1C1C)',
+                    color: msg.role === 'user' ? 'var(--theme-accent-text, #080808)' : 'var(--theme-text-primary, #FFFFFF)',
                     border: msg.role === 'user' ? 'none' : '1px solid #e2e8f0',
                     borderRadius: '10px',
                     padding: '0.75rem 0.9rem',
@@ -820,13 +1046,18 @@ const AIAnalytics = () => {
                   }}>
                     <div>{msg.text}</div>
 
+                    {/* Factual Student Result Card */}
+                    {msg.meta?.studentCard && (
+                      <StudentResultCard card={msg.meta.studentCard} />
+                    )}
+
                     {msg.meta && (
                       <div style={{
                         marginTop: '0.5rem',
                         paddingTop: '0.5rem',
-                        borderTop: '1px solid #e2e8f0',
+                        borderTop: '1px solid var(--theme-border, #292929)',
                         fontSize: '0.7rem',
-                        color: '#64748b',
+                        color: 'var(--theme-text-secondary, #A3A3A3)',
                         display: 'flex',
                         flexWrap: 'wrap',
                         gap: '0.5rem'
@@ -838,7 +1069,7 @@ const AIAnalytics = () => {
 
                     <div style={{
                       fontSize: '0.65rem',
-                      color: msg.role === 'user' ? 'rgba(255,255,255,0.7)' : '#94a3b8',
+                      color: msg.role === 'user' ? 'rgba(8,8,8,0.7)' : 'var(--theme-text-secondary, #A3A3A3)',
                       textAlign: 'right',
                       marginTop: '0.25rem'
                     }}>
@@ -864,7 +1095,7 @@ const AIAnalytics = () => {
                 </div>
               ))}
               {loading && (
-                <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', color: '#64748b', fontSize: '0.8rem' }}>
+                <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', color: 'var(--theme-text-secondary, #A3A3A3)', fontSize: '0.8rem' }}>
                   <div style={{
                     width: 20,
                     height: 20,
@@ -880,14 +1111,14 @@ const AIAnalytics = () => {
             </div>
 
             {/* Input Bar */}
-            <div style={{ padding: '0.85rem', borderTop: '1px solid #f1f5f9', background: '#ffffff' }}>
+            <div style={{ padding: '0.85rem', borderTop: '1px solid #f1f5f9', background: 'var(--theme-card-bg, #141414)' }}>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 border: '1px solid #cbd5e1',
                 borderRadius: '8px',
                 padding: '0.35rem 0.5rem',
-                background: '#ffffff'
+                background: 'var(--theme-card-bg, #141414)'
               }}>
                 <input
                   type="text"
@@ -902,7 +1133,7 @@ const AIAnalytics = () => {
                     outline: 'none',
                     fontSize: '0.85rem',
                     padding: '0.35rem',
-                    color: '#0f172a'
+                    color: 'var(--theme-text-primary, #FFFFFF)'
                   }}
                 />
                 <button
@@ -910,8 +1141,8 @@ const AIAnalytics = () => {
                   onClick={() => handleRunQuery(inputQuestion, 'chat_viz')}
                   disabled={loading || !inputQuestion.trim()}
                   style={{
-                    background: loading || !inputQuestion.trim() ? '#94a3b8' : '#2563eb',
-                    color: '#ffffff',
+                    background: loading || !inputQuestion.trim() ? 'var(--theme-surface-elevated, #1C1C1C)' : 'var(--theme-accent, #FFD43B)',
+                    color: 'var(--theme-accent-text, #080808)',
                     border: 'none',
                     borderRadius: '6px',
                     padding: '0.4rem 0.65rem',
@@ -979,8 +1210,8 @@ const AIAnalytics = () => {
             {activeQueryPlan && (
               <div style={{
                 marginTop: '1rem',
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
+                background: 'var(--theme-card-bg, #141414)',
+                border: '1px solid var(--theme-border, #292929)',
                 borderRadius: '12px',
                 padding: '0.85rem 1rem',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
@@ -997,7 +1228,7 @@ const AIAnalytics = () => {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Code size={16} color="#64748b" />
-                    <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#475569' }}>
+                    <span style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>
                       Structured Query Plan & Visualization Contract
                     </span>
                   </div>
@@ -1041,8 +1272,8 @@ const AIAnalytics = () => {
         }}>
           {/* Left Chat Pane */}
           <div style={{
-            background: '#ffffff',
-            border: '1px solid #e2e8f0',
+            background: 'var(--theme-card-bg, #141414)',
+            border: '1px solid var(--theme-border, #292929)',
             borderRadius: '12px',
             display: 'flex',
             flexDirection: 'column',
@@ -1052,19 +1283,19 @@ const AIAnalytics = () => {
           }}>
             <div style={{
               padding: '1rem 1.25rem',
-              borderBottom: '1px solid #f1f5f9',
+              borderBottom: '1px solid var(--theme-border, #292929)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              background: '#fafafa'
+              background: 'var(--theme-surface-elevated, #1C1C1C)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Table2 size={18} color="#2563eb" />
-                <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#0f172a' }}>
+                <Table2 size={18} color="var(--theme-accent, #FFD43B)" />
+                <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--theme-text-primary, #FFFFFF)' }}>
                   Data Query Assistant
                 </span>
               </div>
-              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>
                 Table Mode
               </span>
             </div>
@@ -1072,16 +1303,16 @@ const AIAnalytics = () => {
             {/* Prompt Chips */}
             <div style={{
               padding: '0.75rem 1rem',
-              background: '#f8fafc',
-              borderBottom: '1px solid #f1f5f9',
+              background: 'var(--theme-surface-elevated, #1C1C1C)',
+              borderBottom: '1px solid var(--theme-border, #292929)',
               display: 'flex',
               flexDirection: 'column',
               gap: '0.35rem'
             }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', textTransform: 'uppercase' }}>
                 Table Prompts:
               </span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                 {PROMPTS_BY_MODE.data_table.map((prompt, i) => (
                   <button
                     key={i}
@@ -1089,14 +1320,22 @@ const AIAnalytics = () => {
                     onClick={() => handleRunQuery(prompt, 'data_table')}
                     disabled={loading}
                     style={{
-                      padding: '3px 8px',
+                      padding: '4px 10px',
                       borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                      background: '#ffffff',
-                      color: '#2563eb',
+                      border: '1px solid var(--theme-border, #292929)',
+                      background: 'var(--theme-card-bg, #141414)',
+                      color: 'var(--theme-text-primary, #FFFFFF)',
                       fontSize: '0.75rem',
+                      fontWeight: 600,
                       cursor: 'pointer',
-                      textAlign: 'left'
+                      textAlign: 'left',
+                      transition: 'all 0.15s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--theme-accent, #FFD43B)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--theme-border, #292929)';
                     }}
                   >
                     {prompt}
@@ -1129,20 +1368,20 @@ const AIAnalytics = () => {
                       width: 28,
                       height: 28,
                       borderRadius: '50%',
-                      background: '#eff6ff',
+                      background: 'rgba(255, 212, 59, 0.15)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0,
                       marginTop: 2
                     }}>
-                      <Bot size={16} color="#2563eb" />
+                      <Bot size={16} color="var(--theme-accent, #FFD43B)" />
                     </div>
                   )}
 
                   <div style={{
-                    background: msg.role === 'user' ? '#2563eb' : '#f8fafc',
-                    color: msg.role === 'user' ? '#ffffff' : '#0f172a',
+                    background: msg.role === 'user' ? 'var(--theme-accent, #FFD43B)' : 'var(--theme-surface-elevated, #1C1C1C)',
+                    color: msg.role === 'user' ? 'var(--theme-accent-text, #080808)' : 'var(--theme-text-primary, #FFFFFF)',
                     border: msg.role === 'user' ? 'none' : '1px solid #e2e8f0',
                     borderRadius: '10px',
                     padding: '0.75rem 0.9rem',
@@ -1150,9 +1389,15 @@ const AIAnalytics = () => {
                     lineHeight: 1.45
                   }}>
                     <div>{msg.text}</div>
+
+                    {/* Factual Student Result Card */}
+                    {msg.meta?.studentCard && (
+                      <StudentResultCard card={msg.meta.studentCard} />
+                    )}
+
                     <div style={{
                       fontSize: '0.65rem',
-                      color: msg.role === 'user' ? 'rgba(255,255,255,0.7)' : '#94a3b8',
+                      color: msg.role === 'user' ? 'rgba(8,8,8,0.7)' : 'var(--theme-text-secondary, #A3A3A3)',
                       textAlign: 'right',
                       marginTop: '0.25rem'
                     }}>
@@ -1178,7 +1423,7 @@ const AIAnalytics = () => {
                 </div>
               ))}
               {loading && (
-                <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', color: '#64748b', fontSize: '0.8rem' }}>
+                <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', color: 'var(--theme-text-secondary, #A3A3A3)', fontSize: '0.8rem' }}>
                   <div style={{
                     width: 20,
                     height: 20,
@@ -1194,14 +1439,14 @@ const AIAnalytics = () => {
             </div>
 
             {/* Input Bar */}
-            <div style={{ padding: '0.85rem', borderTop: '1px solid #f1f5f9', background: '#ffffff' }}>
+            <div style={{ padding: '0.85rem', borderTop: '1px solid #f1f5f9', background: 'var(--theme-card-bg, #141414)' }}>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 border: '1px solid #cbd5e1',
                 borderRadius: '8px',
                 padding: '0.35rem 0.5rem',
-                background: '#ffffff'
+                background: 'var(--theme-card-bg, #141414)'
               }}>
                 <input
                   type="text"
@@ -1216,7 +1461,7 @@ const AIAnalytics = () => {
                     outline: 'none',
                     fontSize: '0.85rem',
                     padding: '0.35rem',
-                    color: '#0f172a'
+                    color: 'var(--theme-text-primary, #FFFFFF)'
                   }}
                 />
                 <button
@@ -1224,8 +1469,8 @@ const AIAnalytics = () => {
                   onClick={() => handleRunQuery(inputQuestion, 'data_table')}
                   disabled={loading || !inputQuestion.trim()}
                   style={{
-                    background: loading || !inputQuestion.trim() ? '#94a3b8' : '#2563eb',
-                    color: '#ffffff',
+                    background: loading || !inputQuestion.trim() ? 'var(--theme-surface-elevated, #1C1C1C)' : 'var(--theme-accent, #FFD43B)',
+                    color: 'var(--theme-accent-text, #080808)',
                     border: 'none',
                     borderRadius: '6px',
                     padding: '0.4rem 0.65rem',
@@ -1240,8 +1485,8 @@ const AIAnalytics = () => {
 
           {/* Right Dedicated Table Workspace */}
           <div style={{
-            background: '#ffffff',
-            border: '1px solid #e2e8f0',
+            background: 'var(--theme-card-bg, #141414)',
+            border: '1px solid var(--theme-border, #292929)',
             borderRadius: '12px',
             padding: '1.25rem',
             boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
@@ -1255,13 +1500,13 @@ const AIAnalytics = () => {
               gap: '0.75rem',
               marginBottom: '1rem',
               paddingBottom: '0.75rem',
-              borderBottom: '1px solid #f1f5f9'
+              borderBottom: '1px solid var(--theme-border, #292929)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  background: '#f8fafc',
+                  background: 'var(--theme-surface-elevated, #1C1C1C)',
                   border: '1px solid #cbd5e1',
                   borderRadius: '6px',
                   padding: '0.35rem 0.6rem',
@@ -1280,11 +1525,11 @@ const AIAnalytics = () => {
                       fontSize: '0.8rem',
                       marginLeft: '0.4rem',
                       width: '100%',
-                      color: '#0f172a'
+                      color: 'var(--theme-text-primary, #FFFFFF)'
                     }}
                   />
                 </div>
-                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>
                   {filteredTableRows.length} results
                 </span>
               </div>
@@ -1299,11 +1544,11 @@ const AIAnalytics = () => {
                     gap: '0.35rem',
                     padding: '0.4rem 0.75rem',
                     borderRadius: '6px',
-                    border: '1px solid #e2e8f0',
-                    background: '#ffffff',
-                    color: '#2563eb',
+                    border: '1px solid var(--theme-border, #292929)',
+                    background: 'var(--theme-card-bg, #141414)',
+                    color: 'var(--theme-text-primary, #FFFFFF)',
                     fontSize: '0.8rem',
-                    fontWeight: 500,
+                    fontWeight: 600,
                     cursor: 'pointer'
                   }}
                 >
@@ -1321,9 +1566,9 @@ const AIAnalytics = () => {
                     gap: '0.35rem',
                     padding: '0.4rem 0.75rem',
                     borderRadius: '6px',
-                    border: '1px solid #e2e8f0',
-                    background: '#ffffff',
-                    color: '#475569',
+                    border: '1px solid var(--theme-border, #292929)',
+                    background: 'var(--theme-card-bg, #141414)',
+                    color: 'var(--theme-text-secondary, #A3A3A3)',
                     fontSize: '0.8rem',
                     fontWeight: 500,
                     cursor: activeData.length === 0 ? 'not-allowed' : 'pointer'
@@ -1344,17 +1589,17 @@ const AIAnalytics = () => {
                 borderRadius: '8px'
               }}>
                 <Database size={32} color="#94a3b8" style={{ marginBottom: '0.5rem' }} />
-                <h4 style={{ color: '#475569', fontWeight: 600, fontSize: '0.9rem' }}>No Records Loaded</h4>
-                <p style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                <h4 style={{ color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 600, fontSize: '0.9rem' }}>No Records Loaded</h4>
+                <p style={{ color: 'var(--theme-text-secondary, #A3A3A3)', fontSize: '0.8rem' }}>
                   Ask a question to query database records into this table view.
                 </p>
               </div>
             ) : (
               <>
-                <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                <div style={{ overflowX: 'auto', border: '1px solid var(--theme-border, #292929)', borderRadius: '8px' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
                     <thead>
-                      <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                      <tr style={{ background: 'var(--theme-surface-elevated, #1C1C1C)', borderBottom: '2px solid #e2e8f0' }}>
                         {activeColumns.map(col => (
                           <th
                             key={col.name}
@@ -1362,7 +1607,7 @@ const AIAnalytics = () => {
                             style={{
                               padding: '0.65rem 0.85rem',
                               fontWeight: 600,
-                              color: '#475569',
+                              color: 'var(--theme-text-secondary, #A3A3A3)',
                               textTransform: 'capitalize',
                               cursor: 'pointer',
                               userSelect: 'none'
@@ -1381,7 +1626,7 @@ const AIAnalytics = () => {
                         <tr
                           key={rIdx}
                           style={{
-                            borderBottom: '1px solid #f1f5f9',
+                            borderBottom: '1px solid var(--theme-border, #292929)',
                             background: rIdx % 2 === 0 ? '#ffffff' : '#fafafa'
                           }}
                         >
@@ -1389,7 +1634,7 @@ const AIAnalytics = () => {
                             const val = row[col.name];
                             const isStatus = col.name.toLowerCase() === 'result';
                             return (
-                              <td key={col.name} style={{ padding: '0.65rem 0.85rem', color: '#1e293b' }}>
+                              <td key={col.name} style={{ padding: '0.65rem 0.85rem', color: 'var(--theme-text-primary, #FFFFFF)' }}>
                                 {isStatus ? (
                                   <span style={{
                                     padding: '2px 8px',
@@ -1422,7 +1667,7 @@ const AIAnalytics = () => {
                   justifyContent: 'space-between',
                   marginTop: '1rem',
                   fontSize: '0.8rem',
-                  color: '#64748b'
+                  color: 'var(--theme-text-secondary, #A3A3A3)'
                 }}>
                   <span>Page {tablePage} of {totalPages}</span>
                   <div style={{ display: 'flex', gap: '0.35rem' }}>
@@ -1433,8 +1678,8 @@ const AIAnalytics = () => {
                       style={{
                         padding: '0.35rem 0.75rem',
                         borderRadius: '6px',
-                        border: '1px solid #e2e8f0',
-                        background: '#ffffff',
+                        border: '1px solid var(--theme-border, #292929)',
+                        background: 'var(--theme-card-bg, #141414)',
                         cursor: tablePage === 1 ? 'not-allowed' : 'pointer'
                       }}
                     >
@@ -1447,8 +1692,8 @@ const AIAnalytics = () => {
                       style={{
                         padding: '0.35rem 0.75rem',
                         borderRadius: '6px',
-                        border: '1px solid #e2e8f0',
-                        background: '#ffffff',
+                        border: '1px solid var(--theme-border, #292929)',
+                        background: 'var(--theme-card-bg, #141414)',
                         cursor: tablePage >= totalPages ? 'not-allowed' : 'pointer'
                       }}
                     >

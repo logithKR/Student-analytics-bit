@@ -180,8 +180,8 @@ export const ReportCanvas = ({
       {/* ── Document Control Toolbar ── */}
       <div
         style={{
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
+          background: 'var(--theme-card-bg, #141414)',
+          border: '1px solid var(--theme-border, #292929)',
           borderRadius: '12px',
           padding: '0.75rem 1.25rem',
           boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
@@ -196,20 +196,20 @@ export const ReportCanvas = ({
         {/* Left: Document Info */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <FileText size={18} color="#2563eb" />
-            <span style={{ fontWeight: 800, fontSize: '0.88rem', color: '#0f172a' }}>
+            <FileText size={18} color="var(--theme-accent, #FFD43B)" />
+            <span style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--theme-text-primary, #FFFFFF)' }}>
               Report Document Canvas
             </span>
           </div>
           <span
             style={{
               fontSize: '0.72rem',
-              fontWeight: 700,
-              padding: '2px 8px',
+              fontWeight: 800,
+              padding: '3px 10px',
               borderRadius: '6px',
-              background: '#eff6ff',
-              color: '#2563eb',
-              border: '1px solid #bfdbfe'
+              background: 'var(--theme-accent, #FFD43B)',
+              color: 'var(--theme-accent-text, #080808)',
+              border: '1px solid var(--theme-accent, #FFD43B)'
             }}
           >
             {pages.length} Pages • {totalComponents} Visualizations Selected
@@ -222,8 +222,8 @@ export const ReportCanvas = ({
             display: 'flex',
             alignItems: 'center',
             gap: '4px',
-            background: '#f8fafc',
-            border: '1px solid #cbd5e1',
+            background: 'var(--theme-surface-elevated, #1C1C1C)',
+            border: '1px solid var(--theme-border, #292929)',
             borderRadius: '8px',
             padding: '3px 8px'
           }}
@@ -232,12 +232,12 @@ export const ReportCanvas = ({
             type="button"
             onClick={handleZoomOut}
             title="Zoom Out (-10%)"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#475569', padding: '3px', display: 'flex', alignItems: 'center' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--theme-text-secondary, #A3A3A3)', padding: '3px', display: 'flex', alignItems: 'center' }}
           >
             <ZoomOut size={14} />
           </button>
 
-          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f172a', minWidth: '38px', textAlign: 'center' }}>
+          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', minWidth: '38px', textAlign: 'center' }}>
             {zoom}%
           </span>
 
@@ -245,7 +245,7 @@ export const ReportCanvas = ({
             type="button"
             onClick={handleZoomIn}
             title="Zoom In (+10%)"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#475569', padding: '3px', display: 'flex', alignItems: 'center' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--theme-text-secondary, #A3A3A3)', padding: '3px', display: 'flex', alignItems: 'center' }}
           >
             <ZoomIn size={14} />
           </button>
@@ -260,7 +260,7 @@ export const ReportCanvas = ({
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#2563eb',
+              color: 'var(--theme-accent, #FFD43B)',
               fontSize: '0.72rem',
               fontWeight: 700,
               padding: '2px 5px'
@@ -298,16 +298,16 @@ export const ReportCanvas = ({
               alignItems: 'center',
               gap: '0.35rem',
               padding: '0.45rem 0.75rem',
-              background: '#f8fafc',
-              border: '1px solid #cbd5e1',
+              background: 'var(--theme-surface-elevated, #1C1C1C)',
+              border: '1px solid var(--theme-border, #292929)',
               borderRadius: '8px',
               fontSize: '0.78rem',
               fontWeight: 600,
-              color: '#334155',
+              color: 'var(--theme-text-primary, #FFFFFF)',
               cursor: 'pointer'
             }}
           >
-            <Plus size={13} color="#2563eb" />
+            <Plus size={13} color="var(--theme-accent, #FFD43B)" />
             <span>Add Page</span>
           </button>
 
@@ -319,12 +319,12 @@ export const ReportCanvas = ({
               alignItems: 'center',
               gap: '0.35rem',
               padding: '0.45rem 0.75rem',
-              background: '#f8fafc',
-              border: '1px solid #cbd5e1',
+              background: 'var(--theme-surface-elevated, #1C1C1C)',
+              border: '1px solid var(--theme-border, #292929)',
               borderRadius: '8px',
               fontSize: '0.78rem',
               fontWeight: 600,
-              color: '#334155',
+              color: 'var(--theme-text-primary, #FFFFFF)',
               cursor: 'pointer'
             }}
           >
@@ -341,12 +341,12 @@ export const ReportCanvas = ({
               alignItems: 'center',
               gap: '0.35rem',
               padding: '0.45rem 0.65rem',
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
+              background: 'var(--theme-card-bg, #141414)',
+              border: '1px solid var(--theme-border, #292929)',
               borderRadius: '8px',
               fontSize: '0.78rem',
               fontWeight: 500,
-              color: '#64748b',
+              color: 'var(--theme-text-primary, #FFFFFF)',
               cursor: 'pointer'
             }}
           >
@@ -363,12 +363,12 @@ export const ReportCanvas = ({
               alignItems: 'center',
               gap: '0.35rem',
               padding: '0.45rem 0.8rem',
-              background: '#ffffff',
-              border: '1px solid #cbd5e1',
+              background: 'var(--theme-card-bg, #141414)',
+              border: '1px solid var(--theme-border, #292929)',
               borderRadius: '8px',
               fontSize: '0.78rem',
               fontWeight: 600,
-              color: '#0f172a',
+              color: 'var(--theme-text-primary, #FFFFFF)',
               cursor: totalComponents === 0 ? 'not-allowed' : 'pointer',
               opacity: totalComponents === 0 ? 0.4 : 1
             }}
@@ -386,15 +386,16 @@ export const ReportCanvas = ({
               alignItems: 'center',
               gap: '0.4rem',
               padding: '0.45rem 1rem',
-              background: isExporting ? '#94a3b8' : '#2563eb',
+              background: isExporting ? 'var(--theme-surface-elevated, #1C1C1C)' : 'var(--theme-accent, #FFD43B)',
               border: 'none',
               borderRadius: '8px',
               fontSize: '0.78rem',
-              fontWeight: 700,
-              color: '#ffffff',
+              fontWeight: 800,
+              color: isExporting ? 'var(--theme-text-secondary, #A3A3A3)' : 'var(--theme-accent-text, #080808)',
               cursor: isExporting || totalComponents === 0 ? 'not-allowed' : 'pointer',
-              boxShadow: '0 2px 4px rgba(37, 99, 235, 0.25)',
-              opacity: totalComponents === 0 ? 0.4 : 1
+              boxShadow: '0 2px 8px rgba(255, 212, 59, 0.25)',
+              opacity: totalComponents === 0 ? 0.4 : 1,
+              transition: 'all 0.15s ease'
             }}
           >
             <Download size={14} />
@@ -406,8 +407,8 @@ export const ReportCanvas = ({
       {/* ── Direct Graph Selector Pills (Replaces the 3rd Column!) ── */}
       <div
         style={{
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
+          background: 'var(--theme-card-bg, #141414)',
+          border: '1px solid var(--theme-border, #292929)',
           borderRadius: '10px',
           padding: '0.55rem 0.85rem',
           boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
@@ -418,7 +419,7 @@ export const ReportCanvas = ({
           marginBottom: '0.85rem'
         }}
       >
-        <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+        <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--theme-text-primary, #FFFFFF)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
           Select Graphs & Components:
         </span>
 
@@ -435,19 +436,20 @@ export const ReportCanvas = ({
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '4px',
-                padding: '4px 9px',
+                gap: '5px',
+                padding: '4px 10px',
                 borderRadius: '6px',
-                border: isPlaced ? '1px solid #bfdbfe' : '1px solid #e2e8f0',
+                border: isPlaced ? '1px solid var(--theme-accent, #FFD43B)' : '1px solid var(--theme-border, #292929)',
                 background: isPlaced
-                  ? placedPage === 1 ? '#eff6ff' : '#faf5ff'
-                  : '#f8fafc',
+                  ? 'var(--theme-accent, #FFD43B)'
+                  : 'var(--theme-surface-elevated, #1C1C1C)',
                 color: isPlaced
-                  ? placedPage === 1 ? '#2563eb' : '#7c3aed'
-                  : '#64748b',
+                  ? 'var(--theme-accent-text, #080808)'
+                  : 'var(--theme-text-primary, #FFFFFF)',
                 fontSize: '0.72rem',
-                fontWeight: isPlaced ? 700 : 500,
+                fontWeight: isPlaced ? 800 : 600,
                 cursor: 'pointer',
+                boxShadow: isPlaced ? '0 1px 4px rgba(255, 212, 59, 0.25)' : 'none',
                 transition: 'all 0.15s ease'
               }}
             >
@@ -459,9 +461,9 @@ export const ReportCanvas = ({
                     style={{
                       fontSize: '0.62rem',
                       fontWeight: 800,
-                      background: placedPage === 1 ? '#dbeafe' : '#f3e8ff',
-                      color: placedPage === 1 ? '#1d4ed8' : '#6b21a8',
-                      padding: '1px 4px',
+                      background: 'rgba(0, 0, 0, 0.15)',
+                      color: 'var(--theme-accent-text, #080808)',
+                      padding: '1px 5px',
                       borderRadius: '3px',
                       marginLeft: '2px'
                     }}
@@ -582,7 +584,7 @@ export const ReportCanvas = ({
                   style={{
                     width: '794px',
                     minHeight: '1123px',
-                    background: '#ffffff',
+                    background: 'var(--theme-card-bg, #141414)',
                     boxShadow: '0 12px 36px rgba(0,0,0,0.32), 0 2px 8px rgba(0,0,0,0.15)',
                     borderRadius: '4px',
                     padding: '40px',
@@ -610,57 +612,93 @@ export const ReportCanvas = ({
 
                   {/* ── PAGE 1: Institutional Letterhead + Student Identity Card ── */}
                   {isP1 ? (
-                    <div style={{ marginBottom: '14px' }}>
-                      <div style={{ borderBottom: '2px solid #0f172a', paddingBottom: '10px', marginBottom: '12px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div
-                              style={{
-                                width: '36px',
-                                height: '36px',
-                                borderRadius: '6px',
-                                background: '#2563eb',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: '#ffffff',
-                                fontWeight: 800,
-                                fontSize: '1rem',
-                                letterSpacing: '0.05em'
-                              }}
-                            >
-                              BIT
-                            </div>
-                            <div>
-                              <h1 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', letterSpacing: '0.02em', margin: 0, textTransform: 'uppercase' }}>
-                                Bannari Amman Institute of Technology
-                              </h1>
-                              <p style={{ fontSize: '0.68rem', color: '#64748b', margin: '2px 0 0', fontWeight: 500 }}>
-                                Autonomous Institution Affiliated to Anna University • Accredited by NAAC with "A+" Grade
-                              </p>
-                            </div>
+                    <div style={{ marginBottom: '16px' }}>
+                      {/* Centered Institutional Letterhead */}
+                      <div
+                        style={{
+                          borderBottom: '2px solid var(--theme-border, #292929)',
+                          paddingBottom: '14px',
+                          marginBottom: '14px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          textAlign: 'center'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '4px' }}>
+                          <div
+                            style={{
+                              width: '38px',
+                              height: '38px',
+                              borderRadius: '8px',
+                              background: 'var(--theme-accent, #FFD43B)',
+                              color: 'var(--theme-accent-text, #080808)',
+                              fontWeight: 900,
+                              fontSize: '1.05rem',
+                              letterSpacing: '0.06em',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              boxShadow: '0 2px 8px rgba(255, 212, 59, 0.25)',
+                              flexShrink: 0
+                            }}
+                          >
+                            BIT
                           </div>
+                          <div style={{ textAlign: 'left' }}>
+                            <h1 style={{
+                              fontSize: '1.15rem',
+                              fontWeight: 900,
+                              color: 'var(--theme-text-primary, #FFFFFF)',
+                              letterSpacing: '0.04em',
+                              margin: 0,
+                              textTransform: 'uppercase',
+                              lineHeight: 1.15
+                            }}>
+                              Bannari Amman Institute of Technology
+                            </h1>
+                            <p style={{
+                              fontSize: '0.68rem',
+                              color: 'var(--theme-text-secondary, #A3A3A3)',
+                              margin: '2px 0 0',
+                              fontWeight: 500,
+                              letterSpacing: '0.01em'
+                            }}>
+                              Autonomous Institution Affiliated to Anna University • Accredited by NAAC with &quot;A+&quot; Grade
+                            </p>
+                          </div>
+                        </div>
 
-                          <div style={{ textAlign: 'right' }}>
-                            <span
-                              style={{
-                                display: 'inline-block',
-                                background: '#eff6ff',
-                                color: '#2563eb',
-                                border: '1px solid #bfdbfe',
-                                borderRadius: '4px',
-                                padding: '3px 8px',
-                                fontSize: '0.68rem',
-                                fontWeight: 700,
-                                letterSpacing: '0.04em'
-                              }}
-                            >
-                              OFFICIAL ACADEMIC DOSSIER
-                            </span>
-                            <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '3px' }}>
-                              Ref: BIT/ACAD/2026 • {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-                            </div>
-                          </div>
+                        {/* Centered Ribbon: Dossier Badge + Reference */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '12px',
+                            marginTop: '8px',
+                            flexWrap: 'wrap'
+                          }}
+                        >
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              background: 'rgba(255, 212, 59, 0.12)',
+                              color: 'var(--theme-accent, #FFD43B)',
+                              border: '1px solid rgba(255, 212, 59, 0.35)',
+                              borderRadius: '20px',
+                              padding: '2px 10px',
+                              fontSize: '0.66rem',
+                              fontWeight: 800,
+                              letterSpacing: '0.05em',
+                              textTransform: 'uppercase'
+                            }}
+                          >
+                            Official Academic Dossier
+                          </span>
+                          <span style={{ fontSize: '0.66rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 500 }}>
+                            Ref: BIT/ACAD/2026/UG • Sathyamangalam, Tamil Nadu • Date: {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </span>
                         </div>
                       </div>
 
@@ -668,76 +706,150 @@ export const ReportCanvas = ({
                       {scope === 'student' && studentInfo && (
                         <div
                           style={{
-                            background: '#f8fafc',
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '8px',
-                            padding: '10px 14px',
+                            background: 'var(--theme-surface-elevated, #1C1C1C)',
+                            border: '1px solid var(--theme-border, #292929)',
+                            borderRadius: '10px',
+                            padding: '12px 16px',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'space-between'
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: '14px',
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0, flex: 1 }}>
                             <div
                               style={{
-                                width: '38px',
-                                height: '38px',
+                                width: '44px',
+                                height: '44px',
                                 borderRadius: '50%',
-                                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                                color: '#ffffff',
-                                fontWeight: 700,
-                                fontSize: '0.95rem',
+                                background: 'var(--theme-accent, #FFD43B)',
+                                color: 'var(--theme-accent-text, #080808)',
+                                fontWeight: 900,
+                                fontSize: '1.1rem',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                                boxShadow: '0 2px 8px rgba(255, 212, 59, 0.25)'
                               }}
                             >
                               {studentInfo.name ? studentInfo.name.charAt(0) : 'S'}
                             </div>
-                            <div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                <span style={{
+                                  fontSize: '1.02rem',
+                                  fontWeight: 800,
+                                  color: 'var(--theme-text-primary, #FFFFFF)',
+                                  letterSpacing: '0.01em',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis'
+                                }}>
                                   {studentInfo.name}
                                 </span>
-                                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#2563eb', background: '#eff6ff', padding: '1px 6px', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+                                <span style={{
+                                  fontSize: '0.72rem',
+                                  fontWeight: 800,
+                                  color: 'var(--theme-accent, #FFD43B)',
+                                  background: 'rgba(255, 212, 59, 0.12)',
+                                  padding: '2px 8px',
+                                  borderRadius: '5px',
+                                  border: '1px solid rgba(255, 212, 59, 0.35)',
+                                  fontFamily: 'monospace',
+                                  letterSpacing: '0.04em'
+                                }}>
                                   {studentInfo.registerNumber}
                                 </span>
                               </div>
-                              <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '2px', display: 'flex', gap: '6px' }}>
-                                <span><strong>Dept:</strong> {studentInfo.department}</span>
-                                <span>•</span>
-                                <span><strong>Current:</strong> Sem {studentInfo.currentSemester}</span>
-                                <span>•</span>
-                                <span><strong>Evaluated:</strong> {studentInfo.totalSemesters} Semesters</span>
+                              <div style={{
+                                fontSize: '0.72rem',
+                                color: 'var(--theme-text-secondary, #A3A3A3)',
+                                marginTop: '3px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                flexWrap: 'wrap'
+                              }}>
+                                <span><strong style={{ color: 'var(--theme-text-primary, #FFFFFF)' }}>Dept:</strong> {studentInfo.department}</span>
+                                <span style={{ opacity: 0.4 }}>•</span>
+                                <span><strong style={{ color: 'var(--theme-text-primary, #FFFFFF)' }}>Current:</strong> Semester {studentInfo.currentSemester}</span>
+                                <span style={{ opacity: 0.4 }}>•</span>
+                                <span><strong style={{ color: 'var(--theme-text-primary, #FFFFFF)' }}>Evaluated:</strong> {studentInfo.totalSemesters} Semesters</span>
                               </div>
                             </div>
                           </div>
 
-                          <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                            <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Cumulative CGPA</div>
-                              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#2563eb' }}>
-                                {studentInfo.cgpa} <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>/ 10</span>
+                          {/* 3 Centered Metric Cards */}
+                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexShrink: 0 }}>
+                            <div style={{
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
+                              borderRadius: '8px',
+                              padding: '7px 14px',
+                              textAlign: 'center',
+                              minWidth: '108px',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+                            }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
+                                Cumulative CGPA
+                              </div>
+                              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--theme-accent, #FFD43B)', lineHeight: 1.1 }}>
+                                {Number(studentInfo.cgpa).toFixed(2)} <span style={{ fontSize: '0.65rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 500 }}>/ 10</span>
                               </div>
                             </div>
-                            <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Standing Arrears</div>
-                              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: studentInfo.totalArrears > 0 ? '#dc2626' : '#16a34a' }}>
+
+                            <div style={{
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
+                              borderRadius: '8px',
+                              padding: '7px 14px',
+                              textAlign: 'center',
+                              minWidth: '100px',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+                            }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
+                                Standing Arrears
+                              </div>
+                              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: studentInfo.totalArrears > 0 ? '#ef4444' : '#10b981', lineHeight: 1.1 }}>
                                 {studentInfo.totalArrears}
                               </div>
                             </div>
-                            <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Academic Standing</div>
+
+                            <div style={{
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
+                              borderRadius: '8px',
+                              padding: '7px 14px',
+                              textAlign: 'center',
+                              minWidth: '112px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+                            }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '3px' }}>
+                                Academic Standing
+                              </div>
                               <span
                                 style={{
                                   display: 'inline-block',
-                                  fontSize: '0.68rem',
-                                  fontWeight: 700,
-                                  padding: '2px 7px',
-                                  borderRadius: '4px',
-                                  background: studentInfo.standing?.includes('Green') ? '#ecfdf5' : '#fef2f2',
-                                  color: studentInfo.standing?.includes('Green') ? '#059669' : '#dc2626',
-                                  border: `1px solid ${studentInfo.standing?.includes('Green') ? '#a7f3d0' : '#fecaca'}`
+                                  fontSize: '0.7rem',
+                                  fontWeight: 800,
+                                  padding: '2px 8px',
+                                  borderRadius: '5px',
+                                  background: (studentInfo.standing || '').toLowerCase().includes('green') || (studentInfo.standing || '').toLowerCase().includes('optimal')
+                                    ? 'rgba(16, 185, 129, 0.14)'
+                                    : 'rgba(239, 68, 68, 0.14)',
+                                  color: (studentInfo.standing || '').toLowerCase().includes('green') || (studentInfo.standing || '').toLowerCase().includes('optimal')
+                                    ? '#10b981'
+                                    : '#ef4444',
+                                  border: `1px solid ${(studentInfo.standing || '').toLowerCase().includes('green') || (studentInfo.standing || '').toLowerCase().includes('optimal') ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.35)'}`,
+                                  lineHeight: 1.25,
+                                  letterSpacing: '0.02em'
                                 }}
                               >
                                 {studentInfo.standing?.split(' ')[0] || 'Optimal'}
@@ -751,33 +863,55 @@ export const ReportCanvas = ({
                       {scope === 'department' && cohortInfo && (
                         <div
                           style={{
-                            background: '#f8fafc',
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '8px',
-                            padding: '10px 14px',
+                            background: 'var(--theme-surface-elevated, #1C1C1C)',
+                            border: '1px solid var(--theme-border, #292929)',
+                            borderRadius: '10px',
+                            padding: '12px 16px',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'space-between'
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: '14px'
                           }}
                         >
                           <div>
-                            <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
+                            <div style={{ fontSize: '1.02rem', fontWeight: 800, color: 'var(--theme-text-primary, #FFFFFF)' }}>
                               {cohortInfo.departmentLabel}
                             </div>
-                            <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '2px' }}>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--theme-text-secondary, #A3A3A3)', marginTop: '2px' }}>
                               Academic Semester: {cohortInfo.semesterLabel} • Evaluated Strengths across Engineering Programs
                             </div>
                           </div>
-                          <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                            <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Enrolled Students</div>
-                              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#2563eb' }}>
+
+                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <div style={{
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
+                              borderRadius: '8px',
+                              padding: '7px 14px',
+                              textAlign: 'center',
+                              minWidth: '110px'
+                            }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
+                                Enrolled Students
+                              </div>
+                              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--theme-accent, #FFD43B)', lineHeight: 1.1 }}>
                                 {cohortInfo.totalStudents}
                               </div>
                             </div>
-                            <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Pass Percentage</div>
-                              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#16a34a' }}>
+
+                            <div style={{
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
+                              borderRadius: '8px',
+                              padding: '7px 14px',
+                              textAlign: 'center',
+                              minWidth: '110px'
+                            }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
+                                Pass Percentage
+                              </div>
+                              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#10b981', lineHeight: 1.1 }}>
                                 {cohortInfo.passPercentage}%
                               </div>
                             </div>
@@ -787,14 +921,21 @@ export const ReportCanvas = ({
                     </div>
                   ) : (
                     /* ── PAGE 2+: Running Header ── */
-                    <div style={{ borderBottom: '1px solid #cbd5e1', paddingBottom: '8px', marginBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        Bannari Amman Institute of Technology • Academic Evaluation Dossier
+                    <div style={{
+                      borderBottom: '1px solid var(--theme-border, #292929)',
+                      paddingBottom: '10px',
+                      marginBottom: '14px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--theme-text-primary, #FFFFFF)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Bannari Amman Institute of Technology • Official Academic Dossier
                       </div>
-                      <div style={{ fontSize: '0.68rem', color: '#64748b', display: 'flex', gap: '8px' }}>
-                        <span>{scope === 'student' ? studentInfo?.name : cohortInfo?.departmentLabel}</span>
-                        <span>•</span>
-                        <span>Page {page.pageNumber}</span>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--theme-text-secondary, #A3A3A3)', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--theme-accent, #FFD43B)' }}>{scope === 'student' ? studentInfo?.name : cohortInfo?.departmentLabel}</span>
+                        <span style={{ opacity: 0.4 }}>•</span>
+                        <span>Page {page.pageNumber} of {pages.length}</span>
                       </div>
                     </div>
                   )}
@@ -815,39 +956,40 @@ export const ReportCanvas = ({
                       <div
                         style={{
                           width: '100%',
-                          minHeight: '260px',
+                          minHeight: '280px',
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          border: '2px dashed #cbd5e1',
-                          borderRadius: '8px',
-                          background: isOverPage ? '#eff6ff' : '#f8fafc',
-                          padding: '2rem',
+                          border: '2px dashed var(--theme-border, #292929)',
+                          borderRadius: '10px',
+                          background: isOverPage ? 'rgba(255, 212, 59, 0.08)' : 'var(--theme-surface-elevated, #1C1C1C)',
+                          padding: '2.5rem',
                           textAlign: 'center',
                           transition: 'all 0.15s ease'
                         }}
                       >
                         <div
                           style={{
-                            width: '42px',
-                            height: '42px',
-                            borderRadius: '10px',
-                            background: '#eff6ff',
-                            color: '#2563eb',
+                            width: '46px',
+                            height: '46px',
+                            borderRadius: '12px',
+                            background: 'rgba(255, 212, 59, 0.12)',
+                            color: 'var(--theme-accent, #FFD43B)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            marginBottom: '0.75rem'
+                            marginBottom: '0.85rem',
+                            border: '1px solid rgba(255, 212, 59, 0.25)'
                           }}
                         >
-                          <Layers size={20} />
+                          <Layers size={22} />
                         </div>
-                        <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>
+                        <h4 style={{ fontSize: '0.96rem', fontWeight: 800, color: 'var(--theme-text-primary, #FFFFFF)', margin: '0 0 5px' }}>
                           Page {page.pageNumber} is Empty
                         </h4>
-                        <p style={{ fontSize: '0.74rem', color: '#64748b', maxWidth: '360px', margin: '0 0 1rem', lineHeight: 1.4 }}>
-                          Click any graph above to place it here, or load the recommended template.
+                        <p style={{ fontSize: '0.74rem', color: 'var(--theme-text-secondary, #A3A3A3)', maxWidth: '380px', margin: '0 0 1.25rem', lineHeight: 1.5 }}>
+                          Select any component above to place it here, or load the recommended official academic template.
                         </p>
                         <button
                           type="button"
@@ -855,18 +997,20 @@ export const ReportCanvas = ({
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '5px',
-                            padding: '6px 12px',
-                            background: '#2563eb',
-                            color: '#ffffff',
+                            gap: '6px',
+                            padding: '8px 16px',
+                            background: 'var(--theme-accent, #FFD43B)',
+                            color: 'var(--theme-accent-text, #080808)',
                             border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '0.76rem',
-                            fontWeight: 600,
-                            cursor: 'pointer'
+                            borderRadius: '8px',
+                            fontSize: '0.78rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 8px rgba(255, 212, 59, 0.25)',
+                            transition: 'all 0.15s ease'
                           }}
                         >
-                          <Sparkles size={13} />
+                          <Sparkles size={14} />
                           <span>Load Academic Template</span>
                         </button>
                       </div>
@@ -912,7 +1056,7 @@ export const ReportCanvas = ({
                     style={{
                       marginTop: 'auto',
                       paddingTop: '10px',
-                      borderTop: '1px solid #e2e8f0',
+                      borderTop: '1px solid var(--theme-border, #292929)',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
@@ -926,7 +1070,7 @@ export const ReportCanvas = ({
                     <div>
                       Official Institutional Dossier • Generated from verified database records
                     </div>
-                    <div style={{ fontWeight: 700, color: '#475569' }}>
+                    <div style={{ fontWeight: 700, color: 'var(--theme-text-secondary, #A3A3A3)' }}>
                       Page {page.pageNumber} of {pages.length}
                     </div>
                   </div>

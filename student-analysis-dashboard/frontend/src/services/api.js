@@ -144,8 +144,32 @@ export const getAtRiskStudents = async (department = 'All', semester = 'All') =>
 
 // ── AI Dynamic Analytics & Chart Services ──
 
-export const queryAI = async (question, mode = 'chat_viz', history = []) => {
-  const response = await axios.post(`${API_URL}/ai/query`, { question, mode, history });
+export const queryAI = async (question, mode = 'chat_viz', history = [], conversationId = null) => {
+  const payload = { question, mode, history };
+  if (conversationId) {
+    payload.conversation_id = conversationId;
+  }
+  const response = await axios.post(`${API_URL}/ai/query`, payload);
+  return response.data;
+};
+
+export const getAIConversations = async () => {
+  const response = await axios.get(`${API_URL}/ai/conversations`);
+  return response.data;
+};
+
+export const getAIConversation = async (conversationId) => {
+  const response = await axios.get(`${API_URL}/ai/conversations/${encodeURIComponent(conversationId)}`);
+  return response.data;
+};
+
+export const createAIConversation = async (title = 'New Academic Chat') => {
+  const response = await axios.post(`${API_URL}/ai/conversations`, { title });
+  return response.data;
+};
+
+export const deleteAIConversation = async (conversationId) => {
+  const response = await axios.delete(`${API_URL}/ai/conversations/${encodeURIComponent(conversationId)}`);
   return response.data;
 };
 

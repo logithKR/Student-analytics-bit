@@ -51,10 +51,10 @@ export const ChartToolbar = ({
             alignItems: 'center',
             gap: '0.35rem',
             padding: '0.4rem 0.65rem',
-            background: isTableView ? '#eff6ff' : '#ffffff',
-            border: isTableView ? '1px solid #bfdbfe' : '1px solid #cbd5e1',
+            background: isTableView ? 'var(--theme-accent, #FFD43B)' : 'var(--theme-surface-elevated, #1C1C1C)',
+            border: isTableView ? '1px solid var(--theme-accent, #FFD43B)' : '1px solid var(--theme-border, #292929)',
             borderRadius: '6px',
-            color: isTableView ? '#2563eb' : '#475569',
+            color: isTableView ? 'var(--theme-accent-text, #080808)' : 'var(--theme-text-primary, #ffffff)',
             fontSize: '0.75rem',
             fontWeight: 600,
             cursor: 'pointer',
@@ -78,10 +78,10 @@ export const ChartToolbar = ({
             alignItems: 'center',
             gap: '0.35rem',
             padding: '0.4rem 0.65rem',
-            background: '#ffffff',
-            border: '1px solid #cbd5e1',
+            background: 'var(--theme-surface-elevated, #1C1C1C)',
+            border: '1px solid var(--theme-border, #292929)',
             borderRadius: '6px',
-            color: '#475569',
+            color: 'var(--theme-text-primary, #ffffff)',
             fontSize: '0.75rem',
             fontWeight: 600,
             cursor: disableExport ? 'not-allowed' : 'pointer',
@@ -106,24 +106,24 @@ export const ChartToolbar = ({
             alignItems: 'center',
             gap: '0.35rem',
             padding: '0.4rem 0.75rem',
-            background: downloadSuccess ? '#ecfdf5' : '#ffffff',
-            border: downloadSuccess ? '1px solid #a7f3d0' : '1px solid #cbd5e1',
+            background: downloadSuccess ? 'var(--status-success-bg, rgba(16,185,129,0.1))' : 'var(--theme-surface-elevated, #1C1C1C)',
+            border: downloadSuccess ? '1px solid var(--status-success, #10b981)' : '1px solid var(--theme-border, #292929)',
             borderRadius: '6px',
-            color: downloadSuccess ? '#059669' : '#0f172a',
+            color: downloadSuccess ? 'var(--status-success, #10b981)' : 'var(--theme-text-primary, #ffffff)',
             fontSize: '0.75rem',
             fontWeight: 600,
             cursor: downloading || disableExport ? 'not-allowed' : 'pointer',
             opacity: disableExport ? 0.6 : 1,
             transition: 'all 0.15s ease',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
+            boxShadow: 'var(--theme-shadow-sm)'
           }}
         >
           {downloading ? (
             <RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} />
           ) : downloadSuccess ? (
-            <Check size={13} color="#059669" />
+            <Check size={13} color="var(--status-success, #10b981)" />
           ) : (
-            <Download size={13} color="#2563eb" />
+            <Download size={13} color="var(--theme-accent, #FFD43B)" />
           )}
           <span>{downloading ? 'Exporting...' : downloadSuccess ? 'Downloaded!' : 'PNG'}</span>
         </button>

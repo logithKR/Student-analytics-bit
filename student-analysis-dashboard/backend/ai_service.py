@@ -1,3 +1,15 @@
+
+from academic_ai_engine import (
+    execute_academic_query,
+    resolve_department,
+    CANONICAL_DEPARTMENTS
+)
+from conversation_service import (
+    get_conversation,
+    create_conversation,
+    add_conversation_message,
+    update_conversation_context
+)
 import os
 import json
 import re
@@ -296,6 +308,7 @@ class AIQueryRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=1000)
     mode: Literal["chat_only", "chat_viz", "data_table"] = "chat_viz"
     history: List[ChatMessage] = Field(default_factory=list)
+    conversation_id: Optional[str] = None
 
 class AIQueryResponse(BaseModel):
     status: Literal["success", "error"]
@@ -321,6 +334,9 @@ class AIQueryResponse(BaseModel):
     errorType: Optional[str] = None
     debugInfo: Optional[Dict[str, Any]] = None
     fallbackNotice: Optional[str] = None
+    conversation_id: Optional[str] = None
+    studentCard: Optional[Dict[str, Any]] = None
+    clarificationNeeded: Optional[bool] = None
 
 # -------------------------------------------------------------
 # Database Schema Catalog
@@ -400,6 +416,16 @@ def get_schema_summary() -> Dict[str, Any]:
 # -------------------------------------------------------------
 
 DEPT_ALIAS_MAP = {
+    "CSD": "CD",
+    "CS & DESIGN": "CD",
+    "CS AND DESIGN": "CD",
+    "CS&DESIGN": "CD",
+    "CS & D": "CD",
+    "CS AND D": "CD",
+    "CS&D": "CD",
+    "COMPUTER SCIENCE & DESIGN": "CD",
+    "COMPUTER SCIENCE AND DESIGN": "CD",
+    "COMPUTER SCIENCE DESIGN": "CD",
     "CSE": "CS",
     "COMPUTER SCIENCE": "CS",
     "COMPUTER SCIENCE & ENGINEERING": "CS",
@@ -1351,8 +1377,8 @@ Available Entities & Schemas:
 
 Available University Departments (20 Departments in Database):
 The connected database contains records across 20 academic departments:
-- CS: Computer Science & Engineering (also referenced as 'CSE' or 'Computer Science')
-- CD: Computer Science & Design
+- CD: Computer Science & Design (Aliases: CSD, Computer Science & Design, CS & Design. ALWAYS map CSD to 'CD'. NEVER use CS for Computer Science & Design)
+- CS: Computer Science & Engineering (Aliases: CSE, Computer Science, Computer Science & Engineering. NEVER confuse with CSD)
 - ISE: Information Science & Engineering
 - IT: Information Technology
 - AD: Artificial Intelligence & Data Science (AI&DS)
@@ -1733,7 +1759,9 @@ def process_ai_query(
     question: str,
     student_data: List[Dict[str, Any]],
     mode: str = "chat_viz",
-    history: Optional[List[ChatMessage]] = None
+    history: Optional[List[ChatMessage]] = None,
+    conversation_id: Optional[str] = None,
+    user_id: Optional[int] = None
 ) -> AIQueryResponse:
     """
     End-to-End Dynamic AI Graph Pipeline (Strict Real Groq Execution):
@@ -1750,6 +1778,123 @@ def process_ai_query(
     start_time = time.time()
 
     try:
+        # ------------------------------------------------------------
+        # 1. Resolve or Create Conversation Session
+        # ------------------------------------------------------------
+        conv_id = conversation_id
+        if not conv_id:
+            new_c = create_conversation(user_id=user_id, title=question[:38])
+            conv_id = new_c["id"]
+            conv = new_c
+        else:
+            conv = get_conversation(conv_id, user_id=user_id)
+            if not conv:
+                conv = create_conversation(user_id=user_id, title=question[:38], conversation_id=conv_id)
+
+        conv_context = conv.get("last_context", {}) if conv else {}
+        if conv and conv.get("last_department"):
+            conv_context["last_department"] = conv["last_department"]
+
+        # ------------------------------------------------------------
+        # 2. Deterministic Database Academic Truth Engine
+        # ------------------------------------------------------------
+        academic_res = execute_academic_query(question, student_data, conv_context, mode)
+        if academic_res is not None:
+            exec_time_ms = int((time.time() - start_time) * 1000)
+            # Record user & assistant messages
+            add_conversation_message(conv_id, "user", question)
+            add_conversation_message(
+                conv_id,
+                "assistant",
+                academic_res.get("answer", ""),
+                meta={
+                    "studentCard": academic_res.get("studentCard"),
+                    "modelUsed": academic_res.get("modelUsed"),
+                    "totalRows": academic_res.get("totalRows", 0),
+                    "queryExecuted": True
+                }
+            )
+
+            # Persist updated analytical context
+            if academic_res.get("updated_context"):
+                up_ctx = academic_res["updated_context"]
+                update_conversation_context(
+                    conv_id,
+                    last_department=up_ctx.get("last_department"),
+                    last_context=up_ctx
+                )
+
+            cols = [
+                ColumnMetadata(**c) if isinstance(c, dict) else c
+                for c in academic_res.get("columns", [])
+            ]
+            g_spec = academic_res.get("graphSpecification")
+            if g_spec and isinstance(g_spec, dict):
+                try:
+                    g_spec = GraphSpecification(**g_spec)
+                except Exception:
+                    g_spec = None
+
+            add_ai_log_entry(
+                question=question,
+                mode=mode,
+                status="success",
+                answer=academic_res.get("answer", ""),
+                model_used=academic_res.get("modelUsed", "Deterministic Academic Grounding Engine"),
+                intent=academic_res.get("intent", "database_query"),
+                raw_groq_prompt=question,
+                raw_groq_response=None,
+                query_plan=None,
+                graph_specification=g_spec.model_dump() if g_spec else None,
+                query_executed=True,
+                rows_count=academic_res.get("totalRows", 0),
+                columns=[c.name for c in cols],
+                execution_time_ms=exec_time_ms,
+                key_used=None,
+                failover_log=[]
+            )
+
+            return AIQueryResponse(
+                status=academic_res.get("status", "success"),
+                answer=academic_res.get("answer", ""),
+                mode=mode,
+                intent=academic_res.get("intent", "database_query"),
+                queryExecuted=True,
+                queryPlan=None,
+                visualization=None,
+                graphSpecification=g_spec,
+                showChart=academic_res.get("showChart", False),
+                showTable=academic_res.get("showTable", False),
+                compatibleChartTypes=["table", "horizontal_bar", "bar"],
+                data=academic_res.get("data", []),
+                columns=cols,
+                totalRows=academic_res.get("totalRows", 0),
+                executedAt=datetime.now(timezone.utc).isoformat(),
+                modelUsed=academic_res.get("modelUsed", "Deterministic Academic Grounding Engine"),
+                conversation_id=conv_id,
+                studentCard=academic_res.get("studentCard"),
+                clarificationNeeded=academic_res.get("clarificationNeeded")
+            )
+
+        # ------------------------------------------------------------
+        # 3. Department Memory Pre-Resolution for Analytical Queries
+        # ------------------------------------------------------------
+        dept_match = resolve_department(question, conv_context)
+        if dept_match and not dept_match.get("unknown"):
+            update_conversation_context(
+                conv_id,
+                last_department=dept_match["code"],
+                last_context={"last_department": dept_match["code"]}
+            )
+
+        # Ensure conversation history is loaded if empty
+        if not history and conv_id:
+            stored_msgs = get_conversation_messages(conv_id)
+            history = [
+                ChatMessage(role=m["role"], content=m["content"])
+                for m in stored_msgs[-6:]
+            ]
+
         # ============================================================
         # KEYWORD/LOCAL FOLLOW-UP INTERCEPTOR
         # ============================================================
@@ -1794,6 +1939,8 @@ def process_ai_query(
                 key_used=key_used,
                 failover_log=failover_log
             )
+            add_conversation_message(conv_id, "user", question)
+            add_conversation_message(conv_id, "assistant", answer, meta={"modelUsed": model_used})
             return AIQueryResponse(
                 status="success",
                 answer=answer,
@@ -1813,6 +1960,7 @@ def process_ai_query(
                 modelUsed=model_used,
                 keyUsed=key_used,
                 failoverAttempts=failover_log,
+                conversation_id=conv_id,
                 debugInfo={
                     "pipeline": "General Conversation (No database query requested)",
                     "stages": [
@@ -1868,11 +2016,12 @@ def process_ai_query(
         # Stage 6: Data Validation - Zero results edge case
         if total_rows == 0:
             exec_time_ms = int((time.time() - start_time) * 1000)
+            zero_ans = f"The database query executed successfully, but found 0 student records matching your criteria for entity '{query_plan.entity}'. No visualization was generated because no data points exist."
             add_ai_log_entry(
                 question=question,
                 mode=mode,
                 status="success",
-                answer=f"The database query executed successfully, but found 0 student records matching your criteria for entity '{query_plan.entity}'. No visualization was generated because no data points exist.",
+                answer=zero_ans,
                 model_used=model_used,
                 intent="database_query",
                 raw_groq_prompt=raw_response.get("_rawGroqPrompt", question),
@@ -1886,9 +2035,11 @@ def process_ai_query(
                 key_used=key_used,
                 failover_log=failover_log
             )
+            add_conversation_message(conv_id, "user", question)
+            add_conversation_message(conv_id, "assistant", zero_ans, meta={"modelUsed": model_used, "totalRows": 0})
             return AIQueryResponse(
                 status="success",
-                answer=f"The database query executed successfully, but found 0 student records matching your criteria for entity '{query_plan.entity}'. No visualization was generated because no data points exist.",
+                answer=zero_ans,
                 mode=mode,
                 intent="database_query",
                 queryExecuted=True,
@@ -1905,6 +2056,7 @@ def process_ai_query(
                 modelUsed=model_used,
                 keyUsed=key_used,
                 failoverAttempts=failover_log,
+                conversation_id=conv_id,
                 fallbackNotice="Zero records returned from database.",
                 debugInfo={
                     "pipeline": "Data Query Complete (0 records)",
@@ -1987,6 +2139,8 @@ def process_ai_query(
             failover_log=failover_log
         )
 
+        add_conversation_message(conv_id, "user", question)
+        add_conversation_message(conv_id, "assistant", answer, meta={"modelUsed": model_used, "totalRows": total_rows})
         return AIQueryResponse(
             status="success",
             answer=answer,
@@ -2006,6 +2160,7 @@ def process_ai_query(
             modelUsed=model_used,
             keyUsed=key_used,
             failoverAttempts=failover_log,
+            conversation_id=conv_id,
             debugInfo={
                 "pipeline": "End-to-End Success",
                 "stages": [

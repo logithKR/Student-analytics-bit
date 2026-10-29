@@ -29,22 +29,22 @@ export const StackedBarChartComponent = ({
             layout="vertical"
             margin={{ top: 10, right: 30, left: 35, bottom: 10 }}
           >
-            {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />}
+            {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border, #292929)" horizontal={false} />}
             <XAxis
               type="number"
-              stroke="#64748b"
+              stroke="var(--theme-text-secondary, #A3A3A3)"
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fill: 'var(--theme-text-secondary, #A3A3A3)' }}
               tickFormatter={(v) => formatAxisTick(v) + (unit === '%' ? '%' : '')}
             />
             <YAxis
               type="category"
               dataKey={xField}
-              stroke="#64748b"
+              stroke="var(--theme-text-secondary, #A3A3A3)"
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fill: 'var(--theme-text-secondary, #A3A3A3)' }}
               width={75}
               tickFormatter={(val) => truncateLabel(val, 12)}
             />
@@ -65,10 +65,10 @@ export const StackedBarChartComponent = ({
             data={data}
             margin={{ top: 10, right: 20, left: 10, bottom: data.length > 5 ? 40 : 15 }}
           >
-            {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />}
+            {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border, #292929)" vertical={false} />}
             <XAxis
               dataKey={xField}
-              stroke="#64748b"
+              stroke="var(--theme-text-secondary, #A3A3A3)"
               tickLine={false}
               axisLine={false}
               tick={{ fontSize: data.length > 8 ? 9 : 11 }}
@@ -78,10 +78,10 @@ export const StackedBarChartComponent = ({
               tickFormatter={(val) => truncateLabel(val, 12)}
             />
             <YAxis
-              stroke="#64748b"
+              stroke="var(--theme-text-secondary, #A3A3A3)"
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fill: 'var(--theme-text-secondary, #A3A3A3)' }}
               width={45}
               tickFormatter={(v) => formatAxisTick(v) + (unit === '%' ? '%' : '')}
             />

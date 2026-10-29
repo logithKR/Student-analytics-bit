@@ -78,11 +78,12 @@ export const ChartContainer = ({
       ref={containerRef}
       className={`chart-card-container ${className}`}
       style={{
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
+        background: 'var(--theme-card-bg)',
+        border: '1px solid var(--theme-border)',
         borderRadius: '12px',
         padding: '1.25rem',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
+        boxShadow: 'var(--theme-shadow-sm)',
+        color: 'var(--theme-text-primary)',
         display: 'flex',
         flexDirection: 'column',
         minHeight: effectiveMinHeight,

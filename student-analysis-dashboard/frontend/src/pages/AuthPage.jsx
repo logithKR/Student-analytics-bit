@@ -11,7 +11,6 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   ArrowLeft
 } from 'lucide-react';
 import '../landing.css';
@@ -40,23 +39,13 @@ const DEPARTMENTS = [
   'Academic Administration'
 ];
 
-const ROLES = [
-  'Dean / Administrator',
-  'Head of Department (HOD)',
-  'Professor',
-  'Associate Professor',
-  'Assistant Professor',
-  'Academic Advisor',
-  'Student'
-];
-
 export default function AuthPage({ initialMode = 'login' }) {
   const [mode, setMode] = useState(initialMode); // 'login' or 'register'
   const { login, register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // If already authenticated, redirect to dashboard
+  // If already authenticated, redirect to destination or dashboard
   useEffect(() => {
     if (isAuthenticated) {
       const destination = location.state?.from?.pathname || '/dashboard';
@@ -64,7 +53,7 @@ export default function AuthPage({ initialMode = 'login' }) {
     }
   }, [isAuthenticated, navigate, location]);
 
-  // Keep mode in sync if props or route change
+  // Keep mode in sync if route changes
   useEffect(() => {
     if (location.pathname === '/register') {
       setMode('register');
@@ -81,7 +70,6 @@ export default function AuthPage({ initialMode = 'login' }) {
   const [regFullName, setRegFullName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regDepartment, setRegDepartment] = useState(DEPARTMENTS[0]);
-  const [regRole, setRegRole] = useState(ROLES[4]); // Assistant Professor
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
@@ -106,7 +94,8 @@ export default function AuthPage({ initialMode = 'login' }) {
     setSubmitting(false);
 
     if (res.success) {
-      navigate('/dashboard');
+      const destination = location.state?.from?.pathname || '/dashboard';
+      navigate(destination, { replace: true });
     } else {
       setErrorMsg(res.error || 'Failed to authenticate. Please check your credentials.');
     }
@@ -122,8 +111,8 @@ export default function AuthPage({ initialMode = 'login' }) {
       return;
     }
 
-    if (regPassword.length < 6) {
-      setErrorMsg('Password must be at least 6 characters in length.');
+    if (regPassword.length < 8) {
+      setErrorMsg('Password must be at least 8 characters in length.');
       return;
     }
 
@@ -137,26 +126,19 @@ export default function AuthPage({ initialMode = 'login' }) {
       full_name: regFullName.trim(),
       email: regEmail.trim(),
       department: regDepartment,
-      role: regRole,
       password: regPassword
     });
     setSubmitting(false);
 
     if (res.success) {
-      setSuccessMsg('Account registered successfully! Entering dashboard...');
+      setSuccessMsg('Account registered successfully! Redirecting to dashboard...');
       setTimeout(() => {
-        navigate('/dashboard');
-      }, 800);
+        const destination = location.state?.from?.pathname || '/dashboard';
+        navigate(destination, { replace: true });
+      }, 600);
     } else {
       setErrorMsg(res.error || 'Registration failed. Email may already be registered.');
     }
-  };
-
-  // Demo 1-Click Login Helper
-  const applyDemoAccount = (email, pwd) => {
-    setLoginEmail(email);
-    setLoginPassword(pwd);
-    setErrorMsg('');
   };
 
   const isRegister = mode === 'register';
@@ -175,7 +157,7 @@ export default function AuthPage({ initialMode = 'login' }) {
           className="btn-dark-outline btn-sm"
         >
           <ArrowLeft className="w-3.5 h-3.5 text-yellow-400" />
-          Back to Overview
+          Back to Home
         </Link>
       </div>
 
@@ -188,7 +170,7 @@ export default function AuthPage({ initialMode = 'login' }) {
           </div>
           <h1 className="auth-brand-title">Academic Intelligence</h1>
           <p className="auth-brand-subtitle">
-            Bannari Amman Institute of Technology · Department Portal
+            Bannari Amman Institute of Technology · Unified Portal Access
           </p>
         </div>
 
@@ -202,6 +184,7 @@ export default function AuthPage({ initialMode = 'login' }) {
                 setMode('login');
                 setErrorMsg('');
                 setSuccessMsg('');
+                navigate('/login', { replace: true, state: location.state });
               }}
               className={`auth-tab-button ${!isRegister ? 'active' : ''}`}
             >
@@ -213,10 +196,11 @@ export default function AuthPage({ initialMode = 'login' }) {
                 setMode('register');
                 setErrorMsg('');
                 setSuccessMsg('');
+                navigate('/register', { replace: true, state: location.state });
               }}
               className={`auth-tab-button ${isRegister ? 'active' : ''}`}
             >
-              Register Faculty
+              Register Account
             </button>
           </div>
 
@@ -239,7 +223,7 @@ export default function AuthPage({ initialMode = 'login' }) {
           {!isRegister && (
             <form onSubmit={handleLoginSubmit} className="auth-form">
               <div className="auth-field-group">
-                <label className="auth-label">Institutional Email</label>
+                <label className="auth-label">Account Email</label>
                 <div className="auth-input-container">
                   <div className="auth-input-icon">
                     <Mail size={16} />
@@ -248,7 +232,7 @@ export default function AuthPage({ initialMode = 'login' }) {
                     type="email"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="faculty@bit.edu"
+                    placeholder="name@bit.edu"
                     required
                     className="auth-input"
                   />
@@ -287,7 +271,7 @@ export default function AuthPage({ initialMode = 'login' }) {
                 type="submit"
                 disabled={submitting}
                 className="btn-gold-primary"
-                style={{ width: '100%', height: '50px' }}
+                style={{ width: '100%', height: '50px', marginTop: '0.5rem' }}
               >
                 {submitting ? (
                   <span>Authenticating...</span>
@@ -298,42 +282,6 @@ export default function AuthPage({ initialMode = 'login' }) {
                   </>
                 )}
               </button>
-
-              {/* Instant 1-Click Demo Seed Account Pills */}
-              <div className="demo-accounts-box">
-                <div className="demo-accounts-title">
-                  <Sparkles size={14} className="text-yellow-400" />
-                  Instant Reviewer Demo Accounts (1-Click Fill):
-                </div>
-                <div className="demo-account-grid">
-                  <button
-                    type="button"
-                    onClick={() => applyDemoAccount('admin@bit.edu', 'Admin@1234')}
-                    className="demo-account-card"
-                  >
-                    <div className="demo-account-role">Dean Admin</div>
-                    <span className="demo-account-email">admin@bit.edu</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => applyDemoAccount('hod.cs@bit.edu', 'Hod@1234')}
-                    className="demo-account-card"
-                  >
-                    <div className="demo-account-role">HOD CS</div>
-                    <span className="demo-account-email">hod.cs@bit.edu</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => applyDemoAccount('faculty@bit.edu', 'Faculty@1234')}
-                    className="demo-account-card"
-                  >
-                    <div className="demo-account-role">IT Faculty</div>
-                    <span className="demo-account-email">faculty@bit.edu</span>
-                  </button>
-                </div>
-              </div>
             </form>
           )}
 
@@ -341,7 +289,7 @@ export default function AuthPage({ initialMode = 'login' }) {
           {isRegister && (
             <form onSubmit={handleRegisterSubmit} className="auth-form">
               <div className="auth-field-group">
-                <label className="auth-label">Full Name (with Academic Title)</label>
+                <label className="auth-label">Full Name</label>
                 <div className="auth-input-container">
                   <div className="auth-input-icon">
                     <User size={16} />
@@ -350,7 +298,7 @@ export default function AuthPage({ initialMode = 'login' }) {
                     type="text"
                     value={regFullName}
                     onChange={(e) => setRegFullName(e.target.value)}
-                    placeholder="Dr. K. Ramesh"
+                    placeholder="Ramesh Sakthivel"
                     required
                     className="auth-input"
                   />
@@ -358,7 +306,7 @@ export default function AuthPage({ initialMode = 'login' }) {
               </div>
 
               <div className="auth-field-group">
-                <label className="auth-label">Institutional Email</label>
+                <label className="auth-label">Account Email</label>
                 <div className="auth-input-container">
                   <div className="auth-input-icon">
                     <Mail size={16} />
@@ -374,42 +322,25 @@ export default function AuthPage({ initialMode = 'login' }) {
                 </div>
               </div>
 
-              <div className="auth-row-2col">
-                <div className="auth-field-group">
-                  <label className="auth-label">Department</label>
-                  <select
-                    value={regDepartment}
-                    onChange={(e) => setRegDepartment(e.target.value)}
-                    className="auth-select"
-                  >
-                    {DEPARTMENTS.map((dept) => (
-                      <option key={dept} value={dept} className="bg-black text-white">
-                        {dept}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="auth-field-group">
-                  <label className="auth-label">Academic Role</label>
-                  <select
-                    value={regRole}
-                    onChange={(e) => setRegRole(e.target.value)}
-                    className="auth-select"
-                  >
-                    {ROLES.map((r) => (
-                      <option key={r} value={r} className="bg-black text-white">
-                        {r}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div className="auth-field-group">
+                <label className="auth-label">Department / Unit</label>
+                <select
+                  value={regDepartment}
+                  onChange={(e) => setRegDepartment(e.target.value)}
+                  className="auth-select"
+                >
+                  {DEPARTMENTS.map((dept) => (
+                    <option key={dept} value={dept} className="bg-black text-white">
+                      {dept}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="auth-field-group">
                 <div className="auth-label-row">
                   <label className="auth-label">Password</label>
-                  <span className="auth-label-helper">Min. 6 characters</span>
+                  <span className="auth-label-helper">Min. 8 characters</span>
                 </div>
                 <div className="auth-input-container">
                   <div className="auth-input-icon">
@@ -460,9 +391,9 @@ export default function AuthPage({ initialMode = 'login' }) {
                 color: '#a1a1aa'
               }}>
                 <span style={{ color: '#facc15', fontWeight: 600, display: 'block', marginBottom: '2px' }}>
-                  Auto-stored in SQLite:
+                  Equal Platform Access:
                 </span>
-                Password is securely hashed with 12-round bcrypt in users.db.
+                All registered accounts receive instant access to all student analytics, ML risk models, and reporting tools.
               </div>
 
               <button
@@ -475,7 +406,7 @@ export default function AuthPage({ initialMode = 'login' }) {
                   <span>Creating Account...</span>
                 ) : (
                   <>
-                    <span>Complete Faculty Registration</span>
+                    <span>Create Account & Access Portal</span>
                     <CheckCircle2 size={16} />
                   </>
                 )}

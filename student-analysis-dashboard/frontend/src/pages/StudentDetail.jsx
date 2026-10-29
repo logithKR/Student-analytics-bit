@@ -70,7 +70,7 @@ const StudentDetail = () => {
   const latestSubjects = latestRecord.subjects.map(s => ({
     code: s.code,
     total: s.tot,
-    color: s.tot >= 50 ? '#2563eb' : '#ef4444'
+    color: s.tot >= 50 ? 'var(--theme-accent, #FFD43B)' : '#ef4444'
   }));
 
   return (
@@ -87,11 +87,11 @@ const StudentDetail = () => {
             alignItems: 'center', 
             gap: '0.5rem', 
             padding: '0.55rem 1.15rem', 
-            background: isExporting ? '#f1f5f9' : '#ffffff', 
+            background: isExporting ? 'var(--theme-surface-elevated, #1C1C1C)' : 'var(--theme-accent, #FFD43B)', 
             border: '1px solid var(--panel-border)', 
             borderRadius: '8px', 
             cursor: isExporting ? 'not-allowed' : 'pointer', 
-            color: isExporting ? '#94a3b8' : '#2563eb', 
+            color: isExporting ? 'var(--theme-text-secondary, #A3A3A3)' : 'var(--theme-accent-text, #080808)', 
             fontWeight: 600, 
             fontSize: '0.875rem',
             boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
@@ -151,10 +151,10 @@ const StudentDetail = () => {
             yField="gpa"
             height={230}
             domain={[0, 10]}
-            color="#2563eb"
+            color="#FFD43B"
           />
           <div style={{ background: '#f8fafc', padding: '0.75rem', borderRadius: '8px', marginTop: '0.75rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--panel-border)' }}>
-            <Lightbulb size={16} color="#2563eb" />
+            <Lightbulb size={16} color="#FFD43B" />
             <span style={{ fontWeight: 600, color: '#0f172a' }}>Insight:</span>
             {isOptimal
               ? ` Student has maintained a consistent performance. Current GPA: ${latestRecord.gpa}`
@@ -166,7 +166,7 @@ const StudentDetail = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {/* CGPA Card */}
           <div className="kpi-card" style={{ textAlign: 'center', padding: '1.5rem' }}>
-            <GraduationCap size={28} color="#2563eb" style={{ margin: '0 auto 0.75rem auto' }} />
+            <GraduationCap size={28} color="#FFD43B" style={{ margin: '0 auto 0.75rem auto' }} />
             <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500 }}>Current CGPA</div>
             <div style={{ fontSize: '3rem', fontWeight: 700, color: '#2563eb', margin: '0.25rem 0' }}>{latestRecord.gpa}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>out of 10.00</div>

@@ -23,37 +23,98 @@ export const ReportPreviewModal = ({
     : `${cohortInfo?.departmentLabel || 'Department'} - Sem ${cohortInfo?.semesterLabel || ''}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-6 overflow-y-auto">
-      <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        backdropFilter: 'blur(4px)',
+        padding: '1rem',
+        overflowY: 'auto'
+      }}
+    >
+      <div
+        style={{
+          background: 'var(--theme-card-bg, #141414)',
+          borderRadius: '16px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+          border: '1px solid var(--theme-border, #292929)',
+          width: '100%',
+          maxWidth: '1040px',
+          maxHeight: '94vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}
+      >
         {/* Modal Top Bar */}
-        <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
-              <FileText className="w-5 h-5" />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '1rem 1.5rem',
+            background: 'var(--theme-card-bg, #141414)',
+            borderBottom: '1px solid var(--theme-border, #292929)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div
+              style={{
+                padding: '8px',
+                borderRadius: '8px',
+                background: 'rgba(255, 212, 59, 0.12)',
+                color: 'var(--theme-accent, #FFD43B)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <FileText size={18} />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Document Print & PDF Preview</h3>
-              <p className="text-xs text-slate-500">
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--theme-text-primary, #FFFFFF)', margin: 0 }}>
+                Document Print &amp; PDF Preview
+              </h3>
+              <p style={{ fontSize: '0.72rem', color: 'var(--theme-text-secondary, #A3A3A3)', margin: '2px 0 0' }}>
                 Official Institutional Academic Evaluation Dossier • {entityName}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               type="button"
               onClick={onExportPDF}
               disabled={isExporting}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all disabled:opacity-50"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                fontSize: '0.76rem',
+                fontWeight: 800,
+                background: isExporting ? 'var(--theme-surface-elevated, #1C1C1C)' : 'var(--theme-accent, #FFD43B)',
+                color: isExporting ? 'var(--theme-text-secondary, #A3A3A3)' : 'var(--theme-accent-text, #080808)',
+                border: 'none',
+                cursor: isExporting ? 'not-allowed' : 'pointer',
+                boxShadow: '0 2px 8px rgba(255, 212, 59, 0.25)',
+                transition: 'all 0.15s ease'
+              }}
             >
               {isExporting ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <RefreshCw size={14} className="animate-spin" />
                   Generating PDF...
                 </>
               ) : (
                 <>
-                  <Download className="w-4 h-4" />
+                  <Download size={14} />
                   Download Official PDF
                 </>
               )}
@@ -61,15 +122,33 @@ export const ReportPreviewModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              style={{
+                padding: '8px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '8px',
+                color: 'var(--theme-text-secondary, #A3A3A3)',
+                cursor: 'pointer'
+              }}
             >
-              <X className="w-5 h-5" />
+              <X size={18} />
             </button>
           </div>
         </div>
 
         {/* Preview Scroll Canvas (Displays A4 Physical Sheets @ 794px min-height 1123px) */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex flex-col items-center gap-8 bg-slate-700">
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '2rem 1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '2rem',
+            background: '#334155'
+          }}
+        >
           {pages.map((p) => {
             const isP1 = p.pageNumber === 1;
             const pComps = p.components || [];
@@ -77,122 +156,351 @@ export const ReportPreviewModal = ({
             return (
               <div
                 key={p.id}
-                className="w-full max-w-[794px] bg-white shadow-2xl rounded-sm p-8 sm:p-10 flex flex-col justify-between"
                 style={{
+                  width: '794px',
                   minHeight: '1123px',
+                  background: 'var(--theme-card-bg, #141414)',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+                  borderRadius: '4px',
+                  padding: '40px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
                   boxSizing: 'border-box'
                 }}
               >
                 {/* ── Top Header Area ── */}
                 <div>
                   {isP1 ? (
-                    <div className="border-b-2 border-slate-900 pb-4 mb-5">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight uppercase">
-                            BANNARI AMMAN INSTITUTE OF TECHNOLOGY
-                          </h1>
-                          <p className="text-[11px] text-slate-600 font-medium">
-                            Autonomous Institution Affiliated to Anna University • Accredited by NAAC with &quot;A+&quot; Grade
-                          </p>
-                          <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-                            Sathyamangalam, Erode District, Tamil Nadu – 638401
-                          </p>
+                    <div style={{ marginBottom: '16px' }}>
+                      {/* Centered Institutional Letterhead */}
+                      <div
+                        style={{
+                          borderBottom: '2px solid var(--theme-border, #292929)',
+                          paddingBottom: '14px',
+                          marginBottom: '14px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          textAlign: 'center'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '4px' }}>
+                          <div
+                            style={{
+                              width: '38px',
+                              height: '38px',
+                              borderRadius: '8px',
+                              background: 'var(--theme-accent, #FFD43B)',
+                              color: 'var(--theme-accent-text, #080808)',
+                              fontWeight: 900,
+                              fontSize: '1.05rem',
+                              letterSpacing: '0.06em',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              boxShadow: '0 2px 8px rgba(255, 212, 59, 0.25)',
+                              flexShrink: 0
+                            }}
+                          >
+                            BIT
+                          </div>
+                          <div style={{ textAlign: 'left' }}>
+                            <h1 style={{
+                              fontSize: '1.15rem',
+                              fontWeight: 900,
+                              color: 'var(--theme-text-primary, #FFFFFF)',
+                              letterSpacing: '0.04em',
+                              margin: 0,
+                              textTransform: 'uppercase',
+                              lineHeight: 1.15
+                            }}>
+                              Bannari Amman Institute of Technology
+                            </h1>
+                            <p style={{
+                              fontSize: '0.68rem',
+                              color: 'var(--theme-text-secondary, #A3A3A3)',
+                              margin: '2px 0 0',
+                              fontWeight: 500,
+                              letterSpacing: '0.01em'
+                            }}>
+                              Autonomous Institution Affiliated to Anna University • Accredited by NAAC with &quot;A+&quot; Grade
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
-                            OFFICIAL ACADEMIC DOSSIER
+
+                        {/* Centered Ribbon: Dossier Badge + Reference */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '12px',
+                            marginTop: '8px',
+                            flexWrap: 'wrap'
+                          }}
+                        >
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              background: 'var(--theme-accent, #FFD43B)',
+                              color: 'var(--theme-accent-text, #080808)',
+                              border: '1px solid var(--theme-accent, #FFD43B)',
+                              borderRadius: '20px',
+                              padding: '2px 10px',
+                              fontSize: '0.66rem',
+                              fontWeight: 800,
+                              letterSpacing: '0.05em',
+                              textTransform: 'uppercase'
+                            }}
+                          >
+                            Official Academic Dossier
                           </span>
-                          <span className="text-[10px] text-slate-400 mt-1 block font-mono">
-                            Ref: BIT/ACAD/2026 • {new Date().toLocaleDateString('en-GB')}
+                          <span style={{ fontSize: '0.66rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 500 }}>
+                            Ref: BIT/ACAD/2026/UG • Sathyamangalam, Tamil Nadu • Date: {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </span>
                         </div>
                       </div>
 
                       {/* Student Identity Card */}
                       {scope === 'student' && studentInfo && (
-                        <div className="mt-4 p-3.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-xs">
-                              {(studentInfo.name || 'S').charAt(0)}
+                        <div
+                          style={{
+                            background: 'var(--theme-surface-elevated, #1C1C1C)',
+                            border: '1px solid var(--theme-border, #292929)',
+                            borderRadius: '10px',
+                            padding: '12px 16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: '14px',
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0, flex: 1 }}>
+                            <div
+                              style={{
+                                width: '44px',
+                                height: '44px',
+                                borderRadius: '50%',
+                                background: 'var(--theme-accent, #FFD43B)',
+                                color: 'var(--theme-accent-text, #080808)',
+                                fontWeight: 900,
+                                fontSize: '1.1rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                                boxShadow: '0 2px 8px rgba(255, 212, 59, 0.25)'
+                              }}
+                            >
+                              {studentInfo.name ? studentInfo.name.charAt(0) : 'S'}
                             </div>
-                            <div>
-                              <div className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                                <span>{studentInfo.name}</span>
-                                <span className="text-[11px] font-mono text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded border border-blue-200">
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                <span style={{
+                                  fontSize: '1.02rem',
+                                  fontWeight: 800,
+                                  color: 'var(--theme-text-primary, #FFFFFF)',
+                                  letterSpacing: '0.01em',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis'
+                                }}>
+                                  {studentInfo.name}
+                                </span>
+                                <span style={{
+                                  fontSize: '0.72rem',
+                                  fontWeight: 800,
+                                  color: 'var(--theme-accent-text, #080808)',
+                                  background: 'var(--theme-accent, #FFD43B)',
+                                  padding: '2px 8px',
+                                  borderRadius: '5px',
+                                  border: '1px solid var(--theme-accent, #FFD43B)',
+                                  fontFamily: 'monospace',
+                                  letterSpacing: '0.04em'
+                                }}>
                                   {studentInfo.registerNumber}
                                 </span>
                               </div>
-                              <div className="text-[11px] text-slate-500 mt-0.5">
-                                Department of {studentInfo.department} • Semester {studentInfo.currentSemester} ({studentInfo.totalSemesters} terms evaluated)
+                              <div style={{
+                                fontSize: '0.72rem',
+                                color: 'var(--theme-text-secondary, #A3A3A3)',
+                                marginTop: '3px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                flexWrap: 'wrap'
+                              }}>
+                                <span><strong style={{ color: 'var(--theme-text-primary, #FFFFFF)' }}>Dept:</strong> {studentInfo.department}</span>
+                                <span style={{ opacity: 0.4 }}>•</span>
+                                <span><strong style={{ color: 'var(--theme-text-primary, #FFFFFF)' }}>Current:</strong> Semester {studentInfo.currentSemester}</span>
+                                <span style={{ opacity: 0.4 }}>•</span>
+                                <span><strong style={{ color: 'var(--theme-text-primary, #FFFFFF)' }}>Evaluated:</strong> {studentInfo.totalSemesters} Semesters</span>
                               </div>
                             </div>
                           </div>
 
-                          <div className="flex gap-4 text-right items-center">
-                            <div>
-                              <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">CGPA</div>
-                              <div className="text-base font-black text-blue-600">
-                                {studentInfo.cgpa} <span className="text-xs text-slate-400 font-normal">/ 10</span>
+                          {/* 3 Centered Metric Cards */}
+                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexShrink: 0 }}>
+                            <div style={{
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
+                              borderRadius: '8px',
+                              padding: '7px 14px',
+                              textAlign: 'center',
+                              minWidth: '108px',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+                            }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
+                                Cumulative CGPA
+                              </div>
+                              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--theme-accent, #FFD43B)', lineHeight: 1.1 }}>
+                                {Number(studentInfo.cgpa).toFixed(2)} <span style={{ fontSize: '0.65rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 500 }}>/ 10</span>
                               </div>
                             </div>
-                            <div>
-                              <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Arrears</div>
-                              <div className={`text-base font-black ${studentInfo.totalArrears > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+
+                            <div style={{
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
+                              borderRadius: '8px',
+                              padding: '7px 14px',
+                              textAlign: 'center',
+                              minWidth: '100px',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+                            }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
+                                Standing Arrears
+                              </div>
+                              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: studentInfo.totalArrears > 0 ? '#ef4444' : '#10b981', lineHeight: 1.1 }}>
                                 {studentInfo.totalArrears}
                               </div>
                             </div>
-                            <div>
-                              <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Standing</div>
+
+                            <div style={{
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
+                              borderRadius: '8px',
+                              padding: '7px 14px',
+                              textAlign: 'center',
+                              minWidth: '112px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+                            }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '3px' }}>
+                                Academic Standing
+                              </div>
                               <span
-                                className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded ${
-                                  studentInfo.standing?.includes('Green')
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                    : 'bg-red-50 text-red-700 border border-red-200'
-                                }`}
+                                style={{
+                                  display: 'inline-block',
+                                  fontSize: '0.7rem',
+                                  fontWeight: 800,
+                                  padding: '2px 8px',
+                                  borderRadius: '5px',
+                                  background: (studentInfo.standing || '').toLowerCase().includes('green') || (studentInfo.standing || '').toLowerCase().includes('optimal')
+                                    ? 'rgba(16, 185, 129, 0.14)'
+                                    : 'rgba(239, 68, 68, 0.14)',
+                                  color: (studentInfo.standing || '').toLowerCase().includes('green') || (studentInfo.standing || '').toLowerCase().includes('optimal')
+                                    ? '#10b981'
+                                    : '#ef4444',
+                                  border: `1px solid ${(studentInfo.standing || '').toLowerCase().includes('green') || (studentInfo.standing || '').toLowerCase().includes('optimal') ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.35)'}`,
+                                  lineHeight: 1.25,
+                                  letterSpacing: '0.02em'
+                                }}
                               >
-                                {studentInfo.standing || 'Optimal'}
+                                {studentInfo.standing?.split(' ')[0] || 'Optimal'}
                               </span>
                             </div>
                           </div>
                         </div>
                       )}
 
-                      {/* Cohort Identity Bar */}
-                      {scope === 'cohort' && cohortInfo && (
-                        <div className="mt-4 p-3.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between text-xs">
+                      {/* Cohort Header Card */}
+                      {scope === 'department' && cohortInfo && (
+                        <div
+                          style={{
+                            background: 'var(--theme-surface-elevated, #1C1C1C)',
+                            border: '1px solid var(--theme-border, #292929)',
+                            borderRadius: '10px',
+                            padding: '12px 16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: '14px'
+                          }}
+                        >
                           <div>
-                            <div className="font-extrabold text-sm text-slate-900">{cohortInfo.departmentLabel}</div>
-                            <div className="text-[11px] text-slate-500 mt-0.5">
-                              Academic Semester: {cohortInfo.semesterLabel} • Cohort Quality Evaluation
+                            <div style={{ fontSize: '1.02rem', fontWeight: 800, color: 'var(--theme-text-primary, #FFFFFF)' }}>
+                              {cohortInfo.departmentLabel}
+                            </div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--theme-text-secondary, #A3A3A3)', marginTop: '2px' }}>
+                              Academic Semester: {cohortInfo.semesterLabel} • Evaluated Strengths across Engineering Programs
                             </div>
                           </div>
-                          <div className="flex gap-4 text-right items-center">
-                            <div>
-                              <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Students</div>
-                              <div className="text-base font-black text-blue-600">{cohortInfo.totalStudents}</div>
+
+                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <div style={{
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
+                              borderRadius: '8px',
+                              padding: '7px 14px',
+                              textAlign: 'center',
+                              minWidth: '110px'
+                            }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
+                                Enrolled Students
+                              </div>
+                              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--theme-accent, #FFD43B)', lineHeight: 1.1 }}>
+                                {cohortInfo.totalStudents}
+                              </div>
                             </div>
-                            <div>
-                              <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Pass %</div>
-                              <div className="text-base font-black text-emerald-600">{cohortInfo.passPercentage}%</div>
+
+                            <div style={{
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
+                              borderRadius: '8px',
+                              padding: '7px 14px',
+                              textAlign: 'center',
+                              minWidth: '110px'
+                            }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
+                                Pass Percentage
+                              </div>
+                              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#10b981', lineHeight: 1.1 }}>
+                                {cohortInfo.passPercentage}%
+                              </div>
                             </div>
                           </div>
                         </div>
                       )}
                     </div>
                   ) : (
-                    /* Page 2+ Running Header */
-                    <div className="border-b border-slate-300 pb-2.5 mb-5 flex justify-between items-center text-xs text-slate-600">
-                      <span className="font-bold uppercase tracking-wider text-slate-800">
-                        BANNARI AMMAN INSTITUTE OF TECHNOLOGY • ACADEMIC DOSSIER
-                      </span>
-                      <span className="text-slate-400 font-medium">
-                        {entityName} • Page {p.pageNumber}
-                      </span>
+                    /* ── PAGE 2+: Running Header ── */
+                    <div style={{
+                      borderBottom: '1px solid var(--theme-border, #292929)',
+                      paddingBottom: '10px',
+                      marginBottom: '14px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--theme-text-primary, #FFFFFF)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Bannari Amman Institute of Technology • Official Academic Dossier
+                      </div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--theme-text-secondary, #A3A3A3)', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--theme-text-primary, #FFFFFF)' }}>{scope === 'student' ? studentInfo?.name : cohortInfo?.departmentLabel}</span>
+                        <span style={{ opacity: 0.4 }}>•</span>
+                        <span>Page {p.pageNumber} of {pages.length}</span>
+                      </div>
                     </div>
                   )}
 
-                  {/* ── Real Visual Report Components Flow (Actual Charts, KPIs & Tables) ── */}
+                  {/* ── Real Visual Report Components Flow ── */}
                   <div
                     style={{
                       display: 'flex',
@@ -203,7 +511,18 @@ export const ReportPreviewModal = ({
                     }}
                   >
                     {pComps.length === 0 ? (
-                      <div className="w-full p-8 text-center text-xs text-slate-400 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                      <div
+                        style={{
+                          width: '100%',
+                          padding: '2rem',
+                          textAlign: 'center',
+                          fontSize: '0.78rem',
+                          color: 'var(--theme-text-secondary, #A3A3A3)',
+                          background: 'var(--theme-surface-elevated, #1C1C1C)',
+                          borderRadius: '8px',
+                          border: '1px dashed var(--theme-border, #292929)'
+                        }}
+                      >
                         No components placed on Page {p.pageNumber}.
                       </div>
                     ) : (
@@ -224,8 +543,19 @@ export const ReportPreviewModal = ({
                 </div>
 
                 {/* ── Page Footer ── */}
-                <div className="pt-4 mt-6 border-t border-slate-200 flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                  <span>CONFIDENTIAL & PROPRIETARY • BANNARI AMMAN INSTITUTE OF TECHNOLOGY</span>
+                <div
+                  style={{
+                    paddingTop: '12px',
+                    marginTop: 'auto',
+                    borderTop: '1px solid var(--theme-border, #292929)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    fontSize: '0.66rem',
+                    color: 'var(--theme-text-secondary, #A3A3A3)'
+                  }}
+                >
+                  <span>CONFIDENTIAL &amp; PROPRIETARY • BANNARI AMMAN INSTITUTE OF TECHNOLOGY</span>
                   <span>Page {p.pageNumber} of {pages.length}</span>
                 </div>
               </div>
@@ -234,15 +564,33 @@ export const ReportPreviewModal = ({
         </div>
 
         {/* Modal Bottom Actions */}
-        <div className="flex items-center justify-between px-6 py-3 bg-white border-t border-slate-200">
-          <span className="text-xs text-slate-500">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0.85rem 1.5rem',
+            background: 'var(--theme-card-bg, #141414)',
+            borderTop: '1px solid var(--theme-border, #292929)'
+          }}
+        >
+          <span style={{ fontSize: '0.74rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>
             PDF will be generated with high-DPI vector charts, selectable text, and official layout.
           </span>
-          <div className="flex items-center gap-2">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+              style={{
+                padding: '6px 14px',
+                borderRadius: '8px',
+                fontSize: '0.76rem',
+                fontWeight: 600,
+                color: 'var(--theme-text-secondary, #A3A3A3)',
+                background: 'transparent',
+                border: '1px solid var(--theme-border, #292929)',
+                cursor: 'pointer'
+              }}
             >
               Back to Canvas
             </button>
@@ -250,9 +598,23 @@ export const ReportPreviewModal = ({
               type="button"
               onClick={onExportPDF}
               disabled={isExporting}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-xs transition-all disabled:opacity-50"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 16px',
+                borderRadius: '8px',
+                fontSize: '0.76rem',
+                fontWeight: 800,
+                background: isExporting ? 'var(--theme-surface-elevated, #1C1C1C)' : 'var(--theme-accent, #FFD43B)',
+                color: isExporting ? 'var(--theme-text-secondary, #A3A3A3)' : 'var(--theme-accent-text, #080808)',
+                border: 'none',
+                cursor: isExporting ? 'not-allowed' : 'pointer',
+                boxShadow: '0 2px 8px rgba(255, 212, 59, 0.25)',
+                transition: 'all 0.15s ease'
+              }}
             >
-              <Download className="w-4 h-4" />
+              <Download size={14} />
               Download Official PDF
             </button>
           </div>

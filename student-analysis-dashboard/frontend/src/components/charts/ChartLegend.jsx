@@ -53,7 +53,7 @@ export const ChartLegend = ({
             alignItems: 'center',
             gap: '0.4rem',
             fontSize: '0.75rem',
-            color: '#334155',
+            color: 'var(--theme-text-secondary, #A3A3A3)',
             fontWeight: 500
           }}
         >
@@ -70,7 +70,7 @@ export const ChartLegend = ({
             {item.label}
           </span>
           {showValues && item.value !== null && item.value !== undefined && (
-            <span style={{ fontWeight: 600, color: '#0f172a' }}>
+            <span style={{ fontWeight: 600, color: 'var(--theme-text-primary, #FFFFFF)' }}>
               ({item.value})
             </span>
           )}

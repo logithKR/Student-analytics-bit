@@ -44,14 +44,14 @@ export const BarChartComponent = ({
         data={data}
         margin={{ top: 10, right: 15, left: -10, bottom: bottomMargin }}
       >
-        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />}
+        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border, #292929)" vertical={false} />}
         
         <XAxis
           dataKey={xField}
-          stroke="#64748b"
+          stroke="var(--theme-border, #292929)"
           tickLine={false}
           axisLine={false}
-          tick={{ fontSize: tickFontSize, fill: '#64748b' }}
+          tick={{ fontSize: tickFontSize, fill: 'var(--theme-text-secondary, #A3A3A3)' }}
           interval={interval}
           angle={angle}
           textAnchor={isCramped || count > 4 ? 'end' : 'middle'}
@@ -62,10 +62,10 @@ export const BarChartComponent = ({
         />
 
         <YAxis
-          stroke="#64748b"
+          stroke="var(--theme-border, #292929)"
           tickLine={false}
           axisLine={false}
-          tick={{ fontSize: 10, fill: '#64748b' }}
+          tick={{ fontSize: 10, fill: 'var(--theme-text-secondary, #A3A3A3)' }}
           domain={domain}
           width={38}
           tickFormatter={(val) => formatAxisTick(val) + (unit === '%' ? '%' : '')}

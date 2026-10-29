@@ -13,10 +13,6 @@ import { useNavigate } from 'react-router-dom';
 
 import ChartContainer from '../components/charts/ChartContainer';
 import AreaChartComponent from '../components/charts/AreaChartComponent';
-import BarChartComponent from '../components/charts/BarChartComponent';
-import PieChartComponent from '../components/charts/PieChartComponent';
-import RadarChartComponent from '../components/charts/RadarChartComponent';
-import StackedBarChartComponent from '../components/charts/StackedBarChartComponent';
 
 const Dashboard = () => {
   const [department, setDepartment] = useState('All');
@@ -150,21 +146,21 @@ const Dashboard = () => {
             alignItems: 'center',
             gap: '0.5rem',
             padding: '0.55rem 1.15rem',
-            background: isExporting ? '#f1f5f9' : '#2563eb',
+            background: isExporting ? 'var(--theme-surface-elevated, #1C1C1C)' : 'var(--theme-accent, #FFD43B)',
             border: 'none',
             borderRadius: '8px',
             cursor: isExporting ? 'not-allowed' : 'pointer',
-            color: isExporting ? '#94a3b8' : '#ffffff',
+            color: isExporting ? 'var(--theme-text-secondary, #A3A3A3)' : 'var(--theme-accent-text, #080808)',
             fontWeight: 600,
             fontSize: '0.875rem',
-            boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
             transition: 'all 0.2s ease'
           }}
           title="Download complete institutional cohort report PDF with graphs, leaderboard, and at-risk registry"
         >
           {isExporting ? (
             <>
-              <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid #94a3b8', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid var(--theme-text-secondary, #A3A3A3)', borderTopColor: 'var(--theme-accent, #FFD43B)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
               Generating Class PDF...
             </>
           ) : (
@@ -226,7 +222,7 @@ const Dashboard = () => {
             yField="averageGpa"
             height={260}
             domain={[0, 10]}
-            color="#2563eb"
+            color="#FFD43B"
           />
         </ChartContainer>
 
@@ -241,108 +237,66 @@ const Dashboard = () => {
                   <div className={`rank-badge rank-${i + 1}`}>{rankIcons[i]}</div>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{s.name}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{s.registerNumber}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>{s.registerNumber}</div>
                   </div>
                 </div>
-                <div style={{ fontWeight: 700, color: '#2563eb', fontSize: '1.125rem' }}>{s.gpa}</div>
+                <div style={{ fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', fontSize: '1.125rem' }}>{s.gpa}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── ROW 3: Grade Distribution + Class Division + Radar ── */}
-      <div className="charts-grid-3">
-        <ChartContainer
-          title="Grade Distribution"
-          subtitle="Cohort grade breakdown across courses"
-          badge="Grades"
-          height={340}
-        >
-          <BarChartComponent
-            data={gradeDistribution}
-            xField="grade"
-            yField="percentage"
-            height={270}
-            unit="%"
-          />
-        </ChartContainer>
-
-        <ChartContainer
-          title="Class Division Breakdown"
-          subtitle="Standing classification across cohort"
-          badge="Divisions"
-          height={340}
-        >
-          <PieChartComponent
-            data={classDivision}
-            xField="name"
-            yField="value"
-            isDoughnut={true}
-            height={270}
-            centerLabel="Students"
-          />
-        </ChartContainer>
-
-        <ChartContainer
-          title="Subject Difficulty Radar"
-          subtitle="Average marks across top challenging courses"
-          badge="Mean Score"
-          height={340}
-        >
-          <RadarChartComponent
-            data={radarData}
-            xField="subject"
-            yField="average"
-            height={270}
-            maxDomain={100}
-          />
-        </ChartContainer>
-      </div>
-
-      {/* ── ROW 4: Batch Comparison + At-Risk Courses ── */}
-      <div className="charts-grid-3-2">
-        <ChartContainer
-          title="Grade Distribution by Batch (Semester)"
-          subtitle="Relative grade comparison by academic semester"
-          badge="Batch Trends"
-          height={340}
-        >
-          <StackedBarChartComponent
-            data={batchComparison}
-            xField="semester"
-            series={['S', 'A+', 'A', 'B+', 'B', 'C', 'U']}
-            layout="vertical"
-            height={270}
-            unit="%"
-          />
-        </ChartContainer>
-
-        <div className="chart-card">
+      {/* ── ROW 3: Top At-Risk Courses + Performance Summary ── */}
+      <div className="charts-grid-2" style={{ marginBottom: '1.5rem' }}>
+        <div className="chart-card" style={{ minHeight: 'auto' }}>
           <div className="chart-card-header">
             <h3 className="chart-header" style={{ marginBottom: 0 }}>Top At-Risk Courses</h3>
-            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Fail %</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>Fail %</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '0.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.75rem' }}>
             {subjects.map((sub, index) => {
               const total = sub.passCount + sub.failCount;
               const failPercent = total > 0 ? Math.round((sub.failCount / total) * 100) : 0;
               const barColors = ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#3b82f6'];
               return (
                 <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ width: '120px', fontSize: '0.875rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sub.subject}</div>
-                  <div style={{ flex: 1, height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ width: '130px', fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sub.subject}</div>
+                  <div style={{ flex: 1, height: '8px', background: 'var(--theme-border, #292929)', borderRadius: '4px', overflow: 'hidden' }}>
                     <div style={{ width: `${failPercent}%`, height: '100%', background: barColors[index % barColors.length], borderRadius: '4px', transition: 'width 0.5s ease' }}></div>
                   </div>
-                  <div style={{ width: '40px', textAlign: 'right', fontSize: '0.875rem', fontWeight: 600 }}>{failPercent}%</div>
+                  <div style={{ width: '40px', textAlign: 'right', fontSize: '0.85rem', fontWeight: 700 }}>{failPercent}%</div>
                 </div>
               );
             })}
           </div>
         </div>
+
+        <div className="chart-card" style={{ minHeight: 'auto' }}>
+          <div className="chart-card-header">
+            <h3 className="chart-header" style={{ marginBottom: 0 }}>Performance Summary</h3>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.75rem' }}>
+            {[
+              { icon: <Users size={18} color="var(--theme-text-secondary, #A3A3A3)" />, label: 'Total Students', value: summary.totalStudents },
+              { icon: <UserCheck size={18} color="#10b981" />, label: 'Students Passed', value: summary.passCount },
+              { icon: <AlertTriangle size={18} color="#ef4444" />, label: 'Students Failed', value: summary.failCount },
+              { icon: <BookOpen size={18} color="var(--theme-accent, #FFD43B)" />, label: 'Highest GPA', value: summary.highestGpa },
+              { icon: <GraduationCap size={18} color="#8b5cf6" />, label: 'Lowest GPA', value: summary.lowestGpa },
+            ].map((item, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.65rem', borderBottom: i < 4 ? '1px solid var(--theme-border, #292929)' : 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  {item.icon}
+                  <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{item.label}</span>
+                </div>
+                <span style={{ fontWeight: 700, fontSize: '1rem' }}>{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* ── ROW 5: At-Risk Students Table ── */}
+      {/* ── ROW 4: At-Risk Students Table ── */}
       {atRisk && atRisk.totalAtRisk > 0 && (
         <div className="chart-card" style={{ minHeight: 'auto', marginBottom: '2rem' }}>
           <div className="chart-card-header" style={{ marginBottom: '1rem' }}>
@@ -377,7 +331,7 @@ const Dashboard = () => {
               <tbody>
                 {[...atRisk.highRisk, ...atRisk.moderateRisk].slice(0, 10).map((s, i) => (
                   <tr key={i}>
-                    <td style={{ fontWeight: 600, color: '#2563eb' }}>{s.registerNumber}</td>
+                    <td style={{ fontWeight: 600, color: 'var(--theme-text-primary, #FFFFFF)' }}>{s.registerNumber}</td>
                     <td style={{ fontWeight: 500 }}>{s.name}</td>
                     <td>{s.semester}</td>
                     <td style={{ fontWeight: 600 }}>{s.gpa}</td>
@@ -400,46 +354,6 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-
-      {/* ── ROW 6: Performance Summary + Quick Stats ── */}
-      <div className="charts-grid-2">
-        <div className="chart-card" style={{ minHeight: 'auto' }}>
-          <h3 className="chart-header">Performance Summary</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {[
-              { icon: <Users size={18} color="#64748b" />, label: 'Total Students', value: summary.totalStudents },
-              { icon: <UserCheck size={18} color="#10b981" />, label: 'Students Passed', value: summary.passCount },
-              { icon: <AlertTriangle size={18} color="#ef4444" />, label: 'Students Failed', value: summary.failCount },
-              { icon: <BookOpen size={18} color="#2563eb" />, label: 'Highest GPA', value: summary.highestGpa },
-              { icon: <GraduationCap size={18} color="#8b5cf6" />, label: 'Lowest GPA', value: summary.lowestGpa },
-            ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.75rem', borderBottom: i < 4 ? '1px solid var(--panel-border)' : 'none' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  {item.icon}
-                  <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{item.label}</span>
-                </div>
-                <span style={{ fontWeight: 700, fontSize: '1rem' }}>{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <ChartContainer
-          title="Subject-wise Average Marks"
-          subtitle="Cohort mean performance per subject"
-          badge="Mean Mark"
-          height={340}
-        >
-          <BarChartComponent
-            data={subjects}
-            xField="subject"
-            yField="average"
-            height={270}
-            domain={[0, 100]}
-            barColor="#2563eb"
-          />
-        </ChartContainer>
-      </div>
     </div>
   );
 };

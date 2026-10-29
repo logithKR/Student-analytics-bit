@@ -151,8 +151,8 @@ const AILogs = () => {
       
       {/* ── Top Navigation & Actions Bar ── */}
       <div style={{
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
+        background: 'var(--theme-card-bg, #141414)',
+        border: '1px solid var(--theme-border, #292929)',
         borderRadius: '12px',
         padding: '1.25rem 1.5rem',
         display: 'flex',
@@ -170,8 +170,8 @@ const AILogs = () => {
               alignItems: 'center',
               gap: '0.4rem',
               padding: '0.5rem 0.85rem',
-              background: '#f1f5f9',
-              color: '#334155',
+              background: 'var(--theme-surface-elevated, #1C1C1C)',
+              color: 'var(--theme-text-secondary, #A3A3A3)',
               borderRadius: '8px',
               textDecoration: 'none',
               fontSize: '0.825rem',
@@ -184,22 +184,22 @@ const AILogs = () => {
           </Link>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', margin: 0 }}>
                 AI Query & Response Audit Log
               </h2>
               <span style={{
-                background: '#eff6ff',
-                color: '#2563eb',
+                background: 'var(--theme-accent, #FFD43B)',
+                color: 'var(--theme-accent-text, #080808)',
                 fontSize: '0.75rem',
-                fontWeight: 600,
+                fontWeight: 700,
                 padding: '2px 8px',
                 borderRadius: '6px',
-                border: '1px solid #bfdbfe'
+                border: '1px solid var(--theme-accent, #FFD43B)'
               }}>
                 Live Audit
               </span>
             </div>
-            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0' }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--theme-text-secondary, #A3A3A3)', margin: '2px 0 0' }}>
               Inspect actual Groq LLM requests, raw JSON outputs, query plans, and database execution traces.
             </p>
           </div>
@@ -215,10 +215,10 @@ const AILogs = () => {
               alignItems: 'center',
               gap: '0.4rem',
               padding: '0.5rem 0.85rem',
-              background: '#ffffff',
-              border: '1px solid #cbd5e1',
+              background: 'var(--theme-card-bg, #141414)',
+              border: '1px solid var(--theme-border, #292929)',
               borderRadius: '8px',
-              color: '#334155',
+              color: 'var(--theme-text-secondary, #A3A3A3)',
               fontSize: '0.825rem',
               fontWeight: 600,
               cursor: loading ? 'not-allowed' : 'pointer'
@@ -237,10 +237,10 @@ const AILogs = () => {
               alignItems: 'center',
               gap: '0.4rem',
               padding: '0.5rem 0.85rem',
-              background: '#ffffff',
-              border: '1px solid #cbd5e1',
+              background: 'var(--theme-card-bg, #141414)',
+              border: '1px solid var(--theme-border, #292929)',
               borderRadius: '8px',
-              color: '#334155',
+              color: 'var(--theme-text-secondary, #A3A3A3)',
               fontSize: '0.825rem',
               fontWeight: 600,
               cursor: logs.length === 0 ? 'not-allowed' : 'pointer',
@@ -279,7 +279,7 @@ const AILogs = () => {
       {/* ── Department & Database Coverage Explainer Banner ── */}
       <div style={{
         background: 'linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%)',
-        border: '1px solid #bfdbfe',
+        border: '1px solid rgba(255, 212, 59, 0.3)',
         borderRadius: '12px',
         padding: '1rem 1.25rem',
         display: 'flex',
@@ -293,8 +293,8 @@ const AILogs = () => {
           <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#065f46', margin: '0 0 0.25rem' }}>
             Active Database Coverage: 20 Departments (7,293 Student Records Loaded)
           </h4>
-          <p style={{ fontSize: '0.825rem', color: '#334155', margin: 0, lineHeight: 1.5 }}>
-            The application dynamically scans and loads all Excel spreadsheets located inside <code style={{ background: '#ffffff', padding: '2px 6px', borderRadius: '4px', border: '1px solid #cbd5e1' }}>backend/data/UG/</code>.
+          <p style={{ fontSize: '0.825rem', color: 'var(--theme-text-secondary, #A3A3A3)', margin: 0, lineHeight: 1.5 }}>
+            The application dynamically scans and loads all Excel spreadsheets located inside <code style={{ background: 'var(--theme-card-bg, #141414)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--theme-border, #292929)' }}>backend/data/UG/</code>.
             Currently, the database has indexed <strong>7,293 student records</strong> across all <strong>20 departments</strong>:
             <span style={{ fontWeight: 600, color: '#1e3a8a', marginLeft: '4px' }}>
               AD, AG, AL, BM, BT, CB, CD, CE, CS, CT, EC, EE, EI, FD, FT, ISE, IT, MC, ME, TT
@@ -311,33 +311,33 @@ const AILogs = () => {
         gap: '1rem'
       }}>
         <div style={{
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
+          background: 'var(--theme-card-bg, #141414)',
+          border: '1px solid var(--theme-border, #292929)',
           borderRadius: '12px',
           padding: '1.25rem',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>TOTAL QUERIES</span>
-            <div style={{ background: '#f1f5f9', padding: '6px', borderRadius: '8px', color: '#475569' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--theme-text-secondary, #A3A3A3)' }}>TOTAL QUERIES</span>
+            <div style={{ background: 'var(--theme-surface-elevated, #1C1C1C)', padding: '6px', borderRadius: '8px', color: 'var(--theme-text-secondary, #A3A3A3)' }}>
               <Terminal size={16} />
             </div>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>
             {stats?.totalQueries ?? logs.length}
           </div>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Audit log entries stored</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>Audit log entries stored</span>
         </div>
 
         <div style={{
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
+          background: 'var(--theme-card-bg, #141414)',
+          border: '1px solid var(--theme-border, #292929)',
           borderRadius: '12px',
           padding: '1.25rem',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>SUCCESS RATE</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--theme-text-secondary, #A3A3A3)' }}>SUCCESS RATE</span>
             <div style={{ background: '#ecfdf5', padding: '6px', borderRadius: '8px', color: '#059669' }}>
               <CheckCircle2 size={16} />
             </div>
@@ -351,14 +351,14 @@ const AILogs = () => {
         </div>
 
         <div style={{
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
+          background: 'var(--theme-card-bg, #141414)',
+          border: '1px solid var(--theme-border, #292929)',
           borderRadius: '12px',
           padding: '1.25rem',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>FAILED QUERIES</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--theme-text-secondary, #A3A3A3)' }}>FAILED QUERIES</span>
             <div style={{ background: '#fef2f2', padding: '6px', borderRadius: '8px', color: '#dc2626' }}>
               <XCircle size={16} />
             </div>
@@ -366,37 +366,37 @@ const AILogs = () => {
           <div style={{ fontSize: '1.75rem', fontWeight: 700, color: (stats?.errorCount || 0) > 0 ? '#dc2626' : '#0f172a' }}>
             {stats?.errorCount ?? 0}
           </div>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>API or parsing errors</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>API or parsing errors</span>
         </div>
 
         <div style={{
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
+          background: 'var(--theme-card-bg, #141414)',
+          border: '1px solid var(--theme-border, #292929)',
           borderRadius: '12px',
           padding: '1.25rem',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>AVG LATENCY</span>
-            <div style={{ background: '#eff6ff', padding: '6px', borderRadius: '8px', color: '#2563eb' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--theme-text-secondary, #A3A3A3)' }}>AVG LATENCY</span>
+            <div style={{ background: 'rgba(255, 212, 59, 0.15)', padding: '6px', borderRadius: '8px', color: 'var(--theme-accent, #FFD43B)' }}>
               <Zap size={16} />
             </div>
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#2563eb' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--theme-accent, #FFD43B)' }}>
             {stats?.avgExecutionTimeMs ? `${stats.avgExecutionTimeMs} ms` : '—'}
           </div>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Round-trip Groq + DB</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>Round-trip Groq + DB</span>
         </div>
 
         <div style={{
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
+          background: 'var(--theme-card-bg, #141414)',
+          border: '1px solid var(--theme-border, #292929)',
           borderRadius: '12px',
           padding: '1.25rem',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>ACTIVE LLM</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--theme-text-secondary, #A3A3A3)' }}>ACTIVE LLM</span>
             <div style={{ background: '#faf5ff', padding: '6px', borderRadius: '8px', color: '#9333ea' }}>
               <Sparkles size={16} />
             </div>
@@ -404,14 +404,14 @@ const AILogs = () => {
           <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#9333ea', wordBreak: 'break-all' }}>
             gpt-oss-120b
           </div>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Groq Cloud Inference</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>Groq Cloud Inference</span>
         </div>
       </div>
 
       {/* ── Filters & Search Bar ── */}
       <div style={{
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
+        background: 'var(--theme-card-bg, #141414)',
+        border: '1px solid var(--theme-border, #292929)',
         borderRadius: '12px',
         padding: '0.85rem 1.25rem',
         display: 'flex',
@@ -425,8 +425,8 @@ const AILogs = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            background: '#f8fafc',
-            border: '1px solid #cbd5e1',
+            background: 'var(--theme-surface-elevated, #1C1C1C)',
+            border: '1px solid var(--theme-border, #292929)',
             borderRadius: '8px',
             padding: '0.45rem 0.75rem',
             flex: 1
@@ -443,7 +443,7 @@ const AILogs = () => {
                 outline: 'none',
                 fontSize: '0.825rem',
                 width: '100%',
-                color: '#1e293b'
+                color: 'var(--theme-text-primary, #FFFFFF)'
               }}
             />
           </div>
@@ -451,7 +451,7 @@ const AILogs = () => {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           {/* Status Filter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: '#f1f5f9', padding: '3px', borderRadius: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: 'var(--theme-surface-elevated, #1C1C1C)', padding: '3px', borderRadius: '8px' }}>
             {[
               { id: 'all', label: 'All Status' },
               { id: 'success', label: 'Success' },
@@ -479,7 +479,7 @@ const AILogs = () => {
           </div>
 
           {/* Mode Filter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: '#f1f5f9', padding: '3px', borderRadius: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: 'var(--theme-surface-elevated, #1C1C1C)', padding: '3px', borderRadius: '8px' }}>
             {[
               { id: 'all', label: 'All Modes' },
               { id: 'chat_viz', label: 'Chat + Viz' },
@@ -507,7 +507,7 @@ const AILogs = () => {
             ))}
           </div>
 
-          <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 500 }}>
             Showing {filteredLogs.length} of {logs.length} entries
           </span>
         </div>
@@ -516,29 +516,29 @@ const AILogs = () => {
       {/* ── Log Entries Stream ── */}
       {loading ? (
         <div style={{
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
+          background: 'var(--theme-card-bg, #141414)',
+          border: '1px solid var(--theme-border, #292929)',
           borderRadius: '12px',
           padding: '3rem',
           textAlign: 'center',
-          color: '#64748b'
+          color: 'var(--theme-text-secondary, #A3A3A3)'
         }}>
           <RefreshCw size={24} style={{ animation: 'spin 1s linear infinite', marginBottom: '0.75rem' }} />
           <p style={{ margin: 0, fontSize: '0.9rem' }}>Loading AI query audit logs...</p>
         </div>
       ) : filteredLogs.length === 0 ? (
         <div style={{
-          background: '#ffffff',
+          background: 'var(--theme-card-bg, #141414)',
           border: '1px dashed #cbd5e1',
           borderRadius: '12px',
           padding: '3rem 2rem',
           textAlign: 'center'
         }}>
           <Terminal size={36} color="#94a3b8" style={{ marginBottom: '1rem' }} />
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.5rem' }}>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--theme-text-primary, #FFFFFF)', marginBottom: '0.5rem' }}>
             No Audit Logs Found
           </h3>
-          <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: '420px', margin: '0 auto 1.5rem' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--theme-text-secondary, #A3A3A3)', maxWidth: '420px', margin: '0 auto 1.5rem' }}>
             {search || statusFilter !== 'all' || modeFilter !== 'all'
               ? "No queries match your current filter criteria. Try clearing filters or search terms."
               : "No AI queries have been recorded yet in this session. Head to the AI Analytics page and run a question to see real Groq outputs and query plans logged here!"}
@@ -573,7 +573,7 @@ const AILogs = () => {
               <div
                 key={log.id}
                 style={{
-                  background: '#ffffff',
+                  background: 'var(--theme-card-bg, #141414)',
                   border: isExpanded ? '1px solid #3b82f6' : '1px solid #e2e8f0',
                   borderRadius: '12px',
                   overflow: 'hidden',
@@ -614,13 +614,13 @@ const AILogs = () => {
 
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }}>
+                        <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--theme-text-primary, #FFFFFF)' }}>
                           "{log.question}"
                         </span>
                         {/* Mode Pill */}
                         <span style={{
-                          background: '#f1f5f9',
-                          color: '#475569',
+                          background: 'var(--theme-surface-elevated, #1C1C1C)',
+                          color: 'var(--theme-text-secondary, #A3A3A3)',
                           fontSize: '0.7rem',
                           fontWeight: 600,
                           padding: '2px 7px',
@@ -631,10 +631,10 @@ const AILogs = () => {
 
                         {log.intent && (
                           <span style={{
-                            background: '#eff6ff',
-                            color: '#2563eb',
+                            background: 'var(--theme-accent, #FFD43B)',
+                            color: 'var(--theme-accent-text, #080808)',
                             fontSize: '0.7rem',
-                            fontWeight: 600,
+                            fontWeight: 700,
                             padding: '2px 7px',
                             borderRadius: '4px'
                           }}>
@@ -644,9 +644,9 @@ const AILogs = () => {
 
                         {log.keyUsed && (
                           <span style={{
-                            background: '#f8fafc',
-                            border: '1px solid #cbd5e1',
-                            color: '#334155',
+                            background: 'var(--theme-surface-elevated, #1C1C1C)',
+                            border: '1px solid var(--theme-border, #292929)',
+                            color: 'var(--theme-text-secondary, #A3A3A3)',
                             fontSize: '0.7rem',
                             fontWeight: 600,
                             padding: '2px 7px',
@@ -696,7 +696,7 @@ const AILogs = () => {
                       {!isExpanded && (
                         <p style={{
                           fontSize: '0.8rem',
-                          color: '#64748b',
+                          color: 'var(--theme-text-secondary, #A3A3A3)',
                           margin: '0.25rem 0 0',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -711,7 +711,7 @@ const AILogs = () => {
 
                   {/* Metadata & Expand Chevron */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '0.75rem', color: '#64748b' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '0.75rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 500 }}>
                         <Clock size={12} />
                         {formatRelativeTime(log.timestamp)}
@@ -722,8 +722,8 @@ const AILogs = () => {
                     </div>
 
                     <div style={{
-                      color: '#64748b',
-                      background: '#f1f5f9',
+                      color: 'var(--theme-text-secondary, #A3A3A3)',
+                      background: 'var(--theme-surface-elevated, #1C1C1C)',
                       borderRadius: '6px',
                       padding: '4px',
                       display: 'flex',
@@ -737,14 +737,14 @@ const AILogs = () => {
 
                 {/* ── Expanded Deep-Dive Audit Inspector ── */}
                 {isExpanded && (
-                  <div style={{ padding: '1.25rem', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+                  <div style={{ padding: '1.25rem', background: 'var(--theme-surface-elevated, #1C1C1C)', borderTop: '1px solid #e2e8f0' }}>
                     
                     {/* Inspector Tabs */}
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.35rem',
-                      borderBottom: '1px solid #e2e8f0',
+                      borderBottom: '1px solid var(--theme-border, #292929)',
                       paddingBottom: '0.75rem',
                       marginBottom: '1rem',
                       flexWrap: 'wrap'
@@ -792,7 +792,7 @@ const AILogs = () => {
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>
                               Exact String Returned by Groq ({log.modelUsed})
                             </span>
                             <span style={{
@@ -814,12 +814,12 @@ const AILogs = () => {
                               alignItems: 'center',
                               gap: '0.35rem',
                               padding: '0.35rem 0.65rem',
-                              background: '#ffffff',
-                              border: '1px solid #cbd5e1',
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
                               borderRadius: '6px',
                               fontSize: '0.75rem',
                               fontWeight: 600,
-                              color: '#334155',
+                              color: 'var(--theme-text-secondary, #A3A3A3)',
                               cursor: 'pointer'
                             }}
                           >
@@ -845,7 +845,7 @@ const AILogs = () => {
                             {log.rawGroqResponse}
                           </pre>
                         ) : (
-                          <div style={{ padding: '1.5rem', background: '#f1f5f9', borderRadius: '8px', color: '#64748b', fontSize: '0.85rem' }}>
+                          <div style={{ padding: '1.5rem', background: 'var(--theme-surface-elevated, #1C1C1C)', borderRadius: '8px', color: 'var(--theme-text-secondary, #A3A3A3)', fontSize: '0.85rem' }}>
                             No raw Groq response captured (request may have failed prior to receiving completion).
                           </div>
                         )}
@@ -856,7 +856,7 @@ const AILogs = () => {
                     {currentTab === 'answer' && (
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b' }}>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>
                             Rendered AI Response to Faculty
                           </span>
                           <button
@@ -867,12 +867,12 @@ const AILogs = () => {
                               alignItems: 'center',
                               gap: '0.35rem',
                               padding: '0.35rem 0.65rem',
-                              background: '#ffffff',
-                              border: '1px solid #cbd5e1',
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
                               borderRadius: '6px',
                               fontSize: '0.75rem',
                               fontWeight: 600,
-                              color: '#334155',
+                              color: 'var(--theme-text-secondary, #A3A3A3)',
                               cursor: 'pointer'
                             }}
                           >
@@ -881,12 +881,12 @@ const AILogs = () => {
                           </button>
                         </div>
                         <div style={{
-                          background: '#ffffff',
-                          border: '1px solid #e2e8f0',
+                          background: 'var(--theme-card-bg, #141414)',
+                          border: '1px solid var(--theme-border, #292929)',
                           borderRadius: '8px',
                           padding: '1rem',
                           fontSize: '0.875rem',
-                          color: '#1e293b',
+                          color: 'var(--theme-text-primary, #FFFFFF)',
                           lineHeight: 1.6,
                           whiteSpace: 'pre-wrap'
                         }}>
@@ -899,7 +899,7 @@ const AILogs = () => {
                     {currentTab === 'prompt' && (
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b' }}>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>
                             Full Prompt Sent to Groq (System & Schema Instructions)
                           </span>
                           <button
@@ -910,12 +910,12 @@ const AILogs = () => {
                               alignItems: 'center',
                               gap: '0.35rem',
                               padding: '0.35rem 0.65rem',
-                              background: '#ffffff',
-                              border: '1px solid #cbd5e1',
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
                               borderRadius: '6px',
                               fontSize: '0.75rem',
                               fontWeight: 600,
-                              color: '#334155',
+                              color: 'var(--theme-text-secondary, #A3A3A3)',
                               cursor: 'pointer'
                             }}
                           >
@@ -945,7 +945,7 @@ const AILogs = () => {
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>
                               Structured Query Plan (Parsed)
                             </span>
                             <button
@@ -956,12 +956,12 @@ const AILogs = () => {
                                 alignItems: 'center',
                                 gap: '0.3rem',
                                 padding: '0.25rem 0.5rem',
-                                background: '#ffffff',
-                                border: '1px solid #cbd5e1',
+                                background: 'var(--theme-card-bg, #141414)',
+                                border: '1px solid var(--theme-border, #292929)',
                                 borderRadius: '4px',
                                 fontSize: '0.7rem',
                                 fontWeight: 600,
-                                color: '#334155',
+                                color: 'var(--theme-text-secondary, #A3A3A3)',
                                 cursor: 'pointer'
                               }}
                             >
@@ -986,7 +986,7 @@ const AILogs = () => {
 
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>
                               Graph Specification (Chart Config)
                             </span>
                             <button
@@ -997,12 +997,12 @@ const AILogs = () => {
                                 alignItems: 'center',
                                 gap: '0.3rem',
                                 padding: '0.25rem 0.5rem',
-                                background: '#ffffff',
-                                border: '1px solid #cbd5e1',
+                                background: 'var(--theme-card-bg, #141414)',
+                                border: '1px solid var(--theme-border, #292929)',
                                 borderRadius: '4px',
                                 fontSize: '0.7rem',
                                 fontWeight: 600,
-                                color: '#334155',
+                                color: 'var(--theme-text-secondary, #A3A3A3)',
                                 cursor: 'pointer'
                               }}
                             >
@@ -1031,7 +1031,7 @@ const AILogs = () => {
                     {currentTab === 'data' && (
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b' }}>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>
                             Database Grounded Result Rows ({log.rowsCount || 0} total records)
                           </span>
                           <button
@@ -1042,12 +1042,12 @@ const AILogs = () => {
                               alignItems: 'center',
                               gap: '0.35rem',
                               padding: '0.35rem 0.65rem',
-                              background: '#ffffff',
-                              border: '1px solid #cbd5e1',
+                              background: 'var(--theme-card-bg, #141414)',
+                              border: '1px solid var(--theme-border, #292929)',
                               borderRadius: '6px',
                               fontSize: '0.75rem',
                               fontWeight: 600,
-                              color: '#334155',
+                              color: 'var(--theme-text-secondary, #A3A3A3)',
                               cursor: 'pointer'
                             }}
                           >
@@ -1057,12 +1057,12 @@ const AILogs = () => {
                         </div>
 
                         {log.dataSnippet && log.dataSnippet.length > 0 ? (
-                          <div style={{ overflowX: 'auto', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                          <div style={{ overflowX: 'auto', background: 'var(--theme-card-bg, #141414)', border: '1px solid var(--theme-border, #292929)', borderRadius: '8px' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'left' }}>
                               <thead>
-                                <tr style={{ background: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                                <tr style={{ background: 'var(--theme-surface-elevated, #1C1C1C)', borderBottom: '1px solid #cbd5e1' }}>
                                   {Object.keys(log.dataSnippet[0]).map(col => (
-                                    <th key={col} style={{ padding: '0.6rem 0.85rem', fontWeight: 600, color: '#334155' }}>
+                                    <th key={col} style={{ padding: '0.6rem 0.85rem', fontWeight: 600, color: 'var(--theme-text-secondary, #A3A3A3)' }}>
                                       {col}
                                     </th>
                                   ))}
@@ -1072,7 +1072,7 @@ const AILogs = () => {
                                 {log.dataSnippet.map((row, idx) => (
                                   <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
                                     {Object.values(row).map((val, cIdx) => (
-                                      <td key={cIdx} style={{ padding: '0.55rem 0.85rem', color: '#1e293b' }}>
+                                      <td key={cIdx} style={{ padding: '0.55rem 0.85rem', color: 'var(--theme-text-primary, #FFFFFF)' }}>
                                         {val !== null && val !== undefined ? String(val) : '—'}
                                       </td>
                                     ))}
@@ -1082,7 +1082,7 @@ const AILogs = () => {
                             </table>
                           </div>
                         ) : (
-                          <div style={{ padding: '1.5rem', background: '#f1f5f9', borderRadius: '8px', color: '#64748b', fontSize: '0.85rem', textAlign: 'center' }}>
+                          <div style={{ padding: '1.5rem', background: 'var(--theme-surface-elevated, #1C1C1C)', borderRadius: '8px', color: 'var(--theme-text-secondary, #A3A3A3)', fontSize: '0.85rem', textAlign: 'center' }}>
                             No tabular data was retrieved for this query (e.g. conversational prompt or zero-record filter match).
                           </div>
                         )}
@@ -1123,8 +1123,8 @@ const AILogs = () => {
                           <div style={{ marginTop: '0.75rem' }}>
                             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#991b1b' }}>Debug Trace:</span>
                             <pre style={{
-                              background: '#ffffff',
-                              color: '#334155',
+                              background: 'var(--theme-card-bg, #141414)',
+                              color: 'var(--theme-text-secondary, #A3A3A3)',
                               border: '1px solid #fecaca',
                               padding: '0.5rem',
                               borderRadius: '4px',
@@ -1165,7 +1165,7 @@ const AILogs = () => {
                             <div
                               key={idx}
                               style={{
-                                background: '#ffffff',
+                                background: 'var(--theme-card-bg, #141414)',
                                 border: '1px solid #fde68a',
                                 borderRadius: '8px',
                                 padding: '0.85rem 1rem'
@@ -1187,13 +1187,13 @@ const AILogs = () => {
                                   }}>
                                     {idx + 1}
                                   </span>
-                                  <span style={{ fontWeight: 600, fontSize: '0.825rem', color: '#0f172a' }}>
-                                    Model: <code style={{ color: '#2563eb' }}>{attempt.model}</code>
+                                  <span style={{ fontWeight: 600, fontSize: '0.825rem', color: 'var(--theme-text-primary, #FFFFFF)' }}>
+                                    Model: <code style={{ color: 'var(--theme-accent, #FFD43B)' }}>{attempt.model}</code>
                                   </span>
                                   <span style={{
                                     fontSize: '0.725rem',
-                                    color: '#475569',
-                                    background: '#f1f5f9',
+                                    color: 'var(--theme-text-secondary, #A3A3A3)',
+                                    background: 'var(--theme-surface-elevated, #1C1C1C)',
                                     padding: '2px 6px',
                                     borderRadius: '4px'
                                   }}>
@@ -1256,7 +1256,7 @@ const AILogs = () => {
           padding: '1rem'
         }}>
           <div style={{
-            background: '#ffffff',
+            background: 'var(--theme-card-bg, #141414)',
             borderRadius: '14px',
             maxWidth: '440px',
             width: '100%',
@@ -1267,11 +1267,11 @@ const AILogs = () => {
               <div style={{ background: '#fef2f2', color: '#dc2626', padding: '10px', borderRadius: '10px' }}>
                 <Trash2 size={22} />
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', margin: 0 }}>
                 Clear All Audit Logs?
               </h3>
             </div>
-            <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, margin: '0 0 1.5rem' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--theme-text-secondary, #A3A3A3)', lineHeight: 1.5, margin: '0 0 1.5rem' }}>
               This will permanently delete all stored AI query prompts, raw Groq LLM responses, query plans, and execution telemetry from memory and disk.
             </p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem' }}>
@@ -1281,10 +1281,10 @@ const AILogs = () => {
                 disabled={clearing}
                 style={{
                   padding: '0.55rem 1rem',
-                  background: '#f1f5f9',
-                  border: '1px solid #cbd5e1',
+                  background: 'var(--theme-surface-elevated, #1C1C1C)',
+                  border: '1px solid var(--theme-border, #292929)',
                   borderRadius: '8px',
-                  color: '#475569',
+                  color: 'var(--theme-text-secondary, #A3A3A3)',
                   fontSize: '0.85rem',
                   fontWeight: 600,
                   cursor: 'pointer'

@@ -129,9 +129,9 @@ export const PieChartComponent = ({
   }
 
   // 4. Calculate dimensions ensuring ResponsiveContainer never collapses
-  const chartHeight = Math.max(220, height - 70);
-  const outerRadius = Math.min(chartHeight * 0.42, 115);
-  const innerRadius = isDoughnut ? Math.max(35, outerRadius * 0.6) : 0;
+  const chartHeight = Math.max(160, height - 40);
+  const outerRadius = Math.min(chartHeight * 0.40, 95);
+  const innerRadius = isDoughnut ? Math.max(30, outerRadius * 0.58) : 0;
 
   return (
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -147,7 +147,7 @@ export const PieChartComponent = ({
               innerRadius={innerRadius}
               outerRadius={outerRadius}
               paddingAngle={validData.length > 1 ? 2.5 : 0}
-              stroke="#ffffff"
+              stroke="var(--theme-card-bg, #141414)"
               strokeWidth={2}
               animationDuration={500}
               isAnimationActive={true}
@@ -186,10 +186,10 @@ export const PieChartComponent = ({
               zIndex: 10
             }}
           >
-            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--theme-text-primary, #FFFFFF)', lineHeight: 1.1 }}>
               {formatMetricValue(total)}
             </div>
-            <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '2px' }}>
+            <div style={{ fontSize: '0.68rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '2px' }}>
               {centerLabel}
             </div>
           </div>

@@ -37,14 +37,14 @@ export const HorizontalBarChartComponent = ({
         layout="vertical"
         margin={{ top: 10, right: 35, left: 20, bottom: 10 }}
       >
-        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />}
+        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border, #292929)" horizontal={false} />}
         
         <XAxis
           type="number"
-          stroke="#64748b"
+          stroke="var(--theme-text-secondary, #A3A3A3)"
           tickLine={false}
           axisLine={false}
-          tick={{ fontSize: 11, fill: '#64748b' }}
+          tick={{ fontSize: 11, fill: 'var(--theme-text-secondary, #A3A3A3)' }}
           tickFormatter={(val) => formatAxisTick(val) + (unit === '%' ? '%' : '')}
           domain={domain}
         />
@@ -52,10 +52,10 @@ export const HorizontalBarChartComponent = ({
         <YAxis
           type="category"
           dataKey={xField}
-          stroke="#64748b"
+          stroke="var(--theme-text-secondary, #A3A3A3)"
           tickLine={false}
           axisLine={false}
-          tick={{ fontSize: 12, fill: '#334155', fontWeight: 500 }}
+          tick={{ fontSize: 12, fill: 'var(--theme-text-primary, #FFFFFF)', fontWeight: 500 }}
           width={95}
           tickFormatter={(val) => {
             const str = String(val ?? '');

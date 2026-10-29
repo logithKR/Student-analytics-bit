@@ -39,8 +39,10 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 def decode_access_token(token: str) -> Optional[dict]:
-    """Decode and validate a JWT access token."""
+    """Decode and validate a JWT access token, rejecting revoked tokens."""
     try:
+        if is_token_revoked(token):
+            return None
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         return payload
     except Exception:
@@ -84,6 +86,15 @@ def init_db(db_path: Optional[str] = None):
             status TEXT NOT NULL,
             ip_address TEXT,
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # 3. Revoked tokens table for secure logout session termination
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS revoked_tokens (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            token TEXT UNIQUE NOT NULL,
+            revoked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
     
@@ -150,16 +161,72 @@ def log_auth_event(email: str, event_type: str, status: str, ip_address: Optiona
     except Exception as e:
         print(f"[!] Warning: Failed to write auth audit event: {e}")
 
-def create_user(email: str, full_name: str, department: str, role: str, password: str) -> Dict[str, Any]:
-    """Creates a new user with securely hashed password."""
+def revoke_token(token: str) -> bool:
+    """Adds a token to the revoked_tokens table to prevent reuse after logout."""
+    if not token:
+        return False
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR IGNORE INTO revoked_tokens (token) VALUES (?)", (token.strip(),))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"[!] Warning: Failed to revoke token: {e}")
+        return False
+
+def is_token_revoked(token: str) -> bool:
+    """Returns True if the token has been recorded in the revocation table."""
+    if not token:
+        return True
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM revoked_tokens WHERE token = ?", (token.strip(),))
+        row = cursor.fetchone()
+        conn.close()
+        return row is not None
+    except Exception as e:
+        print(f"[!] Warning: Failed to check revoked token status: {e}")
+        return False
+
+def create_user(
+    email: str,
+    full_name: str,
+    department: str = "General",
+    password: str = "",
+    role: str = "Academic Member"
+) -> Dict[str, Any]:
+    """
+    Creates a new user account with securely hashed password.
+    Unified authentication: all registered users receive equal access to all application modules.
+    """
+    email_clean = email.strip().lower()
+    full_name_clean = full_name.strip()
+    dept_clean = department.strip() if department else "General"
+    role_clean = role.strip() if role else "Academic Member"
+
+    if not email_clean or "@" not in email_clean:
+        raise ValueError("Please provide a valid email address.")
+
+    if not full_name_clean:
+        raise ValueError("Full name is required.")
+
+    if not dept_clean:
+        dept_clean = "General"
+
+    if len(password) < 8:
+        raise ValueError("Password must be at least 8 characters long.")
+
     conn = get_connection()
     cursor = conn.cursor()
     
     # Check uniqueness
-    cursor.execute("SELECT id FROM users WHERE email = ?", (email.strip().lower(),))
+    cursor.execute("SELECT id FROM users WHERE email = ?", (email_clean,))
     if cursor.fetchone():
         conn.close()
-        raise ValueError("An account with this email address already exists.")
+        raise ValueError("An account with this email address already exists. Please sign in instead.")
         
     hashed_pwd = hash_password(password)
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
@@ -167,20 +234,20 @@ def create_user(email: str, full_name: str, department: str, role: str, password
     cursor.execute("""
         INSERT INTO users (email, full_name, department, role, hashed_password, created_at)
         VALUES (?, ?, ?, ?, ?, ?)
-    """, (email.strip().lower(), full_name.strip(), department.strip(), role.strip(), hashed_pwd, now))
+    """, (email_clean, full_name_clean, dept_clean, role_clean, hashed_pwd, now))
     
     user_id = cursor.lastrowid
     conn.commit()
     conn.close()
     
-    log_auth_event(email, "REGISTER", "SUCCESS")
+    log_auth_event(email_clean, "REGISTER", "SUCCESS")
     
     return {
         "id": user_id,
-        "email": email.strip().lower(),
-        "full_name": full_name.strip(),
-        "department": department.strip(),
-        "role": role.strip(),
+        "email": email_clean,
+        "full_name": full_name_clean,
+        "department": dept_clean,
+        "role": role_clean,
         "created_at": now
     }
 

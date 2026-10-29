@@ -186,8 +186,8 @@ const PredictionHub = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-            <BrainCircuit size={28} color="#2563eb" />
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+            <BrainCircuit size={28} color="var(--theme-accent, #FFD43B)" />
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', margin: 0 }}>
               AI Prediction Engine & Risk Analyzer
             </h1>
           </div>
@@ -197,7 +197,7 @@ const PredictionHub = () => {
         </div>
 
         {/* Tab Selection */}
-        <div style={{ display: 'flex', background: '#f1f5f9', padding: '4px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', background: 'var(--theme-surface-elevated, #1C1C1C)', padding: '4px', borderRadius: '12px', border: '1px solid var(--theme-border, #292929)' }}>
           <button
             onClick={() => setActiveTab('bulk')}
             style={{
@@ -250,9 +250,9 @@ const PredictionHub = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           
           {/* Uploader Box */}
-          <div className="card" style={{ background: '#ffffff', borderRadius: '16px', padding: '2rem', border: '1px solid #e2e8f0' }}>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#1e293b', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Upload size={20} color="#2563eb" />
+          <div className="card" style={{ background: 'var(--theme-card-bg, #141414)', borderRadius: '16px', padding: '2rem', border: '1px solid var(--theme-border, #292929)' }}>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--theme-text-primary, #FFFFFF)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Upload size={20} color="var(--theme-accent, #FFD43B)" />
               Upload Result Sheet (.xlsx / .xls)
             </h2>
             
@@ -264,7 +264,7 @@ const PredictionHub = () => {
                 borderRadius: '12px',
                 padding: '2.5rem 1.5rem',
                 textAlign: 'center',
-                background: '#f8fafc',
+                background: 'var(--theme-surface-elevated, #1C1C1C)',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
               }}
@@ -296,7 +296,7 @@ const PredictionHub = () => {
               {bulkFile && (
                 <button
                   onClick={() => { setBulkFile(null); setBulkResults(null); }}
-                  style={{ padding: '0.6rem 1.25rem', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 500, color: '#475569' }}
+                  style={{ padding: '0.6rem 1.25rem', background: 'var(--theme-surface-elevated, #1C1C1C)', border: '1px solid var(--theme-border, #292929)', borderRadius: '8px', cursor: 'pointer', fontWeight: 500, color: 'var(--theme-text-secondary, #A3A3A3)' }}
                 >
                   Clear File
                 </button>
@@ -336,44 +336,44 @@ const PredictionHub = () => {
           {bulkResults && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ background: 'var(--theme-card-bg, #141414)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--theme-border, #292929)' }}>
                   <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>TOTAL STUDENTS</div>
-                  <div style={{ fontSize: '1.85rem', fontWeight: 700, color: '#0f172a', marginTop: '0.25rem' }}>
+                  <div style={{ fontSize: '1.85rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', marginTop: '0.25rem' }}>
                     {bulkResults.summary.total_students}
                   </div>
                 </div>
 
-                <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0', borderLeft: '4px solid #10b981' }}>
+                <div style={{ background: 'var(--theme-card-bg, #141414)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--theme-border, #292929)', borderLeft: '4px solid #10b981' }}>
                   <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>SAFE (PASS)</div>
                   <div style={{ fontSize: '1.85rem', fontWeight: 700, color: '#10b981', marginTop: '0.25rem' }}>
                     {bulkResults.summary.total_safe}
                   </div>
                 </div>
 
-                <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0', borderLeft: '4px solid #f59e0b' }}>
+                <div style={{ background: 'var(--theme-card-bg, #141414)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--theme-border, #292929)', borderLeft: '4px solid #f59e0b' }}>
                   <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>MEDIUM RISK</div>
                   <div style={{ fontSize: '1.85rem', fontWeight: 700, color: '#f59e0b', marginTop: '0.25rem' }}>
                     {bulkResults.summary.total_medium_risk}
                   </div>
                 </div>
 
-                <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0', borderLeft: '4px solid #ef4444' }}>
+                <div style={{ background: 'var(--theme-card-bg, #141414)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--theme-border, #292929)', borderLeft: '4px solid #ef4444' }}>
                   <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>HIGH RISK (FAIL)</div>
                   <div style={{ fontSize: '1.85rem', fontWeight: 700, color: '#ef4444', marginTop: '0.25rem' }}>
                     {bulkResults.summary.total_high_risk}
                   </div>
                 </div>
 
-                <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0', borderLeft: '4px solid #2563eb' }}>
+                <div style={{ background: 'var(--theme-card-bg, #141414)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--theme-border, #292929)', borderLeft: '4px solid var(--theme-accent, #FFD43B)' }}>
                   <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>PREDICTED PASS RATE</div>
-                  <div style={{ fontSize: '1.85rem', fontWeight: 700, color: '#2563eb', marginTop: '0.25rem' }}>
+                  <div style={{ fontSize: '1.85rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', marginTop: '0.25rem' }}>
                     {bulkResults.summary.class_pass_rate}%
                   </div>
                 </div>
               </div>
 
               {/* Table Toolbar */}
-              <div style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '1.5rem' }}>
+              <div style={{ background: 'var(--theme-card-bg, #141414)', borderRadius: '16px', border: '1px solid var(--theme-border, #292929)', padding: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <div style={{ position: 'relative' }}>
@@ -386,14 +386,14 @@ const PredictionHub = () => {
                         style={{
                           padding: '0.45rem 0.75rem 0.45rem 2.2rem',
                           borderRadius: '8px',
-                          border: '1px solid #cbd5e1',
+                          border: '1px solid var(--theme-border, #292929)',
                           fontSize: '0.875rem',
                           width: '240px'
                         }}
                       />
                     </div>
 
-                    <div style={{ display: 'flex', gap: '0.25rem', background: '#f1f5f9', padding: '2px', borderRadius: '8px' }}>
+                    <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--theme-surface-elevated, #1C1C1C)', padding: '2px', borderRadius: '8px' }}>
                       {['ALL', 'HIGH_RISK', 'MEDIUM_RISK', 'SAFE', 'LOW_SUBJECTS'].map(st => (
                         <button
                           key={st}
@@ -440,7 +440,7 @@ const PredictionHub = () => {
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
                     <thead>
-                      <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569', fontWeight: 600 }}>
+                      <tr style={{ background: 'var(--theme-surface-elevated, #1C1C1C)', borderBottom: '2px solid var(--theme-border, #292929)', color: 'var(--theme-text-secondary, #A3A3A3)', fontWeight: 600 }}>
                         <th style={{ padding: '0.75rem 1rem', width: '40px' }}></th>
                         <th style={{ padding: '0.75rem 1rem' }}>Register No</th>
                         <th style={{ padding: '0.75rem 1rem' }}>Student Name</th>
@@ -475,9 +475,9 @@ const PredictionHub = () => {
                                 <td style={{ padding: '0.75rem 1rem', color: '#64748b' }}>
                                   {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                                 </td>
-                                <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#1e293b' }}>{s.student_id}</td>
+                                <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: 'var(--theme-text-primary, #FFFFFF)' }}>{s.student_id}</td>
                                 <td style={{ padding: '0.75rem 1rem', color: '#334155' }}>{s.student_name}</td>
-                                <td style={{ padding: '0.75rem 1rem', color: '#475569' }}>{s.avg_internal_pct}%</td>
+                                <td style={{ padding: '0.75rem 1rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>{s.avg_internal_pct}%</td>
                                 <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#10b981' }}>{s.pass_probability}%</td>
                                 <td style={{ padding: '0.75rem 1rem' }}>
                                   {s.at_risk_subjects && s.at_risk_subjects.length > 0 ? (
@@ -523,20 +523,20 @@ const PredictionHub = () => {
                                 </td>
                               </tr>
                               {isExpanded && (
-                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                                <tr style={{ background: 'var(--theme-surface-elevated, #1C1C1C)', borderBottom: '2px solid var(--theme-border, #292929)' }}>
                                   <td colSpan={7} style={{ padding: '1rem 2rem' }}>
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                                      <div style={{ background: '#ffffff', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                      <div style={{ background: 'var(--theme-card-bg, #141414)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--theme-border, #292929)' }}>
                                         <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>MIN INTERNAL %</div>
-                                        <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b' }}>{s.min_internal_pct}%</div>
+                                        <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>{s.min_internal_pct}%</div>
                                       </div>
-                                      <div style={{ background: '#ffffff', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                      <div style={{ background: 'var(--theme-card-bg, #141414)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--theme-border, #292929)' }}>
                                         <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>FAIL PROBABILITY</div>
                                         <div style={{ fontSize: '1.25rem', fontWeight: 700, color: s.fail_probability >= 50 ? '#ef4444' : s.fail_probability >= 25 ? '#f59e0b' : '#64748b' }}>
                                           {s.fail_probability}%
                                         </div>
                                       </div>
-                                      <div style={{ background: '#ffffff', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                      <div style={{ background: 'var(--theme-card-bg, #141414)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--theme-border, #292929)' }}>
                                         <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>SUBJECTS &lt; 50%</div>
                                         <div style={{ fontSize: '1.25rem', fontWeight: 700, color: s.low_internal_count > 0 ? '#ef4444' : '#10b981' }}>{s.low_internal_count}</div>
                                       </div>
@@ -564,16 +564,16 @@ const PredictionHub = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '1.5rem', alignItems: 'start' }}>
           
           {/* Input Form Card */}
-          <div style={{ background: '#ffffff', borderRadius: '16px', padding: '1.75rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#1e293b', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <User size={20} color="#2563eb" />
+          <div style={{ background: 'var(--theme-card-bg, #141414)', borderRadius: '16px', padding: '1.75rem', border: '1px solid var(--theme-border, #292929)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--theme-text-primary, #FFFFFF)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <User size={20} color="var(--theme-accent, #FFD43B)" />
               Student Academic Profile Input
             </h2>
 
             <form onSubmit={handleSingleSubmit}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--theme-text-secondary, #A3A3A3)', marginBottom: '0.35rem' }}>
                     Register Number / ID
                   </label>
                   <input
@@ -581,13 +581,13 @@ const PredictionHub = () => {
                     required
                     value={studentId}
                     onChange={(e) => setStudentId(e.target.value)}
-                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: '8px', border: '1px solid var(--theme-border, #292929)', fontSize: '0.9rem' }}
                     placeholder="e.g. 7376221CS101"
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--theme-text-secondary, #A3A3A3)', marginBottom: '0.35rem' }}>
                     Student Name
                   </label>
                   <input
@@ -595,7 +595,7 @@ const PredictionHub = () => {
                     required
                     value={studentName}
                     onChange={(e) => setStudentName(e.target.value)}
-                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: '8px', border: '1px solid var(--theme-border, #292929)', fontSize: '0.9rem' }}
                     placeholder="e.g. John Doe"
                   />
                 </div>
@@ -611,9 +611,9 @@ const PredictionHub = () => {
                     type="button"
                     onClick={handleAddSubject}
                     style={{
-                      background: '#eff6ff',
-                      color: '#2563eb',
-                      border: '1px solid #bfdbfe',
+                      background: 'var(--theme-surface-elevated, #1C1C1C)',
+                      color: 'var(--theme-text-primary, #FFFFFF)',
+                      border: '1px solid var(--theme-border, #292929)',
                       padding: '0.35rem 0.75rem',
                       borderRadius: '6px',
                       fontSize: '0.75rem',
@@ -636,7 +636,7 @@ const PredictionHub = () => {
                         value={sub.name}
                         onChange={(e) => handleMarkChange(idx, 'name', e.target.value)}
                         placeholder={`Subject ${idx + 1}`}
-                        style={{ flex: 2, padding: '0.45rem 0.65rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                        style={{ flex: 2, padding: '0.45rem 0.65rem', borderRadius: '6px', border: '1px solid var(--theme-border, #292929)', fontSize: '0.85rem' }}
                       />
                       <input
                         type="number"
@@ -644,14 +644,14 @@ const PredictionHub = () => {
                         step="0.5"
                         value={sub.mark}
                         onChange={(e) => handleMarkChange(idx, 'mark', e.target.value)}
-                        style={{ flex: 1, padding: '0.45rem 0.65rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem', fontWeight: 600, textAlign: 'center' }}
+                        style={{ flex: 1, padding: '0.45rem 0.65rem', borderRadius: '6px', border: '1px solid var(--theme-border, #292929)', fontSize: '0.85rem', fontWeight: 600, textAlign: 'center' }}
                         placeholder="Mark"
                       />
                       <span style={{color: '#94a3b8', fontSize: '1rem'}}>/</span>
                       <select
                         value={sub.max_score}
                         onChange={(e) => handleMarkChange(idx, 'max_score', e.target.value)}
-                        style={{ padding: '0.45rem 0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem', background: '#f8fafc', color: '#475569' }}
+                        style={{ padding: '0.45rem 0.5rem', borderRadius: '6px', border: '1px solid var(--theme-border, #292929)', fontSize: '0.85rem', background: 'var(--theme-surface-elevated, #1C1C1C)', color: 'var(--theme-text-secondary, #A3A3A3)' }}
                       >
                         <option value="40">40</option>
                         <option value="50">50</option>
@@ -716,9 +716,9 @@ const PredictionHub = () => {
           </div>
 
           {/* Result Output Card */}
-          <div style={{ background: '#ffffff', borderRadius: '16px', padding: '1.75rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#1e293b', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Activity size={20} color="#2563eb" />
+          <div style={{ background: 'var(--theme-card-bg, #141414)', borderRadius: '16px', padding: '1.75rem', border: '1px solid var(--theme-border, #292929)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--theme-text-primary, #FFFFFF)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Activity size={20} color="var(--theme-accent, #FFD43B)" />
               AI Risk Diagnostic Report
             </h2>
 
@@ -732,9 +732,9 @@ const PredictionHub = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 
                 {/* Header Badge */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderRadius: '12px', background: 'var(--theme-surface-elevated, #1C1C1C)', border: '1px solid var(--theme-border, #292929)' }}>
                   <div>
-                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#0f172a' }}>{singleResult.student_name}</h3>
+                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>{singleResult.student_name}</h3>
                     <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Reg: {singleResult.student_id}</span>
                   </div>
 
@@ -760,14 +760,14 @@ const PredictionHub = () => {
                 </div>
 
                 {/* Probability Gauge / Visual Progress Bar */}
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.25rem' }}>
+                <div style={{ background: 'var(--theme-card-bg, #141414)', border: '1px solid var(--theme-border, #292929)', borderRadius: '12px', padding: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>
                     <span style={{ color: '#10b981' }}>Pass Chance: {singleResult.pass_probability}%</span>
                     <span style={{ color: '#ef4444' }}>Fail Chance: {singleResult.fail_probability}%</span>
                   </div>
 
                   {/* Dual Bar */}
-                  <div style={{ height: '14px', borderRadius: '9999px', background: '#e2e8f0', overflow: 'hidden', display: 'flex' }}>
+                  <div style={{ height: '14px', borderRadius: '9999px', background: 'var(--theme-border, #292929)', overflow: 'hidden', display: 'flex' }}>
                     <div style={{ width: `${singleResult.pass_probability}%`, background: '#10b981', transition: 'width 0.5s ease-in-out' }}></div>
                     <div style={{ width: `${singleResult.fail_probability}%`, background: '#ef4444', transition: 'width 0.5s ease-in-out' }}></div>
                   </div>
@@ -783,7 +783,7 @@ const PredictionHub = () => {
                           key={i} 
                           title={`Raw: ${sub.raw_score} / Max: ${sub.max_score} (${sub.percentage}%)`}
                           style={{
-                            background: '#ffffff',
+                            background: 'var(--theme-card-bg, #141414)',
                             color: '#ef4444',
                             border: '1px solid #fca5a5',
                             padding: '0.3rem 0.6rem',
@@ -802,19 +802,19 @@ const PredictionHub = () => {
 
                 {/* Engineered Features Breakdown */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
-                  <div style={{ background: '#f8fafc', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--theme-surface-elevated, #1C1C1C)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--theme-border, #292929)', textAlign: 'center' }}>
                     <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>AVG INTERNAL %</span>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1e293b' }}>{singleResult.avg_internal_pct}</span>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>{singleResult.avg_internal_pct}</span>
                   </div>
 
-                  <div style={{ background: '#f8fafc', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--theme-surface-elevated, #1C1C1C)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--theme-border, #292929)', textAlign: 'center' }}>
                     <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>MIN INTERNAL %</span>
                     <span style={{ fontSize: '1.2rem', fontWeight: 700, color: singleResult.min_internal_pct < 50 ? '#ef4444' : '#1e293b' }}>
                       {singleResult.min_internal_pct}
                     </span>
                   </div>
 
-                  <div style={{ background: '#f8fafc', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--theme-surface-elevated, #1C1C1C)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--theme-border, #292929)', textAlign: 'center' }}>
                     <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>LOW MARKS (&lt;50%)</span>
                     <span style={{ fontSize: '1.2rem', fontWeight: 700, color: singleResult.low_internal_count > 0 ? '#ef4444' : '#10b981' }}>
                       {singleResult.low_internal_count}

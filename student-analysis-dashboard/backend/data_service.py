@@ -295,6 +295,16 @@ def load_data():
 
 
 DEPT_ALIAS_MAP = {
+    "CSD": "CD",
+    "CS & DESIGN": "CD",
+    "CS AND DESIGN": "CD",
+    "CS&DESIGN": "CD",
+    "CS & D": "CD",
+    "CS AND D": "CD",
+    "CS&D": "CD",
+    "COMPUTER SCIENCE & DESIGN": "CD",
+    "COMPUTER SCIENCE AND DESIGN": "CD",
+    "COMPUTER SCIENCE DESIGN": "CD",
     "CSE": "CS",
     "COMPUTER SCIENCE": "CS",
     "COMPUTER SCIENCE & ENGINEERING": "CS",

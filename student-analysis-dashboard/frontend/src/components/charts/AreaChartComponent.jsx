@@ -17,7 +17,7 @@ export const AreaChartComponent = ({
   height = 360,
   showGrid = true,
   domain = ['auto', 'auto'],
-  color = '#2563eb',
+  color = '#FFD43B',
   unit = ''
 }) => {
   if (!data || data.length === 0) return null;
@@ -38,21 +38,21 @@ export const AreaChartComponent = ({
           </linearGradient>
         </defs>
 
-        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />}
+        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border, #292929)" vertical={false} />}
 
         <XAxis
           dataKey={xField}
-          stroke="#64748b"
+          stroke="var(--theme-border, #292929)"
           tickLine={false}
           axisLine={false}
-          tick={{ fontSize: 11, fill: '#64748b' }}
+          tick={{ fontSize: 11, fill: 'var(--theme-text-secondary, #A3A3A3)' }}
         />
 
         <YAxis
-          stroke="#64748b"
+          stroke="var(--theme-border, #292929)"
           tickLine={false}
           axisLine={false}
-          tick={{ fontSize: 11, fill: '#64748b' }}
+          tick={{ fontSize: 11, fill: 'var(--theme-text-secondary, #A3A3A3)' }}
           domain={domain}
           width={40}
           tickFormatter={(val) => formatAxisTick(val) + (unit === '%' ? '%' : '')}
@@ -67,7 +67,7 @@ export const AreaChartComponent = ({
           strokeWidth={3}
           fillOpacity={1}
           fill={`url(#${gradientId})`}
-          dot={{ r: 4, fill: color, stroke: '#ffffff', strokeWidth: 2 }}
+          dot={{ r: 4, fill: color, stroke: 'var(--theme-card-bg, #141414)', strokeWidth: 2 }}
           activeDot={{ r: 7, fill: color, stroke: '#ffffff', strokeWidth: 2 }}
           name={yField.replace(/_/g, ' ')}
           animationDuration={600}

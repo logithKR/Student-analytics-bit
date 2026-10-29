@@ -11,7 +11,7 @@ export const RadarChartComponent = ({
   xField = 'subject',
   yField = 'average',
   height = 340,
-  fillColor = '#2563eb',
+  fillColor = '#FFD43B',
   maxDomain = 100
 }) => {
   if (!data || data.length === 0) return null;
@@ -20,17 +20,17 @@ export const RadarChartComponent = ({
     <div style={{ width: '100%', height, minHeight: height }}>
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-          <PolarGrid stroke="#e2e8f0" strokeDasharray="3 3" />
+          <PolarGrid stroke="var(--theme-border, #292929)" strokeDasharray="3 3" />
           <PolarAngleAxis
             dataKey={xField}
-            tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }}
+            tick={{ fontSize: 11, fill: 'var(--theme-text-primary, #FFFFFF)', fontWeight: 500 }}
             tickFormatter={(val) => truncateLabel(val, 14)}
           />
           <PolarRadiusAxis
             angle={30}
             domain={[0, maxDomain]}
-            stroke="#94a3b8"
-            tick={{ fontSize: 10, fill: '#94a3b8' }}
+            stroke="var(--theme-text-secondary, #A3A3A3)"
+            tick={{ fontSize: 10, fill: 'var(--theme-text-secondary, #A3A3A3)' }}
           />
           <Tooltip content={<ChartTooltip yField={yField} />} />
           <Radar
@@ -40,7 +40,7 @@ export const RadarChartComponent = ({
             fill={fillColor}
             fillOpacity={0.35}
             strokeWidth={2.5}
-            dot={{ r: 3, fill: fillColor, stroke: '#ffffff', strokeWidth: 1.5 }}
+            dot={{ r: 3, fill: fillColor, stroke: 'var(--theme-card-bg, #141414)', strokeWidth: 1.5 }}
           />
         </RadarChart>
       </ResponsiveContainer>

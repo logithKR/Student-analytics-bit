@@ -31,21 +31,21 @@ export const LineChartComponent = ({
         data={data}
         margin={{ top: 15, right: 25, left: 10, bottom: 15 }}
       >
-        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />}
+        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border, #292929)" />}
         
         <XAxis
           dataKey={xField}
-          stroke="#64748b"
+          stroke="var(--theme-text-secondary, #A3A3A3)"
           tickLine={false}
           axisLine={false}
-          tick={{ fontSize: 11, fill: '#64748b' }}
+          tick={{ fontSize: 11, fill: 'var(--theme-text-secondary, #A3A3A3)' }}
         />
 
         <YAxis
-          stroke="#64748b"
+          stroke="var(--theme-text-secondary, #A3A3A3)"
           tickLine={false}
           axisLine={false}
-          tick={{ fontSize: 11, fill: '#64748b' }}
+          tick={{ fontSize: 11, fill: 'var(--theme-text-secondary, #A3A3A3)' }}
           domain={domain}
           tickFormatter={(val) => formatAxisTick(val) + (unit ? ` ${unit}` : '')}
         />
@@ -65,8 +65,8 @@ export const LineChartComponent = ({
               dataKey={s}
               stroke={color}
               strokeWidth={3}
-              dot={{ r: 4, strokeWidth: 2, fill: '#ffffff', stroke: color }}
-              activeDot={{ r: 7, fill: color, stroke: '#ffffff', strokeWidth: 2 }}
+              dot={{ r: 4, strokeWidth: 2, fill: 'var(--theme-card-bg, #141414)', stroke: color }}
+              activeDot={{ r: 7, fill: color, stroke: 'var(--theme-card-bg, #141414)', strokeWidth: 2 }}
               name={s.replace(/_/g, ' ')}
               animationDuration={600}
             />

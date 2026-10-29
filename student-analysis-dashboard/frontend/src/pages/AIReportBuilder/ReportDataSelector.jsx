@@ -90,8 +90,8 @@ export const ReportDataSelector = ({
   return (
     <div
       style={{
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
+        background: 'var(--theme-card-bg, #141414)',
+        border: '1px solid var(--theme-border, #292929)',
         borderRadius: '12px',
         padding: '0.875rem 1.25rem',
         boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
@@ -109,7 +109,7 @@ export const ReportDataSelector = ({
           style={{
             display: 'flex',
             alignItems: 'center',
-            background: '#f1f5f9',
+            background: 'var(--theme-surface-elevated, #1C1C1C)',
             padding: '3px',
             borderRadius: '8px',
             gap: '3px'
@@ -127,8 +127,8 @@ export const ReportDataSelector = ({
               border: 'none',
               fontSize: '0.8rem',
               fontWeight: mode === 'student' ? 600 : 500,
-              background: mode === 'student' ? '#ffffff' : 'transparent',
-              color: mode === 'student' ? '#2563eb' : '#475569',
+              background: mode === 'student' ? 'var(--theme-accent, #FFD43B)' : 'transparent',
+              color: mode === 'student' ? 'var(--theme-accent-text, #080808)' : 'var(--theme-text-secondary, #A3A3A3)',
               boxShadow: mode === 'student' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
               cursor: 'pointer',
               transition: 'all 0.15s ease'
@@ -150,8 +150,8 @@ export const ReportDataSelector = ({
               border: 'none',
               fontSize: '0.8rem',
               fontWeight: mode === 'department' ? 600 : 500,
-              background: mode === 'department' ? '#ffffff' : 'transparent',
-              color: mode === 'department' ? '#2563eb' : '#475569',
+              background: mode === 'department' ? 'var(--theme-accent, #FFD43B)' : 'transparent',
+              color: mode === 'department' ? 'var(--theme-accent-text, #080808)' : 'var(--theme-text-secondary, #A3A3A3)',
               boxShadow: mode === 'department' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
               cursor: 'pointer',
               transition: 'all 0.15s ease'
@@ -169,8 +169,8 @@ export const ReportDataSelector = ({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
+                background: 'var(--theme-surface-elevated, #1C1C1C)',
+                border: '1px solid var(--theme-border, #292929)',
                 borderRadius: '8px',
                 padding: '0.4rem 0.75rem',
                 gap: '0.5rem'
@@ -190,12 +190,12 @@ export const ReportDataSelector = ({
                   outline: 'none',
                   background: 'transparent',
                   fontSize: '0.8rem',
-                  color: '#0f172a',
+                  color: 'var(--theme-text-primary, #FFFFFF)',
                   width: '100%'
                 }}
               />
               {isSearching && (
-                <RefreshCw size={13} color="#2563eb" style={{ animation: 'spin 1s linear infinite' }} />
+                <RefreshCw size={13} color="var(--theme-accent, #FFD43B)" style={{ animation: 'spin 1s linear infinite' }} />
               )}
             </div>
 
@@ -208,8 +208,8 @@ export const ReportDataSelector = ({
                   left: 0,
                   right: 0,
                   marginTop: '4px',
-                  background: '#ffffff',
-                  border: '1px solid #e2e8f0',
+                  background: 'var(--theme-card-bg, #141414)',
+                  border: '1px solid var(--theme-border, #292929)',
                   borderRadius: '8px',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   zIndex: 50,
@@ -222,9 +222,9 @@ export const ReportDataSelector = ({
                     padding: '4px 10px',
                     fontSize: '0.7rem',
                     fontWeight: 600,
-                    color: '#64748b',
-                    background: '#f8fafc',
-                    borderBottom: '1px solid #f1f5f9'
+                    color: 'var(--theme-text-secondary, #A3A3A3)',
+                    background: 'var(--theme-surface-elevated, #1C1C1C)',
+                    borderBottom: '1px solid var(--theme-border, #292929)'
                   }}
                 >
                   DATABASE MATCHES
@@ -251,8 +251,8 @@ export const ReportDataSelector = ({
                     onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
                   >
                     <div>
-                      <div style={{ fontWeight: 600, color: '#0f172a' }}>{s.name}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#64748b', fontFamily: 'monospace' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--theme-text-primary, #FFFFFF)' }}>{s.name}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--theme-text-secondary, #A3A3A3)', fontFamily: 'monospace' }}>
                         {s.registerNumber}
                       </div>
                     </div>
@@ -260,7 +260,7 @@ export const ReportDataSelector = ({
                       style={{
                         fontSize: '0.7rem',
                         background: '#e2e8f0',
-                        color: '#475569',
+                        color: 'var(--theme-text-secondary, #A3A3A3)',
                         padding: '2px 6px',
                         borderRadius: '4px'
                       }}
@@ -281,12 +281,12 @@ export const ReportDataSelector = ({
               value={selectedDepartment}
               onChange={(e) => onDepartmentChange(e.target.value)}
               style={{
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
+                background: 'var(--theme-surface-elevated, #1C1C1C)',
+                border: '1px solid var(--theme-border, #292929)',
                 borderRadius: '8px',
                 padding: '0.45rem 0.85rem',
                 fontSize: '0.8rem',
-                color: '#0f172a',
+                color: 'var(--theme-text-primary, #FFFFFF)',
                 fontWeight: 500,
                 outline: 'none',
                 cursor: 'pointer'
@@ -304,12 +304,12 @@ export const ReportDataSelector = ({
               value={selectedSemester}
               onChange={(e) => onSemesterChange(e.target.value)}
               style={{
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
+                background: 'var(--theme-surface-elevated, #1C1C1C)',
+                border: '1px solid var(--theme-border, #292929)',
                 borderRadius: '8px',
                 padding: '0.45rem 0.85rem',
                 fontSize: '0.8rem',
-                color: '#0f172a',
+                color: 'var(--theme-text-primary, #FFFFFF)',
                 fontWeight: 500,
                 outline: 'none',
                 cursor: 'pointer'
@@ -334,26 +334,37 @@ export const ReportDataSelector = ({
               alignItems: 'center',
               gap: '0.75rem',
               padding: '0.35rem 0.75rem',
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              background: 'var(--theme-surface-elevated, #1C1C1C)',
+              border: '1px solid var(--theme-border, #292929)',
               borderRadius: '8px',
               fontSize: '0.78rem'
             }}
           >
             <div>
-              <span style={{ fontWeight: 700, color: '#0f172a' }}>{studentInfo.name}</span>
-              <span style={{ marginLeft: '6px', color: '#2563eb', fontFamily: 'monospace', fontWeight: 600 }}>
-                ({studentInfo.registerNumber})
+              <span style={{ fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>{studentInfo.name}</span>
+              <span
+                style={{
+                  marginLeft: '6px',
+                  padding: '1px 6px',
+                  borderRadius: '4px',
+                  background: 'var(--theme-accent, #FFD43B)',
+                  color: 'var(--theme-accent-text, #080808)',
+                  fontFamily: 'monospace',
+                  fontWeight: 700,
+                  fontSize: '0.72rem'
+                }}
+              >
+                {studentInfo.registerNumber}
               </span>
             </div>
             <div style={{ height: '14px', width: '1px', background: '#cbd5e1' }} />
             <div>
-              <span style={{ color: '#64748b' }}>CGPA: </span>
-              <span style={{ fontWeight: 700, color: '#0f172a' }}>{studentInfo.cgpa}</span>
+              <span style={{ color: 'var(--theme-text-secondary, #A3A3A3)' }}>CGPA: </span>
+              <span style={{ fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>{studentInfo.cgpa}</span>
             </div>
             <div style={{ height: '14px', width: '1px', background: '#cbd5e1' }} />
             <div>
-              <span style={{ color: '#64748b' }}>Arrears: </span>
+              <span style={{ color: 'var(--theme-text-secondary, #A3A3A3)' }}>Arrears: </span>
               <span style={{ fontWeight: 700, color: studentInfo.totalArrears > 0 ? '#ef4444' : '#10b981' }}>
                 {studentInfo.totalArrears}
               </span>
@@ -381,29 +392,29 @@ export const ReportDataSelector = ({
               alignItems: 'center',
               gap: '0.75rem',
               padding: '0.35rem 0.75rem',
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              background: 'var(--theme-surface-elevated, #1C1C1C)',
+              border: '1px solid var(--theme-border, #292929)',
               borderRadius: '8px',
               fontSize: '0.78rem'
             }}
           >
             <div>
-              <span style={{ fontWeight: 700, color: '#0f172a' }}>{cohortInfo.departmentLabel}</span>
-              <span style={{ marginLeft: '6px', color: '#64748b' }}>• {cohortInfo.semesterLabel}</span>
+              <span style={{ fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>{cohortInfo.departmentLabel}</span>
+              <span style={{ marginLeft: '6px', color: 'var(--theme-text-secondary, #A3A3A3)' }}>• {cohortInfo.semesterLabel}</span>
             </div>
             <div style={{ height: '14px', width: '1px', background: '#cbd5e1' }} />
             <div>
-              <span style={{ color: '#64748b' }}>Enrolled: </span>
-              <span style={{ fontWeight: 700, color: '#0f172a' }}>{cohortInfo.totalStudents}</span>
+              <span style={{ color: 'var(--theme-text-secondary, #A3A3A3)' }}>Enrolled: </span>
+              <span style={{ fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>{cohortInfo.totalStudents}</span>
             </div>
             <div style={{ height: '14px', width: '1px', background: '#cbd5e1' }} />
             <div>
-              <span style={{ color: '#64748b' }}>Pass Rate: </span>
+              <span style={{ color: 'var(--theme-text-secondary, #A3A3A3)' }}>Pass Rate: </span>
               <span style={{ fontWeight: 700, color: '#10b981' }}>{cohortInfo.passPercentage}%</span>
             </div>
             <div style={{ height: '14px', width: '1px', background: '#cbd5e1' }} />
             <div>
-              <span style={{ color: '#64748b' }}>At-Risk: </span>
+              <span style={{ color: 'var(--theme-text-secondary, #A3A3A3)' }}>At-Risk: </span>
               <span style={{ fontWeight: 700, color: cohortInfo.totalAtRisk > 0 ? '#f59e0b' : '#64748b' }}>
                 {cohortInfo.totalAtRisk}
               </span>
@@ -418,10 +429,10 @@ export const ReportDataSelector = ({
           title="Reload dataset records"
           style={{
             padding: '0.45rem',
-            background: '#ffffff',
-            border: '1px solid #cbd5e1',
+            background: 'var(--theme-card-bg, #141414)',
+            border: '1px solid var(--theme-border, #292929)',
             borderRadius: '8px',
-            color: '#64748b',
+            color: 'var(--theme-text-secondary, #A3A3A3)',
             cursor: loading ? 'not-allowed' : 'pointer'
           }}
         >

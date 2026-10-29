@@ -55,8 +55,8 @@ export const ComponentLibrarySidebar = ({
   };
 
   const getComponentIcon = (comp) => {
-    if (comp.type === 'kpi_group') return <Layers size={14} color="#2563eb" />;
-    if (comp.type === 'signature_block') return <FileSignature size={14} color="#2563eb" />;
+    if (comp.type === 'kpi_group') return <Layers size={14} color="var(--theme-accent, #FFD43B)" />;
+    if (comp.type === 'signature_block') return <FileSignature size={14} color="var(--theme-accent, #FFD43B)" />;
     if (comp.type === 'ai_insight' || comp.type === 'narrative_card') return <Sparkles size={14} color="#8b5cf6" />;
     if (comp.type === 'table') return <Table size={14} color="#059669" />;
     if (comp.type === 'highlight_card') return <ShieldCheck size={14} color="#d97706" />;
@@ -100,8 +100,8 @@ export const ComponentLibrarySidebar = ({
       num: '01',
       title: 'Student & Institutional Information',
       desc: 'Academic identity, key credentials & official signatures',
-      icon: <UserCheck size={15} color="#2563eb" />,
-      color: '#2563eb',
+      icon: <UserCheck size={15} color="var(--theme-accent, #FFD43B)" />,
+      color: 'var(--theme-accent, #FFD43B)',
       bg: '#eff6ff',
       components: block1Components
     },
@@ -132,8 +132,8 @@ export const ComponentLibrarySidebar = ({
       <div
         style={{
           width: '42px',
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
+          background: 'var(--theme-card-bg, #141414)',
+          border: '1px solid var(--theme-border, #292929)',
           borderRadius: '12px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
           display: 'flex',
@@ -147,7 +147,7 @@ export const ComponentLibrarySidebar = ({
           type="button"
           onClick={onToggleCollapse}
           title="Expand Report Components"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: '4px' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--theme-text-secondary, #A3A3A3)', padding: '4px' }}
         >
           <ChevronLeft size={18} />
         </button>
@@ -158,13 +158,13 @@ export const ComponentLibrarySidebar = ({
             marginTop: '1.5rem',
             fontSize: '0.75rem',
             fontWeight: 700,
-            color: '#64748b',
+            color: 'var(--theme-text-secondary, #A3A3A3)',
             display: 'flex',
             alignItems: 'center',
             gap: '6px'
           }}
         >
-          <Layers size={13} color="#2563eb" style={{ transform: 'rotate(90deg)' }} />
+          <Layers size={13} color="var(--theme-accent, #FFD43B)" style={{ transform: 'rotate(90deg)' }} />
           <span>Report Sections ({availableComponents.length})</span>
         </div>
       </div>
@@ -175,8 +175,8 @@ export const ComponentLibrarySidebar = ({
     <aside
       style={{
         width: '320px',
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
+        background: 'var(--theme-card-bg, #141414)',
+        border: '1px solid var(--theme-border, #292929)',
         borderRadius: '12px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
         display: 'flex',
@@ -187,11 +187,11 @@ export const ComponentLibrarySidebar = ({
       }}
     >
       {/* ── Sidebar Header ── */}
-      <div style={{ padding: '0.875rem 1rem', borderBottom: '1px solid #f1f5f9' }}>
+      <div style={{ padding: '0.875rem 1rem', borderBottom: '1px solid var(--theme-border, #292929)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Layers size={16} color="#2563eb" />
-            <span style={{ fontWeight: 800, fontSize: '0.88rem', color: '#0f172a', letterSpacing: '-0.01em' }}>
+            <Layers size={16} color="var(--theme-accent, #FFD43B)" />
+            <span style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--theme-text-primary, #FFFFFF)', letterSpacing: '-0.01em' }}>
               Report Component Library
             </span>
           </div>
@@ -201,7 +201,7 @@ export const ComponentLibrarySidebar = ({
               style={{
                 fontSize: '0.68rem',
                 fontWeight: 700,
-                color: '#2563eb',
+                color: 'var(--theme-accent, #FFD43B)',
                 background: '#eff6ff',
                 padding: '2px 7px',
                 borderRadius: '4px',
@@ -220,8 +220,8 @@ export const ComponentLibrarySidebar = ({
             </button>
           </div>
         </div>
-        <p style={{ fontSize: '0.72rem', color: '#64748b', margin: '4px 0 0', lineHeight: 1.4 }}>
-          Drag cards to A4 sheets or click <strong style={{ color: '#2563eb' }}>+ Page 1</strong> / <strong style={{ color: '#7c3aed' }}>+ Page 2</strong>.
+        <p style={{ fontSize: '0.72rem', color: 'var(--theme-text-secondary, #A3A3A3)', margin: '4px 0 0', lineHeight: 1.4 }}>
+          Drag cards to A4 sheets or click <strong style={{ color: 'var(--theme-accent, #FFD43B)' }}>+ Page 1</strong> / <strong style={{ color: '#7c3aed' }}>+ Page 2</strong>.
         </p>
       </div>
 
@@ -233,9 +233,9 @@ export const ComponentLibrarySidebar = ({
             <div
               key={block.key}
               style={{
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--theme-border, #292929)',
                 borderRadius: '8px',
-                background: '#ffffff',
+                background: 'var(--theme-card-bg, #141414)',
                 overflow: 'hidden'
               }}
             >
@@ -270,16 +270,16 @@ export const ComponentLibrarySidebar = ({
                     {block.num}
                   </span>
                   <div>
-                    <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f172a' }}>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>
                       {block.title}
                     </div>
-                    <div style={{ fontSize: '0.65rem', color: '#64748b' }}>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--theme-text-secondary, #A3A3A3)' }}>
                       {block.components.length} components
                     </div>
                   </div>
                 </div>
 
-                <div style={{ color: '#64748b' }}>
+                <div style={{ color: 'var(--theme-text-secondary, #A3A3A3)' }}>
                   {isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
                 </div>
               </button>
@@ -303,7 +303,7 @@ export const ComponentLibrarySidebar = ({
                           draggable={true}
                           onDragStart={(e) => handleDragStart(e, comp)}
                           style={{
-                            background: '#ffffff',
+                            background: 'var(--theme-card-bg, #141414)',
                             border: placedPages.length > 0 ? '1px solid #cbd5e1' : '1px solid #e2e8f0',
                             borderRadius: '6px',
                             padding: '8px 10px',
@@ -318,14 +318,14 @@ export const ComponentLibrarySidebar = ({
                         >
                           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '6px' }}>
                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                              <div style={{ padding: '3px', background: '#f8fafc', borderRadius: '4px', marginTop: '1px' }}>
+                              <div style={{ padding: '3px', background: 'var(--theme-surface-elevated, #1C1C1C)', borderRadius: '4px', marginTop: '1px' }}>
                                 {getComponentIcon(comp)}
                               </div>
                               <div>
-                                <div style={{ fontWeight: 700, fontSize: '0.76rem', color: '#0f172a', lineHeight: 1.2 }}>
+                                <div style={{ fontWeight: 700, fontSize: '0.76rem', color: 'var(--theme-text-primary, #FFFFFF)', lineHeight: 1.2 }}>
                                   {comp.title}
                                 </div>
-                                <div style={{ fontSize: '0.65rem', color: '#64748b', marginTop: '2px', lineHeight: 1.3 }}>
+                                <div style={{ fontSize: '0.65rem', color: 'var(--theme-text-secondary, #A3A3A3)', marginTop: '2px', lineHeight: 1.3 }}>
                                   {comp.subtitle}
                                 </div>
                               </div>
@@ -350,7 +350,7 @@ export const ComponentLibrarySidebar = ({
                                     fontSize: '0.62rem',
                                     fontWeight: 700,
                                     background: '#eff6ff',
-                                    color: '#2563eb',
+                                    color: 'var(--theme-accent, #FFD43B)',
                                     padding: '1px 5px',
                                     borderRadius: '3px',
                                     border: '1px solid #bfdbfe'
@@ -440,7 +440,7 @@ export const ComponentLibrarySidebar = ({
       </div>
 
       {/* ── Sidebar Footer ── */}
-      <div style={{ padding: '0.6rem 0.85rem', background: '#f8fafc', borderTop: '1px solid #f1f5f9', fontSize: '0.68rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <div style={{ padding: '0.6rem 0.85rem', background: 'var(--theme-surface-elevated, #1C1C1C)', borderTop: '1px solid #f1f5f9', fontSize: '0.68rem', color: 'var(--theme-text-secondary, #A3A3A3)', display: 'flex', alignItems: 'center', gap: '6px' }}>
         <Sparkles size={12} color="#7c3aed" />
         <span>Strictly grounded in verified database records.</span>
       </div>

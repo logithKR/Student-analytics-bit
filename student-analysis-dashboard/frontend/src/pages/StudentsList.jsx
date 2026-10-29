@@ -53,7 +53,7 @@ const StudentsList = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <div className="search-bar" style={{ width: '320px', backgroundColor: '#ffffff', border: '1px solid var(--panel-border)' }}>
+          <div className="search-bar" style={{ width: '320px', backgroundColor: 'var(--theme-input-bg, #111111)', border: '1px solid var(--panel-border)' }}>
             <Search size={18} color="#94a3b8" />
             <input 
               type="text" 
@@ -82,7 +82,7 @@ const StudentsList = () => {
               <option value="VII">Semester VII</option>
             </select>
           </div>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#ffffff', border: '1px solid var(--panel-border)', borderRadius: '8px', cursor: 'pointer', color: '#2563eb', fontWeight: 500, fontSize: '0.875rem' }}>
+          <button style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: 'var(--theme-surface-elevated, #1C1C1C)', border: '1px solid var(--panel-border)', borderRadius: '8px', cursor: 'pointer', color: 'var(--theme-text-primary, #FFFFFF)', fontWeight: 600, fontSize: '0.875rem' }}>
             <Download size={16} /> Export
           </button>
         </div>
@@ -113,7 +113,7 @@ const StudentsList = () => {
             <tbody>
               {paginated.length > 0 ? paginated.map((student, idx) => (
                 <tr key={`${student.registerNumber}-${student.semester}-${idx}`}>
-                  <td style={{ fontWeight: 600, color: '#2563eb' }}>{student.registerNumber}</td>
+                  <td style={{ fontWeight: 600, color: 'var(--theme-text-primary, #FFFFFF)' }}>{student.registerNumber}</td>
                   <td style={{ fontWeight: 500 }}>{student.name}</td>
                   <td>{student.semester}</td>
                   <td style={{ fontWeight: 600 }}>{student.gpa}</td>
@@ -156,7 +156,7 @@ const StudentsList = () => {
               <button
                 key={p}
                 onClick={() => setPage(p)}
-                style={{ padding: '0.5rem 0.875rem', borderRadius: '8px', border: page === p ? 'none' : '1px solid var(--panel-border)', background: page === p ? '#2563eb' : '#fff', color: page === p ? '#fff' : 'var(--text-main)', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem' }}
+                style={{ padding: '0.5rem 0.875rem', borderRadius: '8px', border: page === p ? 'none' : '1px solid var(--panel-border)', background: page === p ? 'var(--theme-accent, #FFD43B)' : 'var(--theme-surface-elevated, #1C1C1C)', color: page === p ? 'var(--theme-accent-text, #080808)' : 'var(--theme-text-primary, #FFFFFF)', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem' }}
               >
                 {p}
               </button>

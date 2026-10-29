@@ -311,8 +311,8 @@ export const AIConversationSidebar = ({
       <div
         style={{
           width: '52px',
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
+          background: 'var(--theme-card-bg, #141414)',
+          border: '1px solid var(--theme-border, #292929)',
           borderRadius: '12px',
           padding: '1rem 0.5rem',
           display: 'flex',
@@ -334,7 +334,7 @@ export const AIConversationSidebar = ({
             background: '#eff6ff',
             border: '1px solid #bfdbfe',
             borderRadius: '8px',
-            color: '#2563eb',
+            color: 'var(--theme-accent, #FFD43B)',
             padding: '8px',
             cursor: 'pointer',
             display: 'flex',
@@ -350,7 +350,7 @@ export const AIConversationSidebar = ({
             transform: 'rotate(180deg)',
             fontSize: '0.75rem',
             fontWeight: 700,
-            color: '#64748b',
+            color: 'var(--theme-text-secondary, #A3A3A3)',
             letterSpacing: '0.05em'
           }}
         >
@@ -366,8 +366,8 @@ export const AIConversationSidebar = ({
       style={{
         width: '320px',
         flexShrink: 0,
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
+        background: 'var(--theme-card-bg, #141414)',
+        border: '1px solid var(--theme-border, #292929)',
         borderRadius: '12px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
         display: 'flex',
@@ -383,7 +383,7 @@ export const AIConversationSidebar = ({
       <div
         style={{
           padding: '0.85rem 1rem',
-          borderBottom: '1px solid #f1f5f9',
+          borderBottom: '1px solid var(--theme-border, #292929)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -397,7 +397,7 @@ export const AIConversationSidebar = ({
               height: '28px',
               borderRadius: '8px',
               background: '#eff6ff',
-              color: '#2563eb',
+              color: 'var(--theme-accent, #FFD43B)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -406,7 +406,7 @@ export const AIConversationSidebar = ({
             <Bot size={16} />
           </div>
           <div>
-            <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+            <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--theme-text-primary, #FFFFFF)', margin: 0 }}>
               Academic AI Copilot
             </h3>
             <span style={{ fontSize: '0.65rem', color: '#16a34a', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
@@ -435,9 +435,9 @@ export const AIConversationSidebar = ({
       </div>
 
       {/* ── Quick Factual Analysis Prompts ── */}
-      <div style={{ padding: '0.65rem 0.85rem', borderBottom: '1px solid #f1f5f9', background: '#fafafa' }}>
-        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
-          <Lightbulb size={12} color="#f59e0b" /> Factual Analysis Prompts:
+      <div style={{ padding: '0.65rem 0.85rem', borderBottom: '1px solid var(--theme-border, #292929)', background: 'var(--theme-surface-elevated, #1C1C1C)' }}>
+        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
+          <Lightbulb size={12} color="var(--theme-accent, #FFD43B)" /> Factual Analysis Prompts:
         </span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {quickPrompts.map((prompt, idx) => (
@@ -447,23 +447,21 @@ export const AIConversationSidebar = ({
               onClick={() => handleSend(prompt)}
               style={{
                 textAlign: 'left',
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
+                background: 'var(--theme-card-bg, #141414)',
+                border: '1px solid var(--theme-border, #292929)',
                 borderRadius: '6px',
                 padding: '4px 8px',
                 fontSize: '0.68rem',
-                color: '#334155',
+                color: 'var(--theme-text-primary, #FFFFFF)',
                 cursor: 'pointer',
                 lineHeight: 1.3,
                 transition: 'all 0.15s ease'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#2563eb';
-                e.currentTarget.style.color = '#2563eb';
+                e.currentTarget.style.borderColor = 'var(--theme-accent, #FFD43B)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '#e2e8f0';
-                e.currentTarget.style.color = '#334155';
+                e.currentTarget.style.borderColor = 'var(--theme-border, #292929)';
               }}
             >
               • {prompt}
@@ -510,7 +508,7 @@ export const AIConversationSidebar = ({
 
               {/* Direct Dossier Switch Button if another student is queried */}
               {msg.targetStudent && onSelectStudent && (
-                <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #e2e8f0' }}>
+                <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid var(--theme-border, #292929)' }}>
                   <button
                     type="button"
                     onClick={() => onSelectStudent(msg.targetStudent.registerNumber)}
@@ -539,7 +537,7 @@ export const AIConversationSidebar = ({
             {/* Suggested Graph Pills */}
             {msg.suggestedComponents && msg.suggestedComponents.length > 0 && onToggleComponent && (
               <div style={{ marginTop: '5px', width: '100%', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#64748b' }}>
+                <span style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--theme-text-secondary, #A3A3A3)' }}>
                   Recommended Report Visualizations:
                 </span>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -558,12 +556,12 @@ export const AIConversationSidebar = ({
                           alignItems: 'center',
                           gap: '3px',
                           padding: '3px 7px',
-                          background: '#eff6ff',
-                          border: '1px solid #bfdbfe',
+                          background: 'var(--theme-surface-elevated, #1C1C1C)',
+                          border: '1px solid var(--theme-border, #292929)',
                           borderRadius: '4px',
                           fontSize: '0.65rem',
                           fontWeight: 700,
-                          color: '#2563eb',
+                          color: 'var(--theme-text-primary, #FFFFFF)',
                           cursor: 'pointer'
                         }}
                       >
@@ -579,7 +577,7 @@ export const AIConversationSidebar = ({
         ))}
 
         {loading && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', fontSize: '0.72rem', padding: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--theme-text-secondary, #A3A3A3)', fontSize: '0.72rem', padding: '4px' }}>
             <RefreshCw size={13} className="animate-spin" />
             <span>Analyzing student database records...</span>
           </div>
@@ -590,8 +588,8 @@ export const AIConversationSidebar = ({
       <div
         style={{
           padding: '0.65rem 0.75rem',
-          borderTop: '1px solid #e2e8f0',
-          background: '#ffffff',
+          borderTop: '1px solid var(--theme-border, #292929)',
+          background: 'var(--theme-card-bg, #141414)',
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
@@ -609,11 +607,11 @@ export const AIConversationSidebar = ({
             flex: 1,
             padding: '7px 10px',
             fontSize: '0.75rem',
-            border: '1px solid #cbd5e1',
+            border: '1px solid var(--theme-border, #292929)',
             borderRadius: '8px',
             outline: 'none',
-            background: '#f8fafc',
-            color: '#0f172a'
+            background: 'var(--theme-surface-elevated, #1C1C1C)',
+            color: 'var(--theme-text-primary, #FFFFFF)'
           }}
           onFocus={(e) => (e.target.style.borderColor = '#2563eb')}
           onBlur={(e) => (e.target.style.borderColor = '#cbd5e1')}

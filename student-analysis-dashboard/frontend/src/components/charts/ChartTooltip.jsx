@@ -17,9 +17,9 @@ export const ChartTooltip = ({
 
   return (
     <div style={{
-      background: '#0f172a', // Sleek dark slate
-      color: '#f8fafc',
-      border: '1px solid #334155',
+      background: 'var(--theme-surface-elevated, #1C1C1C)', // Sleek dark slate
+      color: 'var(--theme-text-primary, #FFFFFF)',
+      border: '1px solid var(--theme-border, #292929)',
       borderRadius: '8px',
       padding: '0.65rem 0.9rem',
       boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2)',
@@ -34,7 +34,7 @@ export const ChartTooltip = ({
           fontWeight: 600,
           color: '#ffffff',
           marginBottom: '0.35rem',
-          borderBottom: '1px solid #1e293b',
+          borderBottom: '1px solid var(--theme-border, #292929)',
           paddingBottom: '0.3rem',
           wordBreak: 'break-word'
         }}>
@@ -86,7 +86,7 @@ export const ChartTooltip = ({
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
-                <span style={{ fontWeight: 700, color: '#f8fafc' }}>
+                <span style={{ fontWeight: 700, color: 'var(--theme-text-primary, #FFFFFF)' }}>
                   {formattedVal}{valueUnit ? ` ${valueUnit}` : ''}
                 </span>
                 {pctString && (
